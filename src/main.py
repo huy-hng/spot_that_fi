@@ -69,9 +69,6 @@ if __name__ == "__main__":
 	redirect_uri = 'http://localhost:8080/'
 	scope = 'playlist-modify-private playlist-read-private'
 
-	sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.environ.get('SPOTIPY_CLIENT_ID'),
-																								 client_secret=os.environ.get('SPOTIPY_CLIENT_SECRET'),
-																								 redirect_uri=redirect_uri,
-																								 scope=scope))
+	sp = spotipy.Spotify(auth_manager=SpotifyOAuth(redirect_uri=redirect_uri, scope=scope))
 
 	update_all_playlists()

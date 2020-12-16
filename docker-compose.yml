@@ -5,9 +5,11 @@ services:
     container_name: spot_that_fi
     build: .
     environment:
-      - SPOTIPY_CLIENT_ID='9d91738ece6447399f598fe544696c51'
-      - SPOTIPY_CLIENT_SECRET='9bd741f0412e4250914ab36ab99ffe5c'
+      - SPOTIPY_CLIENT_ID=''
+      - SPOTIPY_CLIENT_SECRET=''
     volumes: 
-      - /root/repositories/spot_that_fi/logs:/usr/src/app/logs 
-      - /root/repositories/spot_that_fi/playlist.json:/usr/src/app/playlist.json 
+      # - /root/repositories/spot_that_fi/logs:/usr/src/app/logs 
+      # - /root/repositories/spot_that_fi/playlist.json:/usr/src/app/playlist.json 
+      - /home/huy/repositories/spot_that_fi/logs:/usr/src/app/logs 
+      - /home/huy/repositories/spot_that_fi/src/playlist.json:/usr/src/app/playlist.json 
     restart: unless-stopped
