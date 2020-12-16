@@ -9,4 +9,5 @@ services:
       - SPOTIPY_CLIENT_SECRET='9bd741f0412e4250914ab36ab99ffe5c'
     volumes: 
       - /root/repositories/spot_that_fi/logs:/usr/src/app/logs 
+      - /root/repositories/spot_that_fi/playlist.json:/usr/src/app/playlist.json 
     restart: unless-stopped

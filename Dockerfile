@@ -7,7 +7,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 COPY ./src/.cache ./.cache
-COPY ./src/playlists.json ./playlists.json
 CMD [ "python", "src/main.py" ]
 
 # docker build -t kasa_controller .
