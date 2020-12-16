@@ -75,6 +75,7 @@ if __name__ == "__main__":
 																								 scope=scope))
 
 	update_all_playlists()
+	input(' ')
 
 	# playlists = sp.current_user_playlists()
 	# with open('../requests/playlists.json', 'w') as f:
