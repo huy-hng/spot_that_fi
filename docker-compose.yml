@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  spot_that_fi:
+    container_name: spot_that_fi
+    build: .
+    environment:
+      - SPOTIPY_CLIENT_ID='9d91738ece6447399f598fe544696c51'
+      - SPOTIPY_CLIENT_SECRET='9bd741f0412e4250914ab36ab99ffe5c'
+    volumes: 
+      - /root/repositories/spot_that_fi/logs:/usr/src/app/logs 
+    restart: unless-stopped
