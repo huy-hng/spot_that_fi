@@ -1,5 +1,5 @@
 .vscode
 .cache
 requests/
-src/logs
+logs*
 __pycache__
