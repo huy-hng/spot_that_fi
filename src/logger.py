@@ -2,7 +2,7 @@ import logging
 import datetime
 import os
 
-folder_path = '../logss'
+folder_path = '../logs'
 
 if not os.path.isdir(folder_path):
 	os.mkdir(folder_path)

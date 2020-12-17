@@ -5,6 +5,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 from logger import log
+import settings
 
 def get_playlist_data():
 	with open('../playlists.json') as f:
@@ -13,7 +14,9 @@ def set_playlist_data(playlists_data):
 	with open('../playlists.json', 'w') as f:
 		f.write(json.dumps(playlists_data, indent=2))
 
-
+def write_dict_to_file(name, data):
+	with open(f'../{name}.json', 'w') as f:
+		f.write(json.dumps(data, indent=2))
 
 def find_playlist_in_live_playlists(uri, playlists):
 	for playlist in playlists['items']:
@@ -39,6 +42,8 @@ def get_tracks_in_playlist(playlist):
 														 limit=limit)['items']
 
 	tracks.reverse()
+	
+	write_dict_to_file('tracks', tracks)
 	return tracks
 def update_playlist(playlist_data, live_playlist):
 	get_track_ids = lambda tracks: [track['track']['id'] for track in tracks]
@@ -65,12 +70,12 @@ def update_all_playlists():
 			log.debug(f"{playlist_data['name']} hasn't changed.")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	redirect_uri = 'http://localhost:8080/'
 	scope = 'playlist-modify-private playlist-read-private'
 
-	sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="YOUR_APP_CLIENT_ID",
-                                                 client_secret="YOUR_APP_CLIENT_SECRET",
+	sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv('SPOTIPY_CLIENT_ID'),
+                                                 client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
 																							   redirect_uri=redirect_uri, scope=scope))
 
 	update_all_playlists()
