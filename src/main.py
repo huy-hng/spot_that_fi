@@ -66,7 +66,10 @@ def update_all_playlist(playlist_data, live_playlist):
 
 	# sp.playlist_replace_items(playlist_data['uri'], track_ids)
 
-
+def update_snapshot_of_playlist(playlist_to_update):
+	live_updated_playlist = find_playlist_in_live_playlists(playlist_to_update['uri'], all_playlists)
+	playlist_to_update['snapshot_id'] = live_updated_playlist['snapshot_id']
+	
 
 def check_for_changes(playlist_to_check_id: PlaylistType, all_playlists):
 	# TODO: refactor, this function is too big
@@ -82,20 +85,13 @@ def check_for_changes(playlist_to_check_id: PlaylistType, all_playlists):
 			helpers.set_playlist_data(playlists_data)
 		
 			if playlist_to_check_id == PlaylistType.ALL:
-				playlist_to_update_id = PlaylistType.SNIPPET
-				playlist_to_update_fn = update_snippet_playlist
+				playlist_to_update = playlist_data[PlaylistType.SNIPPET.value]
+				update_snippet_playlist(playlist_to_update, live_playlist)
 			else:
-				playlist_to_update_id = PlaylistType.ALL
-				playlist_to_update_fn = update_all_playlist
+				playlist_to_update = playlist_data[PlaylistType.ALL.value]
+				update_all_playlist(playlist_to_update, live_playlist)
 
-
-			playlist_to_update = playlist_data[playlist_to_update_id.value]
-
-			playlist_to_update_fn(playlist_to_update, live_playlist)
-
-			# FIX: refactor this to update snapshot of updated playlist
-			live_updated_playlist = find_playlist_in_live_playlists(playlist_to_update['uri'], all_playlists)
-			playlist_to_update['snapshot_id'] = live_updated_playlist['snapshot_id']
+			update_snapshot_of_playlist(playlist_to_update)
 			helpers.set_playlist_data(playlists_data)
 		else:
 			log.debug(f"{playlist_data['name']} hasn't changed.")	
