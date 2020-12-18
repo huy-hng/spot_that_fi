@@ -1,5 +1,4 @@
 import os
-import json
 from enum import Enum
 
 import spotipy
@@ -8,6 +7,7 @@ from spotipy.oauth2 import SpotifyOAuth
 # pylint: disable=unused-import
 # pylint: disable=logging-fstring-interpolation
 
+import helpers
 import settings 
 from logger import log
 
@@ -15,16 +15,6 @@ class PlaylistType(Enum):
 	ALL = 'all'
 	SNIPPET = 'snippet'
 
-def get_playlist_data():
-	with open('../playlists.json') as f:
-		return json.load(f)
-def set_playlist_data(playlists_data):
-	with open('../playlists.json', 'w') as f:
-		f.write(json.dumps(playlists_data, indent=2))
-
-def write_dict_to_file(name, data):
-	with open(f'../{name}.json', 'w') as f:
-		f.write(json.dumps(data, indent=2))
 
 
 def find_playlist_in_live_playlists(uri, playlists):
@@ -51,7 +41,6 @@ def get_tracks_in_all_playlist(playlist):
 
 	tracks.reverse()
 	
-	write_dict_to_file('tracks', tracks)
 	return tracks
 
 def update_snippet_playlist(playlist_data, live_playlist):
@@ -74,7 +63,6 @@ def update_all_playlist(playlist_data, live_playlist):
 	track_ids = get_track_ids(tracks)
 
 	all_tracks = sp.playlist_items(playlist_data['uri'], fields='items')['items']
-	write_dict_to_file('all_tracks', all_tracks)
 
 	# sp.playlist_replace_items(playlist_data['uri'], track_ids)
 
@@ -82,7 +70,7 @@ def update_all_playlist(playlist_data, live_playlist):
 
 def check_for_changes(playlist_to_check_id: PlaylistType, all_playlists):
 	# TODO: refactor, this function is too big
-	playlists_data = get_playlist_data()
+	playlists_data = helpers.get_playlist_data()
 	for playlist_data in playlists_data:
 		live_playlist = find_playlist_in_live_playlists(playlist_data[playlist_to_check_id.value]['uri'], all_playlists)
 
@@ -91,7 +79,7 @@ def check_for_changes(playlist_to_check_id: PlaylistType, all_playlists):
 			log.info(f"{playlist_data['name']} has changed. Adding new songs") # TODO: display newly added songs in log
 
 			playlist_to_check['snapshot_id'] = live_playlist['snapshot_id']
-			set_playlist_data(playlists_data)
+			helpers.set_playlist_data(playlists_data)
 		
 			if playlist_to_check_id == PlaylistType.ALL:
 				playlist_to_update_id = PlaylistType.SNIPPET
@@ -108,7 +96,7 @@ def check_for_changes(playlist_to_check_id: PlaylistType, all_playlists):
 			# FIX: refactor this to update snapshot of updated playlist
 			live_updated_playlist = find_playlist_in_live_playlists(playlist_to_update['uri'], all_playlists)
 			playlist_to_update['snapshot_id'] = live_updated_playlist['snapshot_id']
-			set_playlist_data(playlists_data)
+			helpers.set_playlist_data(playlists_data)
 		else:
 			log.debug(f"{playlist_data['name']} hasn't changed.")	
 
