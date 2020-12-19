@@ -134,7 +134,6 @@ def check_for_changes(playlist_to_check_id: PlaylistType):
 			log.debug(f"{playlist_data['name']} hasn't changed.")	
 
 
-
 def restore():
 
 	playlist_to_restore = 'spotify:playlist:48tPqcYezzxCJfEZdQiuEj'
@@ -159,8 +158,6 @@ def restore():
 			position += 1
 			time.sleep(1)
 
-	# helpers.write_dict_to_file('data', amount_tracks)
-
 
 if __name__ == '__main__':
 	redirect_uri = 'http://localhost:8080/'
@@ -171,11 +168,9 @@ if __name__ == '__main__':
 																							   redirect_uri=redirect_uri, scope=scope))
 
 	log.info('')
-	# all_playlists = sp.current_user_playlists()
 
-
-	# restore()
+	all_playlists = sp.current_user_playlists()
 
 	check_for_changes(PlaylistType.ALL)
-	check_for_changes(PlaylistType.SNIPPET)
-
+	# check_for_changes(PlaylistType.SNIPPET)
+ 

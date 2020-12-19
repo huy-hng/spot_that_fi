@@ -2,23 +2,34 @@
   {
     "name": "Calm",
     "all": {
-      "uri": "spotify:playlist:4XQ0U1TjT29NwobbT0qe0R",
-      "snapshot_id": "MTU3LDNlZmI4N2Q2OWEwMDM2YjE2N2M3ZjViMjBkZmE2NmE0ZjRmYWU1MGY="
+      "uri": "spotify:playlist:6LB26f7o7YcANtlVuxhXZq",
+      "snapshot_id": "MjIwLDMzZjIzMGM1ZWNkN2I4OGRhZTQzNzFkNWE4NGU3ODYyOGZlNjQxMmM="
     },
     "snippet": {
       "uri": "spotify:playlist:2OBconDUKoGs6BoDTVMVvk",
-      "snapshot_id": "MTE0LGEzZWE0YjE4ZWQ0MDI3MjJjNDBjOThlY2E4OTg1MGVkYWU2M2E0Zjk="
+      "snapshot_id": "MTUyLDk3MjBjYzdhOGFhNDYyODExZTIzZGNkZjI5MDg0YTFkNjIxZTg0YWE="
     }
   },
   {
     "name": "Up",
     "all": {
-      "uri": "spotify:playlist:7uuUFU3ZPeldfEjKJ94jwX",
-      "snapshot_id": "OTY3LGVjMTAxYjdiMTBkODgzYmI3NDAxNTNkODM0MDc2YzVhOWY4ZjA3MWQ="
+      "uri": "spotify:playlist:48tPqcYezzxCJfEZdQiuEj",
+      "snapshot_id": "OSwzNWFkNTU2MjZkOTIwZTBjMWZmMGRmMGUwOTU1ZWRhZThmZWQxNDU4"
     },
     "snippet": {
       "uri": "spotify:playlist:6i0TxJ5JCaSAvFJ5B94JxQ",
-      "snapshot_id": "NSw3ZGRlNjUxMDdmNWU1NWQyZDcwYzU1ODk5ZmU2ZWI5ODJmZTM1NmNh"
+      "snapshot_id": "NTIsYzFkZTZlZDFjMzgzYzgzOTJjZDgzYWI2ZGMyNjRhNDdhZGMwYmM5ZA=="
+    }
+  },
+  {
+    "name": "Acoustic Calm",
+    "all": {
+      "uri": "spotify:playlist:7MrNoWhB9H35ZxBIMJ0WMG",
+      "snapshot_id": "NDU5LDI5NjEyNGFjZDZlNzIzNTY2MGM5MGMzZjQxNDQ2MTJjZTY2NzJjODY="
+    },
+    "snippet": {
+      "uri": "spotify:playlist:3unjq1d4foPmcYzJx6A1Nz",
+      "snapshot_id": "OTc0LDcwYmNiY2EwYzYzMTgwNjk0MThlZDc1YzY4Yjg2Y2ZjZWY5ODg5YTA="
     }
   }
 ]
