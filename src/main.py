@@ -3,11 +3,9 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-# pylint: disable=unused-import
-# pylint: disable=logging-fstring-interpolation
-import helpers
-import settings 
+import settings # pylint: disable=unused-import
 from logger import log
+# pylint: disable=logging-fstring-interpolation
 
 
 
