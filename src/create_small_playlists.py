@@ -27,7 +27,7 @@ def get_tracks_in_playlist(playlist_uri, limit=None, offset=None):
 	if offset is not None:
 		playlist = find_playlist_in_live_playlists(playlist_uri)
 		num_tracks_in_playlist = playlist['tracks']['total']
-		offset = num_tracks_in_playlist - 50
+		offset = num_tracks_in_playlist - offset
 		if offset < 0:
 			offset = 0
 
@@ -42,7 +42,8 @@ def get_tracks_in_playlist(playlist_uri, limit=None, offset=None):
 def update_snippet_playlist(playlist_data):
 	get_track_ids = lambda tracks: [track['track']['id'] for track in tracks]
 
-	most_recent_tracks = get_tracks_in_playlist(playlist_data['all']['uri'], limit=50, offset=50)
+	# limit is the amount of songs I want in the snippet playlist
+	most_recent_tracks = get_tracks_in_playlist(playlist_data['all']['uri'], limit=100, offset=100)
 	track_ids = get_track_ids(most_recent_tracks)
 	sp.playlist_replace_items(playlist_data['snippet']['uri'], track_ids)
 
