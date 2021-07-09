@@ -43,7 +43,9 @@ def update_snippet_playlist(playlist_data):
 	get_track_ids = lambda tracks: [track['track']['id'] for track in tracks]
 
 	# limit is the amount of songs I want in the snippet playlist
-	most_recent_tracks = get_tracks_in_playlist(playlist_data['all']['uri'], limit=100, offset=100)
+	playlist_length = 50
+	most_recent_tracks = get_tracks_in_playlist(playlist_data['all']['uri'],
+		limit=playlist_length, offset=playlist_length)
 	track_ids = get_track_ids(most_recent_tracks)
 	sp.playlist_replace_items(playlist_data['snippet']['uri'], track_ids)
 
