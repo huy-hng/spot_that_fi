@@ -9,8 +9,11 @@ from logger import log
 
 
 
-redirect_uri = 'http://localhost:8080/'
-scope = 'playlist-modify-private playlist-read-private'
+# redirect_uri = 'http://localhost:8080/'
+redirect_uri = 'http://localhost/'
+# scope = 'playlist-modify-private playlist-read-private playlist-modify-public playlist-read-collaborative'
+scope = 'playlist-modify-private playlist-read-private playlist-modify-public'
+# scope = 'playlist-modify-private playlist-read-private'
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=os.getenv('SPOTIPY_CLIENT_ID'),
 																								client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
 																								redirect_uri=redirect_uri, scope=scope))
