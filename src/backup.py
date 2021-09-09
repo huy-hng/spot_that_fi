@@ -1,8 +1,7 @@
 import json
 from datetime import date
 
-from playlist_handler import Playlists
-from helpers import get_track_ids
+from src.playlist_handler import Playlists
 
 def backup_all_playlists(playlistsCls: Playlists):
 	# TODO: print progress
@@ -17,7 +16,7 @@ def backup_all_playlists(playlistsCls: Playlists):
 
 		tracks = playlist.get_latest_tracks(None)
 		backups.append({
-			'tracks': get_track_ids(tracks),
+			'tracks': tracks.ids,
 			'name': playlist.name,
 			'uri': playlist.uri,
 			'snapshot_id': playlist.snapshot_id

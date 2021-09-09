@@ -1,10 +1,10 @@
 import os
-import json
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-from helpers import write_dict_to_file
+from src.helpers import write_dict_to_file
+
 from dotenv import load_dotenv
 load_dotenv()
 

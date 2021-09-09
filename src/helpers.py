@@ -8,12 +8,6 @@ def read_dict_from_file(name: str):
 	with open(f'./data/{name}.json') as f:
 		json.load(f)
 
-def get_track_ids(tracks):
-	return [track['track']['id'] for track in tracks]
-
-def get_track_names(tracks: list):
-	return [track['track']['name'] for track in tracks]
-
 
 
 def create_data_class(data: dict):

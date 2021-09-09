@@ -1,11 +1,9 @@
-import json
 import math
-from data_types import PlaylistType
 
-from api_handler import sp
+from src.data_types import PlaylistType
+from src.api_handler import sp
+from src.tracks_handler import Tracks
 
-
-# @dataclass
 class Playlist:
 	def __init__(self, playlist: PlaylistType):
 		self.uri = playlist['uri']
@@ -34,7 +32,7 @@ class Playlist:
 			offset += 100
 
 		tracks.reverse()
-		return tracks	
+		return Tracks(tracks)
 
 
 class Playlists:
