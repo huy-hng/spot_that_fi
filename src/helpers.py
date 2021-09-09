@@ -10,3 +10,7 @@ def set_playlist_data(playlists_data):
 def write_dict_to_file(name, data):
 	with open(f'../{name}.json', 'w') as f:
 		f.write(json.dumps(data, indent=2))
+
+
+def get_track_ids(tracks):
+	return [track['track']['id'] for track in tracks]
