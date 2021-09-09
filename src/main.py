@@ -43,10 +43,4 @@ if __name__ == '__main__':
 	tracks = get_track_names(tracks)
 
 	print(tracks)
-
-# 	from create_small_playlists import check_for_changes, PlaylistType
-
-# 	log.info('')
-# 	check_for_changes(PlaylistType.ALL)
-	# check_for_changes(PlaylistType.SNIPPET)
  
