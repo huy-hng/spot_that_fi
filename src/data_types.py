@@ -26,3 +26,13 @@ class PlaylistType(TypedDict):
 	tracks: PlaylistsTracksType
 	type: str
 	uri: str
+
+
+class TrackedPlaylistsTypeHelper(TypedDict):
+	uri: str
+	snapshot_id: str
+class TrackedPlaylistsType(TypedDict):
+	name: str
+	all: TrackedPlaylistsTypeHelper
+	snippet: TrackedPlaylistsTypeHelper
+
