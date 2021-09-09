@@ -1,9 +1,8 @@
 import json
 import math
-from dataclasses import dataclass
 from data_types import PlaylistType
 
-from main import sp
+from api_handler import sp
 
 
 # @dataclass

@@ -51,9 +51,15 @@ class Spotipy:
 
 		self.api_calls += 1
 
-		return self.sp.playlist_items(
+		tracks = self.sp.playlist_items(
 			uri, fields='items', limit=limit, offset=offset)['items']
+
+		write_dict_to_file('tracks', tracks)
+
+		return tracks
 
 
 	def replace_playlist_tracks(self, uri: str, ids: list[str]):
 		self.sp.playlist_replace_items(uri, ids)
+
+sp = Spotipy()

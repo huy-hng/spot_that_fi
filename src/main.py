@@ -2,12 +2,10 @@ import os
 import json
 
 from helpers import get_track_names
-from api_handler import Spotipy
 from backup import backup_all_playlists
 
 # from logger import log
 # pylint: disable=logging-fstring-interpolation
-sp = Spotipy()
 
 if __name__ == '__main__':
 	with open('./data/playlists.json') as f:
@@ -17,7 +15,7 @@ if __name__ == '__main__':
 
 
 	playlists = Playlists()
-	backup_all_playlists(playlists)
+	# backup_all_playlists(playlists)
 
-	print(f'api calls: {sp.api_calls}')
+	# print(f'api calls: {sp.api_calls}')
  
