@@ -1,6 +1,6 @@
-from typing import Type, TypedDict
+from typing import TypedDict
 
-class TracksType(TypedDict):
+class PlaylistsTracksType(TypedDict):
 	href: str
 	total: int
 	type: str
@@ -23,6 +23,6 @@ class PlaylistType(TypedDict):
 	primary_color: None
 	public: bool
 	snapshot_id: str
-	tracks: TracksType
+	tracks: PlaylistsTracksType
 	type: str
 	uri: str
