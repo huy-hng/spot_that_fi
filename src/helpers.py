@@ -14,3 +14,6 @@ def write_dict_to_file(name, data):
 
 def get_track_ids(tracks):
 	return [track['track']['id'] for track in tracks]
+
+def get_track_names(tracks: list):
+	return [track['track']['name'] for track in tracks]
