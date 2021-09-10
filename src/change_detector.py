@@ -1,6 +1,6 @@
 import json
 
-from src.playlist_handler import Playlists
+from .playlist_handler import Playlists
 from .data_types import TrackedPlaylistsType, TrackedPlaylistsTypeHelper
 
 with open('./playlists.json') as f:

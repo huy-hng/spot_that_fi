@@ -22,7 +22,7 @@ def backup_all_playlists(playlistsCls: Playlists):
 			'snapshot_id': playlist.snapshot_id
 		})
 
-	create_backup_file(date.today(), backups)
+	create_backup_file(str(date.today()), backups)
 
 def create_backup_file(name: str, data):
 	with open(f'./backup/{name}.json', 'w') as f:

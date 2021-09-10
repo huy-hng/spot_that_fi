@@ -1,8 +1,9 @@
 import math
+from typing import Union
 
-from src.data_types import PlaylistType
-from src.api_handler import sp
-from src.tracks_handler import Tracks
+from .data_types import PlaylistType
+from .api_handler import sp
+from .tracks_handler import Tracks
 
 class Playlist:
 	def __init__(self, playlist: PlaylistType):
@@ -12,7 +13,7 @@ class Playlist:
 		self.num_tracks = playlist['tracks']['total']
 
 
-	def get_latest_tracks(self, num_songs=100):
+	def get_latest_tracks(self, num_songs: Union[int, None]=100):
 
 		if num_songs is None:
 			num_songs = self.num_tracks
