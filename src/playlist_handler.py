@@ -1,12 +1,12 @@
 import math
 from typing import Union
 
-from .data_types import PlaylistType
+from .data_types import LivePlaylistType
 from .api_handler import sp
 from .tracks_handler import Tracks
 
 class Playlist:
-	def __init__(self, playlist: PlaylistType):
+	def __init__(self, playlist: LivePlaylistType):
 		self.uri = playlist['uri']
 		self.snapshot_id = playlist['snapshot_id']
 		self.name = playlist['name']
@@ -43,7 +43,7 @@ class Playlists:
 		self.names: dict[str, int] = {}
 		self.uri: dict[str, int] = {}
 
-		playlists: list[PlaylistType] = sp.get_all_playlists()
+		playlists: list[LivePlaylistType] = sp.get_all_playlists()
 
 		for index, playlist in zip(range(len(playlists)), playlists):
 			self.playlists.append(Playlist(playlist))

@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-class PlaylistsTracksType(TypedDict):
+class LivePlaylistsTracksType(TypedDict):
 	href: str
 	total: int
 	type: str
@@ -11,7 +11,7 @@ class PlaylistsTracksType(TypedDict):
 	previous: None
 	total: int
 
-class PlaylistType(TypedDict):
+class LivePlaylistType(TypedDict):
 	collaborative: bool
 	description: str
 	external_urls: dict
@@ -23,16 +23,17 @@ class PlaylistType(TypedDict):
 	primary_color: None
 	public: bool
 	snapshot_id: str
-	tracks: PlaylistsTracksType
+	tracks: LivePlaylistsTracksType
 	type: str
 	uri: str
 
 
-class TrackedPlaylistsTypeHelper(TypedDict):
+class TrackedPlaylistType(TypedDict):
 	uri: str
 	snapshot_id: str
-class TrackedPlaylistsType(TypedDict):
+
+class TrackedPlaylistClusterType(TypedDict):
 	name: str
-	all: TrackedPlaylistsTypeHelper
-	snippet: TrackedPlaylistsTypeHelper
+	all: TrackedPlaylistType
+	snippet: TrackedPlaylistType
 
