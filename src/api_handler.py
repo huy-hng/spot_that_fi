@@ -29,7 +29,7 @@ class Spotipy:
 		all_playlists = []
 		offset = 0
 		while True:
-			playlists = self.sp.current_user_playlists(offset=offset)
+			playlists: dict = self.sp.current_user_playlists(offset=offset)
 			all_playlists += playlists['items']
 			if playlists['next'] is None:
 				break
@@ -41,7 +41,7 @@ class Spotipy:
 		return all_playlists
 
 
-	def get_tracks(self, uri, limit=100, offset=0):
+	def get_100_tracks(self, uri, limit=100, offset=0):
 		""" limit <= 100 && offset >= 0\n
 		if offset is more than there are songs in the playlist,
 		it will just fetch 0 songs """
@@ -51,7 +51,7 @@ class Spotipy:
 
 		self.api_calls += 1
 
-		tracks = self.sp.playlist_items(
+		tracks: list = self.sp.playlist_items(
 			uri, fields='items', limit=limit, offset=offset)['items']
 
 		write_dict_to_file('tracks', tracks)
