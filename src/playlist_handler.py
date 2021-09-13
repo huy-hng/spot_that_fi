@@ -12,13 +12,13 @@ class Playlist:
 		self.name = playlist['name']
 		self.num_tracks = playlist['tracks']['total']
 
-		# self.tracks = Tracks()
+		self.tracks = Tracks()
 
 	def get_tracks(self, num_songs: int=100):
-		tracks = []
 		for _ in range(0, num_songs, 100): # TODO: debug if the correct amount of steps are taken
-			tracks += sp.get_100_tracks(self.uri)
+			self.tracks.add_tracks(sp.get_100_tracks(self.uri))
 
+		
 	def get_latest_tracks(self, num_songs: Union[int, None]=100):
 
 		if num_songs is None:
@@ -39,7 +39,8 @@ class Playlist:
 			offset += 100
 
 		tracks.reverse()
-		return Tracks(tracks)
+		self.tracks.add_tracks(tracks)
+		return self.tracks
 
 
 class Playlists:

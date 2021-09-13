@@ -18,7 +18,9 @@ class Tracks:
 		""" returns duration of tracks in seconds """
 
 		durations_ms: list[int] = self.filter('duration_ms')
-		duration = sum(durations_ms) / 1000
+
+		if durations_ms == []:
+			return 0
 		
 		# types = {
 		# 	'seconds': duration,
@@ -26,9 +28,12 @@ class Tracks:
 		# 	'hours': duration / (60 * 60)
 		# }
 
+		duration = sum(durations_ms) / 1000
 		return duration
 
 
 	def filter(self, type_: str):
+		if self.tracks is None:
+			return []
 		return [track['track'][type_] for track in self.tracks]
 
