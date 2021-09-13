@@ -3,7 +3,8 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-from src.helpers import write_dict_to_file
+from .helpers import write_dict_to_file
+from data_types import TracksType
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -51,8 +52,10 @@ class Spotipy:
 
 		self.api_calls += 1
 
-		tracks: list = self.sp.playlist_items(
-			uri, fields='items', limit=limit, offset=offset)['items']
+		#TODO check if i can use the prev and next from LivePlaylistsTracksType
+
+		tracks: TracksType = self.sp.playlist_items(
+			uri, fields='items', limit=limit, offset=offset)
 
 		write_dict_to_file('tracks', tracks)
 

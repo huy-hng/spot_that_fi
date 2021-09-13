@@ -37,3 +37,8 @@ class TrackedPlaylistClusterType(TypedDict):
 	all: TrackedPlaylistType
 	snippet: TrackedPlaylistType
 
+
+class TracksType(TypedDict):
+	# TODO
+	next: str
+	pass
