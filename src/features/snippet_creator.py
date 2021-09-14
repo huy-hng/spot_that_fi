@@ -1,6 +1,6 @@
-from .playlist_handler import Playlists
-from .data_types import TrackedPlaylistClusterType
-from .api_handler import sp
+from src.playlists import Playlists
+from src.data_types import TrackedPlaylistClusterType
+from src.api_handler import sp
 
 class SnippetCreator:
 	"""

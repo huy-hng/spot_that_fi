@@ -3,7 +3,7 @@ from typing import Union
 
 from .data_types import LivePlaylistType
 from .api_handler import sp
-from .tracks_handler import Tracks
+from .tracks import Tracks
 
 class Playlist:
 	def __init__(self, playlist: LivePlaylistType):

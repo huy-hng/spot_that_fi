@@ -1,7 +1,7 @@
 import json
 from enum import Enum
 
-from .playlist_handler import Playlists
+from .playlists import Playlists
 from .data_types import TrackedPlaylistClusterType, TrackedPlaylistType
 
 class PlaylistType(Enum):
