@@ -1,28 +1,23 @@
 import json
-from enum import Enum
 
+from .features.archiver import Archiver
 from .playlists import Playlists
-from .data_types import TrackedPlaylistClusterType, TrackedPlaylistType
+from .data_types import ArchivePlaylistType
 
-class PlaylistType(Enum):
-	All = 'all'
-	Snippet = 'snippet'
-		
 class ChangeDetector:
 	def __init__(self, live_playlists: Playlists):
 		self.live_playlists = live_playlists
 		with open('./playlists.json') as f:
-			self.tracked_clusters: list[TrackedPlaylistClusterType] = json.load(f)
+			self.tracked_playlists: list[ArchivePlaylistType] = json.load(f)
 			
 	def check_for_changes(self):
-		for cluster in self.tracked_clusters:
-			if self._has_changed(cluster['snippet']):
-				pass
+		# TODO: think about using an event handler here
+		for playlist in self.tracked_playlists:
+			if self._has_changed(playlist['snapshot_id'], playlist['current']):
+				print(f'{playlist["name"]} has changed')
+				# archiver = Archiver(self.live_playlists, playlist)
+				# archiver.on_update()
 
-			if self._has_changed(cluster['all']):
-				pass
-
-
-	def _has_changed(self, tracked: TrackedPlaylistType) -> bool:
-		live = self.live_playlists.get_by_uri(tracked['uri'])
-		return tracked['snapshot_id'] != live.snapshot_id
+	def _has_changed(self, current_snapshot: str, uri: str):
+		live = self.live_playlists.get_by_uri(uri)
+		return current_snapshot != live.snapshot_id

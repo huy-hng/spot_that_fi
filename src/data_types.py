@@ -34,9 +34,15 @@ class TrackedPlaylistType(TypedDict):
 
 class TrackedPlaylistClusterType(TypedDict):
 	name: str
-	all: TrackedPlaylistType
-	snippet: TrackedPlaylistType
+	archive: TrackedPlaylistType
+	current: TrackedPlaylistType
 
+
+class ArchivePlaylistType(TypedDict):
+	name: str
+	archive: str
+	current: str
+	snapshot_id: str
 
 class TracksType(TypedDict):
 	# TODO
