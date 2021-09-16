@@ -2,8 +2,14 @@ class Tracks:
 	def __init__(self, tracks: list):
 		self.tracks = tracks
 
+
+	def __len__(self):
+		return len(self.tracks)
+
+
 	def add_tracks(self, tracks: list):
 		self.tracks += tracks
+
 
 	@property
 	def names(self):

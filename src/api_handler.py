@@ -4,7 +4,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 from .helpers import write_dict_to_file
-from data_types import TracksType
+from .data_types import TracksType
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -13,11 +13,15 @@ class Spotipy:
 	def __init__(self):
 		self.api_calls = 0 # TODO: debug why it doesnt increment
 
-		# redirect_uri = 'http://localhost:8080/'
-		redirect_uri = 'http://localhost/'
-		scope = 'playlist-modify-private playlist-read-private playlist-modify-public playlist-read-collaborative'
-		# scope = 'playlist-modify-private playlist-read-private playlist-modify-public'
+		redirect_uri = 'http://localhost:8080/'
+		# redirect_uri = 'http://localhost/'
+		scope = ''
+		scope += 'playlist-read-private '
+		scope += 'playlist-modify-private '
+		scope += 'playlist-modify-public '
+		scope += 'playlist-read-collaborative'
 
+		print(os.getenv('SPOTIPY_CLIENT_ID'))
 		self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 				client_id=os.getenv('SPOTIPY_CLIENT_ID'),
 				client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
@@ -65,4 +69,11 @@ class Spotipy:
 	def replace_playlist_tracks(self, uri: str, ids: list[str]):
 		self.sp.playlist_replace_items(uri, ids)
 
-sp = Spotipy()
+
+	def remove_tracks(self, uri: str, ids: list[str]):
+		self.sp.playlist_remove_all_occurrences_of_items(uri, ids)
+
+	def add_tracks_at_beginning(self, uri: str, ids: list[str]):
+		self.sp.playlist_add_items(uri, )
+
+sp = Spotipy() # TODO: refactor to __init__.py ?
