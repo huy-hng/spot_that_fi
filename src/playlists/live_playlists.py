@@ -6,6 +6,9 @@ from src.data_types import LivePlaylistType
 from src.api_handler import sp
 
 class LivePlaylist:
+	""" handles crud operations of a live playlist
+	the methods shouldnt be complicated
+	the bulk logic should be done by the api_handler """
 	def __init__(self, playlist: LivePlaylistType):
 		self.uri = playlist['uri']
 		self.snapshot_id = playlist['snapshot_id']
@@ -15,6 +18,9 @@ class LivePlaylist:
 		self.tracks = Tracks()
 
 	def get_tracks(self, num_songs: int=100):
+		raise NotImplementedError()
+		offset = 0 # TODO calc offset
+		self.tracks.add_tracks(sp.get_tracks(self.uri, num_songs, offset))
 		for _ in range(0, num_songs, 100):
 			# TODO: debug if the correct amount of steps are taken
 			self.tracks.add_tracks(sp.get_100_tracks(self.uri))
@@ -44,15 +50,16 @@ class LivePlaylist:
 		return self.tracks
 
 class LivePlaylists:
+	""" handles loading live playlist data and manages them """
 	def __init__(self):
 		self.playlists: list = []
 		self.names: dict[str, int] = {}
 		self.uri: dict[str, int] = {}
 
-		self.load_data()
+		self.update_data()
 
 
-	def load_live_data(self):
+	def update_data(self):
 		playlists: list[LivePlaylistType] = sp.get_all_playlists()
 
 		for index, playlist in zip(range(len(playlists)), playlists):

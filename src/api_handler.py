@@ -5,6 +5,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from .helpers import write_dict_to_file
 from .data_types import TracksType
+from .tracks import Tracks
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -43,6 +44,20 @@ class Spotipy:
 		write_dict_to_file('playlists', all_playlists)
 
 		return all_playlists
+
+	def get_tracks(self, uri: str, num_tracks: int, offset: int):
+		raise NotImplementedError()
+
+		items: TracksType = self.sp.playlist_items(uri, offset=offset)
+		tracks = Tracks(items['items'])
+
+		while items['next']:
+			items: TracksType = self.sp.playlist_items(offset=offset)
+			# TODO: get via url instead of this
+			tracks.add_tracks(items['items'])
+
+
+		return tracks
 
 
 	def get_100_tracks(self, uri, limit=100, offset=0):

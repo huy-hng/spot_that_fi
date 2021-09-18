@@ -37,4 +37,5 @@ class TrackedPlaylistType(TypedDict):
 class TracksType(TypedDict):
 	# TODO
 	next: str
+	items: list
 	pass

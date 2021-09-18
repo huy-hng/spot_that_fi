@@ -1,29 +1,33 @@
 import json
-
-from dataclasses import dataclass
-
+from typing import Callable
 from src.data_types import TrackedPlaylistType
-from .live_playlists import LivePlaylist, LivePlaylists
+from .live_playlists import LivePlaylist
 
-@dataclass
 class TrackedPlaylist:
-	name: str
-	snapshot_id: str
-	current_uri: str
-	archive_uri: str
-	live_playlist: LivePlaylist
+	""" A class that handles the tracked playlist, including checking for changes
+	as well as updating the snapshot_id in data """
+	def __init__(self, tracked_playlist: dict, update_snapshot: Callable):
+			self.name = tracked_playlist['name']
+			self.snapshot_id = tracked_playlist['snapshot_id']
+			self.current_uri= tracked_playlist['current']
+			self.archive_uri= tracked_playlist['archive']
+		
 
-	def has_changed(self):
-		return self.live_playlist.snapshot_id == self.snapshot_id
+	def has_changed(self, live_playlist: LivePlaylist):
+		""" compare the live snapshot_id with
+		the one saved locally and check for differences """
+		live_snapshot_id = live_playlist.snapshot_id
 
-	def update_snapshot(self):
-		# TODO
-		pass
+		changed: bool = live_snapshot_id == self.snapshot_id
+
+		if changed:
+			self.update_snapshot(self.name, live_snapshot_id)
+		return changed
 
 
 class TrackedPlaylists:
-	def __init__(self, live_playlists: LivePlaylists):
-		self.live_playlists = live_playlists
+	""" a class that loads the tracked_playlists and updates them """
+	def __init__(self):
 		self.tracked = []
 		
 
@@ -32,11 +36,8 @@ class TrackedPlaylists:
 			playlists: list[TrackedPlaylistType] = json.load(f)
 
 		for playlist in playlists:
-			name = playlist['name']
-			current = playlist['current']
-			archive = playlist['archive']
-			snapshot_id = playlist['snapshot_id']
-			live_playlist = self.live_playlists.get_by_uri(current)
-			tracked = TrackedPlaylist(name, snapshot_id, current,
-																archive, live_playlist)
+			tracked = TrackedPlaylist(playlist, self.update_snapshot)
 			self.tracked.append(tracked)
+
+	def update_snapshot(self, playlist_name: str, snapshot_id: str):
+		raise NotImplementedError()
