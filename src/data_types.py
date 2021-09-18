@@ -29,16 +29,6 @@ class LivePlaylistType(TypedDict):
 
 
 class TrackedPlaylistType(TypedDict):
-	uri: str
-	snapshot_id: str
-
-class TrackedPlaylistClusterType(TypedDict):
-	name: str
-	archive: TrackedPlaylistType
-	current: TrackedPlaylistType
-
-
-class ArchivePlaylistType(TypedDict):
 	name: str
 	archive: str
 	current: str

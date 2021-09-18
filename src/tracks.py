@@ -1,5 +1,5 @@
 class Tracks:
-	def __init__(self, tracks: list):
+	def __init__(self, tracks: list=None):
 		self.tracks = tracks
 
 

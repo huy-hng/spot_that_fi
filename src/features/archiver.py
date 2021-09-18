@@ -1,5 +1,5 @@
-from src.playlists import Playlists
-from src.data_types import ArchivePlaylistType
+from src.playlists import LivePlaylists
+from src.data_types import TrackedPlaylistType
 from src.api_handler import sp
 from src.tracks import Tracks
 
@@ -12,8 +12,8 @@ class Archiver:
 	it archives the songs from current playlist
 	"""
 
-	def __init__(self, live_playlists: Playlists,
-										 playlist: ArchivePlaylistType):
+	def __init__(self, live_playlists: LivePlaylists,
+										 playlist: TrackedPlaylistType):
 		self.live_playlists = live_playlists
 		self.playlist = playlist
 

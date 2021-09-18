@@ -1,9 +1,9 @@
 import json
 from datetime import date
 
-from src.playlists import Playlists
+from src.playlists import LivePlaylists
 
-def backup_all_playlists(playlistsCls: Playlists):
+def backup_all_playlists(playlistsCls: LivePlaylists):
 	# TODO: print progress
 
 	backups = []

@@ -13,15 +13,14 @@ class Spotipy:
 	def __init__(self):
 		self.api_calls = 0 # TODO: debug why it doesnt increment
 
-		redirect_uri = 'http://localhost:8080/'
-		# redirect_uri = 'http://localhost/'
+		# redirect_uri = 'http://localhost:8080/'
+		redirect_uri = 'http://localhost/'
 		scope = ''
 		scope += 'playlist-read-private '
 		scope += 'playlist-modify-private '
 		scope += 'playlist-modify-public '
-		scope += 'playlist-read-collaborative'
+		# scope += 'playlist-read-collaborative'
 
-		print(os.getenv('SPOTIPY_CLIENT_ID'))
 		self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 				client_id=os.getenv('SPOTIPY_CLIENT_ID'),
 				client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
