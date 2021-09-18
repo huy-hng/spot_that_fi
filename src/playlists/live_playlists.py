@@ -1,11 +1,11 @@
 import math
 from typing import Union
 
-from .data_types import LivePlaylistType
-from .api_handler import sp
-from .tracks import Tracks
+from src.tracks import Tracks
+from src.data_types import LivePlaylistType
+from src.api_handler import sp
 
-class Playlist:
+class LivePlaylist:
 	def __init__(self, playlist: LivePlaylistType):
 		self.uri = playlist['uri']
 		self.snapshot_id = playlist['snapshot_id']
@@ -15,7 +15,8 @@ class Playlist:
 		self.tracks = Tracks()
 
 	def get_tracks(self, num_songs: int=100):
-		for _ in range(0, num_songs, 100): # TODO: debug if the correct amount of steps are taken
+		for _ in range(0, num_songs, 100):
+			# TODO: debug if the correct amount of steps are taken
 			self.tracks.add_tracks(sp.get_100_tracks(self.uri))
 
 		
@@ -42,21 +43,22 @@ class Playlist:
 		self.tracks.add_tracks(tracks)
 		return self.tracks
 
-
-class Playlists:
-
+class LivePlaylists:
 	def __init__(self):
-		self.playlists: list[Playlist] = []
+		self.playlists: list = []
 		self.names: dict[str, int] = {}
 		self.uri: dict[str, int] = {}
 
+		self.load_data()
+
+
+	def load_live_data(self):
 		playlists: list[LivePlaylistType] = sp.get_all_playlists()
 
 		for index, playlist in zip(range(len(playlists)), playlists):
-			self.playlists.append(Playlist(playlist))
+			self.playlists.append(LivePlaylist(playlist))
 			self.names[playlist['name']] = index
 			self.uri[playlist['uri']] = index
-
 
 	def get_by_name(self, name: str):
 		index = self.names.get(name)
