@@ -28,8 +28,7 @@ class TrackedPlaylist:
 class TrackedPlaylists:
 	""" a class that loads the tracked_playlists and updates them """
 	def __init__(self):
-		self.tracked = []
-		
+		self.tracked: list[TrackedPlaylist] = []
 
 	def load_data(self):
 		with open('./data/tracked_playlist.json') as f:

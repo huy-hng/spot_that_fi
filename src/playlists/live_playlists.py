@@ -52,7 +52,7 @@ class LivePlaylist:
 class LivePlaylists:
 	""" handles loading live playlist data and manages them """
 	def __init__(self):
-		self.playlists: list = []
+		self.playlists: list[LivePlaylist] = []
 		self.names: dict[str, int] = {}
 		self.uri: dict[str, int] = {}
 
