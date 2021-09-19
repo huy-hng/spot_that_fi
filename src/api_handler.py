@@ -14,13 +14,13 @@ class Spotipy:
 	def __init__(self):
 		self.api_calls = 0 # TODO: debug why it doesnt increment
 
-		# redirect_uri = 'http://localhost:8080/'
-		redirect_uri = 'http://localhost/'
+		redirect_uri = 'http://localhost:8080/'
+		# redirect_uri = 'http://localhost/'
 		scope = ''
 		scope += 'playlist-read-private '
 		scope += 'playlist-modify-private '
 		scope += 'playlist-modify-public '
-		# scope += 'playlist-read-collaborative'
+		scope += 'playlist-read-collaborative'
 
 		self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
 				client_id=os.getenv('SPOTIPY_CLIENT_ID'),
@@ -45,19 +45,21 @@ class Spotipy:
 
 		return all_playlists
 
-	def get_tracks(self, uri: str, num_tracks: int, offset: int):
-		raise NotImplementedError()
+	def get_latest_tracks(self, uri: str,
+															tracks_in_playlist: int,
+															num_tracks: int):
 
-		items: TracksType = self.sp.playlist_items(uri, offset=offset)
-		tracks = Tracks(items['items'])
+		offset = tracks_in_playlist - num_tracks
+		tracks = []
 
+		items = {'next': True}
 		while items['next']:
-			items: TracksType = self.sp.playlist_items(offset=offset)
-			# TODO: get via url instead of this
-			tracks.add_tracks(items['items'])
+			items: TracksType = self.sp.playlist_items(uri, offset=offset)
+			tracks += items['items']
+			offset += 100
 
-
-		return tracks
+		tracks.reverse()
+		return Tracks(tracks)
 
 
 	def get_100_tracks(self, uri, limit=100, offset=0):
@@ -89,5 +91,3 @@ class Spotipy:
 
 	def add_tracks_at_beginning(self, uri: str, ids: list[str]):
 		self.sp.playlist_add_items(uri, )
-
-sp = Spotipy() # TODO: refactor to __init__.py ?
