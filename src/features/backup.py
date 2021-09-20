@@ -1,10 +1,9 @@
 import json
 from datetime import date
 
-from src.playlists import LivePlaylists
+from src.playlists.live_playlists import LivePlaylists
 
 def backup_all_playlists(playlistsCls: LivePlaylists):
-	# TODO: print progress
 
 	backups = []
 	playlists = playlistsCls.playlists
@@ -14,6 +13,7 @@ def backup_all_playlists(playlistsCls: LivePlaylists):
 			print(f'skipping {playlist.name} because too many songs')
 			continue
 
+		print(f'Backing {playlist.name} up with {playlist.num_tracks} tracks.')
 		tracks = playlist.get_latest_tracks(None)
 		backups.append({
 			'tracks': tracks.ids,
