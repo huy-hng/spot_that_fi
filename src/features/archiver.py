@@ -17,34 +17,38 @@ class Archiver:
 		self.live_playlists = live_playlists
 		self.tracked_playlists = tracked_playlists
 
-		self.tracks_amount = 50
+		self.TRACKS_AMOUNT = 50
+		self.DURATION = 3 * 60 * 60 # 3 hours
+
 
 	def check_for_changes(self):
-		for tracked in self.tracked_playlists.tracked:
+		for tracked in self.tracked_playlists.playlists:
 			live_playlist = self.live_playlists.get_by_uri(tracked.current_uri)
 			if tracked.has_changed(live_playlist):
-				self.on_update()
+				self.update()
 
 
-	def on_update(self, tracked_playlist: TrackedPlaylist):
-		current_uri = tracked_playlist.current_uri
-		archive_uri = tracked_playlist.archive_uri
-		current_playlist = self.live_playlists.get_by_uri(current_uri)
-		archive_playlist = self.live_playlists.get_by_uri(archive_uri)
+	def update(self, tracked_playlist: TrackedPlaylist):
+		current = self.live_playlists.get_by_uri(tracked_playlist.current_uri)
+		archive = self.live_playlists.get_by_uri(tracked_playlist.archive_uri)
 
-		tracks = current_playlist.get_latest_tracks(None)
+		tracks = current.get_latest_tracks(None)
 
-		if len(tracks) > self.tracks_amount:
+		if len(tracks) > self.TRACKS_AMOUNT:
 			# one or more tracks were added to playlist
-			archive_tracks = tracks.tracks[self.tracks_amount-1:]
-			archive_playlist.add_tracks(archive_tracks)
-			current_playlist.remove_tracks(archive_tracks)
-			# TODO: check if order is correct
+			archive_tracks = tracks.tracks[self.TRACKS_AMOUNT-1:]
+			archive_tracks = Tracks(archive_tracks)
 
-		elif len(tracks) < self.tracks_amount:
+			archive.add_tracks_at_beginning(archive_tracks)
+			current.remove_tracks(archive_tracks)
+
+			# TEST: check if order is correct
+			# TODO: no duplicates should be added
+
+		elif len(tracks) < self.TRACKS_AMOUNT:
 			# one or more songs were removed
 			pass
-		elif len(tracks) == self.tracks_amount:
+		elif len(tracks) == self.TRACKS_AMOUNT:
 			# an equivalent amount of songs were added and removed
 			pass
 

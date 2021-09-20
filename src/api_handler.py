@@ -12,7 +12,7 @@ load_dotenv()
 
 class Spotipy:
 	def __init__(self):
-		self.api_calls = 0 # TODO: debug why it doesnt increment
+		self.api_calls = 0 # FIX: debug why it doesnt increment
 
 		redirect_uri = 'http://localhost:8080/'
 		# redirect_uri = 'http://localhost/'
@@ -45,11 +45,16 @@ class Spotipy:
 
 		return all_playlists
 
+
 	def get_latest_tracks(self, uri: str,
 															tracks_in_playlist: int,
 															num_tracks: int):
 
-		offset = tracks_in_playlist - num_tracks
+		offset = 0
+		if num_tracks is not None:
+			offset = tracks_in_playlist - num_tracks
+			offset = 0 if offset < 0 else offset
+
 		tracks = []
 
 		items = {'next': True}
@@ -62,32 +67,14 @@ class Spotipy:
 		return Tracks(tracks)
 
 
-	def get_100_tracks(self, uri, limit=100, offset=0):
-		""" limit <= 100 && offset >= 0\n
-		if offset is more than there are songs in the playlist,
-		it will just fetch 0 songs """
-
-		if limit > 100: limit = 100
-		if offset < 0: offset = 0
-
-		self.api_calls += 1
-
-		#TODO check if i can use the prev and next from LivePlaylistsTracksType
-
-		tracks: TracksType = self.sp.playlist_items(
-			uri, fields='items', limit=limit, offset=offset)
-
-		write_dict_to_file('tracks', tracks)
-
-		return tracks
+	def replace_playlist_tracks(self, uri: str, track_ids: list[str]):
+		self.sp.playlist_replace_items(uri, track_ids)
 
 
-	def replace_playlist_tracks(self, uri: str, ids: list[str]):
-		self.sp.playlist_replace_items(uri, ids)
+	def remove_tracks(self, uri: str, track_ids: list[str]):
+		self.sp.playlist_remove_all_occurrences_of_items(uri, track_ids)
 
 
-	def remove_tracks(self, uri: str, ids: list[str]):
-		self.sp.playlist_remove_all_occurrences_of_items(uri, ids)
-
-	def add_tracks_at_beginning(self, uri: str, ids: list[str]):
-		self.sp.playlist_add_items(uri, )
+	def add_tracks_at_beginning(self, uri: str, track_ids: list[str]):
+		position = 0
+		self.sp.playlist_add_items(uri, track_ids, position)
