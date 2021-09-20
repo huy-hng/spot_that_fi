@@ -46,6 +46,7 @@ class TrackedPlaylists:
 			self.playlists.append(tracked)
 
 	def update_snapshot(self, playlist_name: str, snapshot_id: str):
+		# TEST: if this behaves correctly
 		for playlist in self.playlists:
 			if playlist.name == playlist_name:
 				playlist.snapshot_id = snapshot_id
