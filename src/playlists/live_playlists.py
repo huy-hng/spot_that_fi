@@ -2,7 +2,7 @@ import math
 from typing import Union
 
 from src.tracks import Tracks
-from src.data_types import LivePlaylistType
+from src.data_types import LivePlaylistType, TracksType
 from src import sp
 
 class LivePlaylist:
@@ -31,10 +31,10 @@ class LivePlaylist:
 		pass
 
 
-	def add_tracks_at_beginning(self, tracks: Tracks):
-		sp.add_tracks_at_beginning(self.uri, tracks.ids)
+	def add_tracks_at_beginning(self, tracks: list[TracksType]):
+		sp.add_tracks_at_beginning(self.uri, tracks)
 
-	def add_tracks_at_end(self, tracks: Tracks, add_duplicates: bool = False):
+	def add_tracks_at_end(self, tracks: list[TracksType], add_duplicates: bool = False):
 		""" this should behave like adding songs normally to a playlist.
 				each song should be appended at the end of the playlist.\n
 				That means, (tracks.tracks[-1]) should be the last song added.\n
@@ -42,13 +42,13 @@ class LivePlaylist:
 				by recently added."""
 
 		# TODO: use add_duplicates to control if duplicates should be added
-		sp.add_tracks_and_end(self.uri, tracks.ids, self.num_tracks)
+		sp.add_tracks_and_end(self.uri, tracks, self.num_tracks)
 
-	def remove_tracks(self, tracks: Tracks):
-		sp.remove_tracks(self.uri, tracks.ids)
+	def remove_tracks(self, tracks: list[TracksType]):
+		sp.remove_tracks(self.uri, tracks)
 
-	def replace_tracks(self, tracks: Tracks):
-		sp.replace_playlist_tracks(self.uri, tracks.ids)
+	def replace_tracks(self, tracks: list[TracksType]):
+		sp.replace_playlist_tracks(self.uri, tracks)
 
 
 

@@ -1,45 +1,26 @@
+from src.data_types import TracksType
 class Tracks:
-	def __init__(self, tracks: list=[]):
-		self.tracks = tracks
 
-
-	def __len__(self):
-		return len(self.tracks)
-
-
-	def add_tracks(self, tracks: list):
-		self.tracks += tracks
-
-
-	@property
-	def names(self):
-		return self.filter('name')
+	@staticmethod
+	def get_names(tracks: list):
+		return [track['track']['name'] for track in tracks]
 		
-	@property
-	def ids(self):
-		return self.filter('id')
+	@staticmethod
+	def get_ids(tracks: list):
+		return [track['track']['id'] for track in tracks]
 
-	@property
-	def duration(self):
-		""" returns duration of tracks in seconds """
+	@staticmethod
+	def get_duration(tracks: list, duration_scale: str):
+		""" returns duration of tracks \n
+				duration scale should be 'seconds', 'minutes' or 'hours' """
 
-		durations_ms: list[int] = self.filter('duration_ms')
-
-		if durations_ms == []:
-			return 0
-		
-		# types = {
-		# 	'seconds': duration,
-		# 	'minutes': duration / 60,
-		# 	'hours': duration / (60 * 60)
-		# }
-
+		durations_ms: list[int] = [track['track']['duration_ms'] for track in tracks]
 		duration = sum(durations_ms) / 1000
-		return duration
 
+		types = {
+			'seconds': duration,
+			'minutes': duration / 60,
+			'hours': duration / (60 * 60)
+		}
 
-	def filter(self, type_: str):
-		if self.tracks is None:
-			return []
-		return [track['track'][type_] for track in self.tracks]
-
+		return types.get(duration_scale)

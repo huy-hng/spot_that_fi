@@ -5,8 +5,8 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 from .helpers import write_dict_to_file
+from src.tracks import Tracks
 from .data_types import TracksType
-from .tracks import Tracks
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -65,18 +65,21 @@ class Spotipy:
 			offset += 100
 
 		tracks.reverse()
-		return Tracks(tracks)
+		return tracks
 
 
-	def replace_playlist_tracks(self, uri: str, track_ids: list[str]):
+	def replace_playlist_tracks(self, uri: str, tracks: list[TracksType]):
+		track_ids = Tracks.get_ids(tracks)
 		self.sp.playlist_replace_items(uri, track_ids)
 
 
-	def remove_tracks(self, uri: str, track_ids: list[str]):
+	def remove_tracks(self, uri: str, tracks: list[TracksType]):
+		track_ids = Tracks.get_ids(tracks)
 		self.sp.playlist_remove_all_occurrences_of_items(uri, track_ids)
 
 
-	def add_tracks_at_beginning(self, uri: str, track_ids: list[str]):
+	def add_tracks_at_beginning(self, uri: str, tracks: list[TracksType]):
+		track_ids = Tracks.get_ids(tracks)
 		position = 0
 		# TEST: how bulk adding behaves, especially if the location is correct
 		""" in case isnt, tracks may need to be added one at a time, which 
@@ -85,8 +88,9 @@ class Spotipy:
 
 
 	def add_tracks_at_end(self, uri: str,
-															track_ids: list[str],
+															tracks: list[TracksType],
 															last_position: int):
+		track_ids = Tracks.get_ids(tracks)
 		position = last_position # TEST: off by one error
 
 		for track_id in track_ids:

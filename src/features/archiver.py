@@ -1,7 +1,6 @@
 from src.playlists.live_playlists import LivePlaylists
 
 from src.playlists.tracked_playlists import TrackedPlaylists, TrackedPlaylist
-from src.tracks import Tracks
 
 class Archiver:
 	"""
@@ -37,7 +36,6 @@ class Archiver:
 		if len(tracks) > self.TRACKS_AMOUNT:
 			# one or more tracks were added to playlist
 			archive_tracks = tracks.tracks[self.TRACKS_AMOUNT-1:]
-			archive_tracks = Tracks(archive_tracks)
 
 			archive.add_tracks_at_end(archive_tracks)
 			current.remove_tracks(archive_tracks)
