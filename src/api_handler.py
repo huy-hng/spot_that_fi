@@ -68,6 +68,21 @@ class Spotipy:
 		return tracks
 
 
+	def get_tracks_generator(self, uri: str, tracks_in_playlist: int):
+		""" get latest tracks until num_tracks has been reached or
+				no tracks are left """
+		items = {'previous': True} # TODO check if key is correct
+		offset = tracks_in_playlist - 100
+		while items['previous']:
+			# TEST: what happens if theres no previous and I keep yielding
+			items: TracksType = self.sp.playlist_items(uri, offset=offset)
+			tracks: list = items['items']
+			tracks.reverse()
+			offset -= 100
+
+			yield tracks
+
+
 	def replace_playlist_tracks(self, uri: str, tracks: list[TracksType]):
 		track_ids = Tracks.get_ids(tracks)
 		self.sp.playlist_replace_items(uri, track_ids)

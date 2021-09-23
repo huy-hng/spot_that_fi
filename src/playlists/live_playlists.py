@@ -17,32 +17,35 @@ class LivePlaylist:
 		self.uri = playlist['uri']
 		self.snapshot_id = playlist['snapshot_id']
 		self.name = playlist['name']
-		self.num_tracks = playlist['tracks']['total']
+		self.tracks_in_playlist = playlist['tracks']['total']
 
 
-	def get_latest_tracks(self, num_songs: int=100):
+	def get_latest_tracks(self, num_tracks: int):
 		""" returns the latest n songs in playlist in reverse order.
 		That means the latest added song is at the beginning of the list\n
 		if num_songs == None: return all songs in playlist """
-		return sp.get_latest_tracks(self.uri, self.num_tracks, num_songs)
-
-	def get_tracks_in_minutes(self, minutes: int=60):
-		# TODO
-		pass
+		generator = sp.get_tracks_generator(self.uri, self.tracks_in_playlist)
+		tracks = []
+		for t in generator:
+			if len(tracks) + len(t) > num_tracks:
+				# TODO add the last few t to tracks
+				return tracks
+			tracks += t
 
 
 	def add_tracks_at_beginning(self, tracks: list[TracksType]):
 		sp.add_tracks_at_beginning(self.uri, tracks)
 
-	def add_tracks_at_end(self, tracks: list[TracksType], add_duplicates: bool = False):
+	def add_tracks_at_end(self, tracks: list[TracksType],
+															add_duplicates: bool = False):
 		""" this should behave like adding songs normally to a playlist.
 				each song should be appended at the end of the playlist.\n
-				That means, (tracks.tracks[-1]) should be the last song added.\n
+				That means, (tracks[-1]) should be the last song added.\n
 				Or in other words the first song, that is in sorted
 				by recently added."""
 
 		# TODO: use add_duplicates to control if duplicates should be added
-		sp.add_tracks_and_end(self.uri, tracks, self.num_tracks)
+		sp.add_tracks_and_end(self.uri, tracks, self.tracks_in_playlist)
 
 	def remove_tracks(self, tracks: list[TracksType]):
 		sp.remove_tracks(self.uri, tracks)
