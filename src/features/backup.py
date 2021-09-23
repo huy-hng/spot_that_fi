@@ -9,11 +9,11 @@ def backup_all_playlists(playlistsCls: LivePlaylists):
 	playlists = playlistsCls.playlists
 	for playlist in playlists:
 
-		if playlist.num_tracks > 1500:
+		if playlist.tracks_in_playlist > 1500:
 			print(f'skipping {playlist.name} because too many songs')
 			continue
 
-		print(f'Backing {playlist.name} up with {playlist.num_tracks} tracks.')
+		print(f'Backing {playlist.name} up with {playlist.tracks_in_playlist} tracks.')
 		tracks = playlist.get_latest_tracks(None)
 		backups.append({
 			'tracks': tracks.ids,

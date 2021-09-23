@@ -6,4 +6,4 @@ playlist_uri = 'spotify:playlist:063Tra4gBrn9kOf0kZQiIT'
 playlists = LivePlaylists()
 playlist = playlists.get_by_name('Archive Playlist')
 
-sp.add_tracks_at_end(playlist.uri, [track_id], playlist.num_tracks)
+sp.add_tracks_at_end(playlist.uri, [track_id], playlist.tracks_in_playlist)
