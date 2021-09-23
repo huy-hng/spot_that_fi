@@ -26,8 +26,23 @@ class LivePlaylist:
 		if num_songs == None: return all songs in playlist """
 		return sp.get_latest_tracks(self.uri, self.num_tracks, num_songs)
 
+	def get_tracks_in_minutes(self, minutes: int=60):
+		# TODO
+		pass
+
+
 	def add_tracks_at_beginning(self, tracks: Tracks):
 		sp.add_tracks_at_beginning(self.uri, tracks.ids)
+
+	def add_tracks_at_end(self, tracks: Tracks, add_duplicates: bool = False):
+		""" this should behave like adding songs normally to a playlist.
+				each song should be appended at the end of the playlist.\n
+				That means, (tracks.tracks[-1]) should be the last song added.\n
+				Or in other words the first song, that is in sorted
+				by recently added."""
+
+		# TODO: use add_duplicates to control if duplicates should be added
+		sp.add_tracks_and_end(self.uri, tracks.ids, self.num_tracks)
 
 	def remove_tracks(self, tracks: Tracks):
 		sp.remove_tracks(self.uri, tracks.ids)

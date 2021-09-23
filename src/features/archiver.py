@@ -39,7 +39,7 @@ class Archiver:
 			archive_tracks = tracks.tracks[self.TRACKS_AMOUNT-1:]
 			archive_tracks = Tracks(archive_tracks)
 
-			archive.add_tracks_at_beginning(archive_tracks)
+			archive.add_tracks_at_end(archive_tracks)
 			current.remove_tracks(archive_tracks)
 
 			# TEST: check if order is correct

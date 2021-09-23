@@ -1,4 +1,5 @@
 import os
+import time
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -77,4 +78,18 @@ class Spotipy:
 
 	def add_tracks_at_beginning(self, uri: str, track_ids: list[str]):
 		position = 0
+		# TEST: how bulk adding behaves, especially if the location is correct
+		""" in case isnt, tracks may need to be added one at a time, which 
+				could eat at rate limiting """
 		self.sp.playlist_add_items(uri, track_ids, position)
+
+
+	def add_tracks_at_end(self, uri: str,
+															track_ids: list[str],
+															last_position: int):
+		position = last_position # TEST: off by one error
+
+		for track_id in track_ids:
+			self.sp.playlist_add_items(uri, track_id, position)
+			position += 1
+			time.sleep(0.5) # TEST: if sleep is needed
