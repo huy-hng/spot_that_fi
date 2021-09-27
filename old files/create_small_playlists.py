@@ -106,14 +106,13 @@ def update_snapshot_of_playlist(playlist, playlists_data, fetch_new=True):
 
 
 def check_for_changes(playlist_to_check_id: PlaylistType):
-	# TODO: refactor, this function is too big
 	playlists_data = helpers.get_playlist_data()
 	for playlist_data in playlists_data:
 		live_playlist = find_playlist_in_live_playlists(playlist_data[playlist_to_check_id.value]['uri'])
 
 		playlist_to_check = playlist_data[playlist_to_check_id.value]
 		if has_playlist_changed(playlist_to_check, live_playlist):
-			log.info(f"{playlist_data['name']} has changed. Changing playlist.") # TODO: display newly added songs in log
+			log.info(f"{playlist_data['name']} has changed. Changing playlist.")
 
 			update_snapshot_of_playlist(playlist_to_check, playlists_data, fetch_new=False)
 		
@@ -124,7 +123,6 @@ def check_for_changes(playlist_to_check_id: PlaylistType):
 				playlist_to_update = playlist_data[PlaylistType.ALL.value]
 				update_all_playlist(playlist_data)
 
-			# TODO: as long as checking snippet playlist for change is not used, the line below is not needed
 			# update_snapshot_of_playlist(playlist_to_update, playlists_data)
 			
 		else:
