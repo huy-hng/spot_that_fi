@@ -20,21 +20,27 @@ class LivePlaylist:
 		self.tracks_in_playlist = playlist['tracks']['total']
 
 
-	def get_latest_tracks(self, num_tracks: int):
+	def get_latest_tracks(self, num_tracks: int=None):
 		""" returns the latest n songs in playlist in reverse order.
 		That means the latest added song is at the beginning of the list\n
 		if num_songs == None: return all songs in playlist """
-		generator = sp.get_tracks_generator(self.uri, self.tracks_in_playlist)
+
+		if num_tracks is None:
+			num_tracks = self.tracks_in_playlist
+
 		tracks = []
-		for t in generator:
+		for t in sp.get_tracks_generator(self.uri, self.tracks_in_playlist):
 			if len(tracks) + len(t) > num_tracks:
-				# TODO add the last few t to tracks
+				rest = num_tracks % 100
+				tracks += t[:rest]
 				return tracks
 			tracks += t
 
+		return tracks
 
 	def add_tracks_at_beginning(self, tracks: list[TracksType]):
-		sp.add_tracks_at_beginning(self.uri, tracks)
+		track_ids = Tracks.get_ids(tracks)
+		sp.add_tracks_at_beginning(self.uri, track_ids)
 
 	def add_tracks_at_end(self, tracks: list[TracksType],
 															add_duplicates: bool = False):
@@ -45,13 +51,16 @@ class LivePlaylist:
 				by recently added."""
 
 		# TODO: use add_duplicates to control if duplicates should be added
-		sp.add_tracks_and_end(self.uri, tracks, self.tracks_in_playlist)
+		track_ids = Tracks.get_ids(tracks)
+		sp.add_tracks_at_end(self.uri, track_ids, self.tracks_in_playlist)
 
 	def remove_tracks(self, tracks: list[TracksType]):
-		sp.remove_tracks(self.uri, tracks)
+		track_ids = Tracks.get_ids(tracks)
+		sp.remove_tracks(self.uri, track_ids)
 
 	def replace_tracks(self, tracks: list[TracksType]):
-		sp.replace_playlist_tracks(self.uri, tracks)
+		track_ids = Tracks.get_ids(tracks)
+		sp.replace_playlist_tracks(self.uri, track_ids)
 
 
 

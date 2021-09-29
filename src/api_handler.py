@@ -71,11 +71,15 @@ class Spotipy:
 	def get_tracks_generator(self, uri: str, tracks_in_playlist: int):
 		""" get latest tracks until num_tracks has been reached or
 				no tracks are left """
-		items = {'previous': True} # TODO check if key is correct
+		items = {'previous': True}
+		limit = 100
 		offset = tracks_in_playlist - 100
 		while items['previous']:
-			# TEST: what happens if theres no previous and I keep yielding
-			items: TracksType = self.sp.playlist_items(uri, offset=offset)
+			if offset < 0:
+				limit += offset
+				offset = 0
+
+			items: TracksType = self.sp.playlist_items(uri, limit=limit, offset=offset)
 			tracks: list = items['items']
 			tracks.reverse()
 			offset -= 100
@@ -83,18 +87,15 @@ class Spotipy:
 			yield tracks
 
 
-	def replace_playlist_tracks(self, uri: str, tracks: list[TracksType]):
-		track_ids = Tracks.get_ids(tracks)
+	def replace_playlist_tracks(self, uri: str, track_ids: list[str]):
 		self.sp.playlist_replace_items(uri, track_ids)
 
 
-	def remove_tracks(self, uri: str, tracks: list[TracksType]):
-		track_ids = Tracks.get_ids(tracks)
+	def remove_tracks(self, uri: str, track_ids: list[str]):
 		self.sp.playlist_remove_all_occurrences_of_items(uri, track_ids)
 
 
-	def add_tracks_at_beginning(self, uri: str, tracks: list[TracksType]):
-		track_ids = Tracks.get_ids(tracks)
+	def add_tracks_at_beginning(self, uri: str, track_ids: list[str]):
 		position = 0
 		# TEST: how bulk adding behaves, especially if the location is correct
 		""" in case isnt, tracks may need to be added one at a time, which 
@@ -103,12 +104,18 @@ class Spotipy:
 
 
 	def add_tracks_at_end(self, uri: str,
-															tracks: list[TracksType],
+															track_ids: list[str],
 															last_position: int):
-		track_ids = Tracks.get_ids(tracks)
-		position = last_position # TEST: off by one error
+		position = last_position
 
 		for track_id in track_ids:
-			self.sp.playlist_add_items(uri, track_id, position)
+			print(track_id)
+			self.sp.playlist_add_items(uri, [track_id], position)
 			position += 1
-			time.sleep(0.5) # TEST: if sleep is needed
+			time.sleep(0.5)
+
+	def add_tracks_at_end_as_bulk(self,	uri: str,
+																			track_ids: list[str],
+																			last_position: int):
+
+		self.sp.playlist_add_items(uri, track_ids, last_position)
