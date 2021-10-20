@@ -24,11 +24,20 @@ class TrackedPlaylist:
 		the one saved locally and check for differences """
 		live_snapshot_id = live_playlist.snapshot_id
 
-		changed = live_snapshot_id == self.snapshot_id
+		changed = live_snapshot_id != self.snapshot_id
 
 		if changed:
 			self.update_snapshot(self.name, live_snapshot_id)
 		return changed
+
+
+	def __dict__(self):
+		return {
+			'name': self.name,
+			'current': self.current_uri,
+			'archive': self.archive_uri,
+			'snapshot_id': self.snapshot_id
+		}
 
 
 class TrackedPlaylists:
@@ -36,53 +45,67 @@ class TrackedPlaylists:
 	def __init__(self, live_playlists: LivePlaylists):
 		self.live_playlists = live_playlists
 
-		self.FILE_LOCATION = './data/tracked_playlist.json'
-		self.playlists: list[TrackedPlaylist] = []
+		# self.FILE_LOCATION = '/home/huy/repositories/spot_that_fi/data/tracked_playlists.json'
+		self.FILE_LOCATION = './data/tracked_playlists.json'
+		self.playlists: dict[str, TrackedPlaylist] = {}
 		self.load_data()
+
+
+	def get_playlist(self, name: str):
+		return self.playlists[name]
+
 
 	def load_data(self):
 		playlists = self.read_file()
 
 		for playlist in playlists:
-			if not self.check_live_existence(playlist):
-				raise ValueError('something wrong with the uris')
+			try: 
+				name = playlist['name']
+				current_uri = playlist['current']
+				archive_uri = playlist['archive']
+				self.check_existence(current_uri, name)
+				self.check_existence(archive_uri, name + ' Archive')
+			except ValueError as e:
+				raise e
 
 			tracked = TrackedPlaylist(playlist, self.update_snapshot)
-			self.playlists.append(tracked)
+			self.playlists[playlist['name']] = tracked
+
 
 	def update_snapshot(self, playlist_name: str, snapshot_id: str):
 		# TEST: if this behaves correctly
-		for playlist in self.playlists:
-			if playlist.name == playlist_name:
-				playlist.snapshot_id = snapshot_id
+		playlist = self.playlists[playlist_name]
+		playlist.snapshot_id = snapshot_id
 
 		self.write_file()
 		self.load_data()
+		# TODO check if this behaves correctly
+		# FIX this might be a race condition
 
 
 	def write_file(self):
+		data = self.convert_playlists_to_json()
 		with open(self.FILE_LOCATION, 'w') as f:
-			f.write(self.playlists)
+			f.write(data)
 
 	def read_file(self) -> list[TrackedPlaylistType]:
 		with open(self.FILE_LOCATION) as f:
 			return json.load(f)
 
 
-	def check_live_existence(self, tracked_playlist: TrackedPlaylistType):
-		""" tracked_playlist name == current playlist name
-				archive playlist name == current playlist name + 'Archive' """
-		current_uri = tracked_playlist['current']
-		archive_uri = tracked_playlist['archive']
-		live_current = self.live_playlists.get_by_uri(current_uri)
-		live_archive = self.live_playlists.get_by_uri(archive_uri)
+	def check_existence(self, uri: str, name: str):
+		try:
+			live_playlist = self.live_playlists.get_by_uri(uri)
+		except ValueError:
+			raise ValueError(f'Playlist URI not found. {name}')
+		else:
+			if name != live_playlist.name:
+				raise ValueError(f'live playlist name doesnt match json. {name}')
 
-		if tracked_playlist['name'] != live_current.name:
-			return False
-			raise ValueError('Playlist uri may be wrong')
 
-		if live_current.name != f'{live_archive.name} Archive':
-			return False
-			raise ValueError('Archive Playlist uri may be wrong')
+	def convert_playlists_to_json(self):
+		json_list = []
+		for name, tracked in self.playlists.items():
+			json_list.append(tracked.__dict__())
 
-		return True
+		return json.dumps(json_list)

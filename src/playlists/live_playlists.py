@@ -26,6 +26,9 @@ class LivePlaylist:
 		if num_songs == None: return all songs in playlist """
 
 		if num_tracks is None:
+			new_data = sp.get_one_playlist(self.uri)
+			new_total_tracks = new_data['tracks']['total']
+			self.tracks_in_playlist = new_total_tracks
 			num_tracks = self.tracks_in_playlist
 
 		tracks = []
@@ -39,7 +42,7 @@ class LivePlaylist:
 		return tracks
 
 	def add_tracks_at_beginning(self, tracks: list[TracksType]):
-		track_ids = Tracks.get_ids(tracks)
+		track_ids = self.get_ids(tracks)
 		sp.add_tracks_at_beginning(self.uri, track_ids)
 
 	def add_tracks_at_end(self, tracks: list[TracksType],
@@ -51,32 +54,40 @@ class LivePlaylist:
 				by recently added."""
 
 		# TODO: use add_duplicates to control if duplicates should be added
-		track_ids = Tracks.get_ids(tracks)
+
+		track_ids = self.get_ids(tracks)
 		sp.add_tracks_at_end(self.uri, track_ids, self.tracks_in_playlist)
 
 	def remove_tracks(self, tracks: list[TracksType]):
-		track_ids = Tracks.get_ids(tracks)
+		track_ids = self.get_ids(tracks)
 		sp.remove_tracks(self.uri, track_ids)
 
 	def replace_tracks(self, tracks: list[TracksType]):
-		track_ids = Tracks.get_ids(tracks)
+		track_ids = self.get_ids(tracks)
 		sp.replace_playlist_tracks(self.uri, track_ids)
 
+	@staticmethod
+	def get_ids(tracks): # TODO: added union typing python 3.10 style with |
+		if len(tracks) == 0:
+			return []
 
+		if type(tracks[0]) == str:
+			return tracks
+		else:
+			return Tracks.get_ids(tracks)
 
 class LivePlaylists:
 	""" handles loading live playlist data and manages them """
 	def __init__(self):
-		self.playlists: list[LivePlaylist] = []
-		self.names: dict[str, int] = {}
-		self.uri: dict[str, int] = {}
-
 		self.update_data()
 
 
 	def update_data(self):
-		playlists: list[LivePlaylistType] = sp.get_all_playlists()
+		self.playlists: list[LivePlaylist] = []
+		self.names: dict[str, int] = {}
+		self.uri: dict[str, int] = {}
 
+		playlists: list[LivePlaylistType] = sp.get_all_playlists()
 		for index, playlist in zip(range(len(playlists)), playlists):
 			self.playlists.append(LivePlaylist(playlist))
 			self.names[playlist['name']] = index
@@ -93,6 +104,6 @@ class LivePlaylists:
 	def get_by_uri(self, uri: str):
 		index = self.uri.get(uri)
 		if index is None:
-			raise Exception('Playlist uri does not exist.')
+			raise ValueError('Playlist uri does not exist.')
 
 		return self.playlists[index]

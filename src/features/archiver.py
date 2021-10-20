@@ -20,10 +20,10 @@ class Archiver:
 
 	def check_for_changes(self, live_playlists: LivePlaylists):
 		self.live_playlists = live_playlists
-		for tracked in self.tracked_playlists.playlists:
+		for _, tracked in self.tracked_playlists.playlists.items():
 			live_playlist = self.live_playlists.get_by_uri(tracked.current_uri)
 			if tracked.has_changed(live_playlist):
-				self._update()
+				self._update(tracked)
 
 
 	def _update(self, tracked_playlist: TrackedPlaylist):
@@ -44,7 +44,7 @@ class Archiver:
 
 	def tracks_to_archive_by_amount(self, tracks: list):
 		if len(tracks) > self.TRACKS_AMOUNT:
-			return tracks[self.TRACKS_AMOUNT-1:]
+			return tracks[:self.TRACKS_AMOUNT]
 		return []
 
 	def tracks_to_archive_by_duration(self, tracks: list):
