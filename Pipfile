@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 spotipy = "*"
 python-dotenv = "*"
+pytest = "*"
 
 [dev-packages]
 rope = "*"

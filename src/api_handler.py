@@ -29,6 +29,10 @@ class Spotipy:
 				redirect_uri=redirect_uri, scope=scope))
 		
 
+	def get_one_playlist(self, uri: str):
+		return self.sp.playlist(uri)
+
+
 	def get_all_playlists(self):
 		self.api_calls += 1
 
@@ -109,13 +113,12 @@ class Spotipy:
 		position = last_position
 
 		for track_id in track_ids:
-			print(track_id)
 			self.sp.playlist_add_items(uri, [track_id], position)
 			position += 1
 			time.sleep(0.5)
 
+
 	def add_tracks_at_end_as_bulk(self,	uri: str,
 																			track_ids: list[str],
 																			last_position: int):
-
 		self.sp.playlist_add_items(uri, track_ids, last_position)
