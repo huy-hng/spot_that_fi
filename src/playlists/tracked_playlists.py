@@ -31,7 +31,7 @@ class TrackedPlaylist:
 		return changed
 
 
-	def __dict__(self):
+	def __dict__(self) -> TrackedPlaylistType:
 		return {
 			'name': self.name,
 			'current': self.current_uri,
@@ -104,6 +104,7 @@ class TrackedPlaylists:
 
 
 	def convert_playlists_to_json(self):
+		# FIX theres a better way to do this
 		json_list = []
 		for name, tracked in self.playlists.items():
 			json_list.append(tracked.__dict__())
