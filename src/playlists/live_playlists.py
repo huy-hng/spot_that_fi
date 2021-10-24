@@ -83,6 +83,7 @@ class LivePlaylists:
 
 
 	def update_data(self):
+		""" this method updates all live playlists, basically reinitializes """
 		self.playlists: list[LivePlaylist] = []
 		self.names: dict[str, int] = {}
 		self.uri: dict[str, int] = {}

@@ -19,6 +19,7 @@ class Archiver:
 
 
 	def check_for_changes(self, live_playlists: LivePlaylists):
+		# todo: refactor out logic, this function does too much
 		self.live_playlists = live_playlists
 		for _, tracked in self.tracked_playlists.playlists.items():
 			live_playlist = self.live_playlists.get_by_uri(tracked.current_uri)
