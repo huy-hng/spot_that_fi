@@ -21,11 +21,12 @@ class LivePlaylist:
 
 
 	def get_latest_tracks(self, num_tracks: int=None):
-		""" returns the latest n songs in playlist in reverse order.
-		That means the latest added song is at the beginning of the list\n
+		""" returns the latest n songs in playlist in added order.
+		That means the latest added song is at the end of the list\n
 		if num_songs == None: return all songs in playlist """
 
 		if num_tracks is None:
+			# * update num_tracks incase it has changed
 			new_data = sp.get_one_playlist(self.uri)
 			new_total_tracks = new_data['tracks']['total']
 			self.tracks_in_playlist = new_total_tracks
@@ -35,9 +36,9 @@ class LivePlaylist:
 		for t in sp.get_tracks_generator(self.uri, self.tracks_in_playlist):
 			if len(tracks) + len(t) > num_tracks:
 				rest = num_tracks % 100
-				tracks += t[:rest]
-				return tracks
-			tracks += t
+				tracks = t[rest:] + tracks
+				break
+			tracks = t + tracks
 
 		return tracks
 
