@@ -9,7 +9,7 @@ live_playlists = LivePlaylists()
 big_playlist = live_playlists.get_by_name('Strong All')
 
 def get_tracks_via_generator():
-	generator = sp.get_tracks_generator(
+	generator = sp.get_playlist_tracks_generator(
 			big_playlist.uri, big_playlist.tracks_in_playlist)
 
 	tracks = []

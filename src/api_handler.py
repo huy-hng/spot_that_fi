@@ -29,8 +29,8 @@ class Spotipy:
 				redirect_uri=redirect_uri, scope=scope))
 		
 
-	def get_one_playlist(self, uri: str):
-		return self.sp.playlist(uri)
+	def get_one_playlist(self, playlist_id: str):
+		return self.sp.playlist(playlist_id)
 
 
 	def get_all_playlists(self):
@@ -51,42 +51,49 @@ class Spotipy:
 		return all_playlists
 
 
-	def get_latest_tracks(self, uri: str,
-															tracks_in_playlist: int,
-															num_tracks: int):
-
-		offset = 0
-		if num_tracks is not None:
-			offset = tracks_in_playlist - num_tracks
-			offset = 0 if offset < 0 else offset
-
-		tracks = []
-
-		items = {'next': True}
-		while items['next']:
-			items: TracksType = self.sp.playlist_items(uri, offset=offset)
-			tracks += items['items']
-			offset += 100
-
-		tracks.reverse()
-		return tracks
+	# def get_playlist_tracks(self, playlist_id: str, num_tracks: int):
+	# 	tracks = []
+	# 	for t in self.get_playlist_tracks_generator(playlist_id):
+	# 		if len(tracks) + len(t) > num_tracks:
+	# 			rest = num_tracks % 100
+	# 			tracks = t[rest:] + tracks
+	# 			break
+	# 		tracks = t + tracks
+	# 	return tracks
 
 
-	def get_tracks_generator(self, uri: str, tracks_in_playlist: int):
+	def get_playlist_tracks_generator(self, playlist_id: str):
 		""" get latest tracks until num_tracks has been reached or
 				no tracks are left """
 		items = {'previous': True}
 		limit = 100
-		offset = tracks_in_playlist - 100
+		tracks_in_playlist: int = self.sp.playlist_items(playlist_id, limit=1)['total']
+		offset = tracks_in_playlist - limit
 		while items['previous']:
 			if offset < 0:
 				limit += offset
 				offset = 0
 
-			items: TracksType = self.sp.playlist_items(uri, limit=limit, offset=offset)
+			items: TracksType = self.sp.playlist_items(playlist_id, limit=limit, offset=offset)
 			tracks: list = items['items']
 			# tracks.reverse()
-			offset -= 100
+			offset -= limit
+
+			yield tracks
+
+	def get_liked_tracks_generator(self):
+		items = {'previous': True}
+		limit = 50
+		liked_tracks_amount = self.sp.current_user_saved_tracks(1)['total']
+		offset = liked_tracks_amount - limit
+		while items['previous']:
+			if offset < 0:
+				limit += offset
+				offset = 0
+
+			items: TracksType = self.sp.current_user_saved_tracks(limit, offset)
+			tracks: list = items['items']
+			offset -= limit
 
 			yield tracks
 

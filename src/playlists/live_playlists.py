@@ -33,7 +33,7 @@ class LivePlaylist:
 			num_tracks = self.tracks_in_playlist
 
 		tracks = []
-		for t in sp.get_tracks_generator(self.uri, self.tracks_in_playlist):
+		for t in sp.get_playlist_tracks_generator(self.uri, self.tracks_in_playlist):
 			if len(tracks) + len(t) > num_tracks:
 				rest = num_tracks % 100
 				tracks = t[rest:] + tracks
