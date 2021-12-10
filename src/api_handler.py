@@ -98,8 +98,8 @@ class Spotipy:
 			yield tracks
 
 
-	def replace_playlist_tracks(self, uri: str, track_ids: list[str]):
-		self.sp.playlist_replace_items(uri, track_ids)
+	def replace_playlist_tracks(self, playlist_id: str, track_ids: list[str]):
+		self.sp.playlist_replace_items(playlist_id, track_ids)
 
 
 	def remove_tracks(self, uri: str, track_ids: list[str]):
