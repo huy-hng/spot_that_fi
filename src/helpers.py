@@ -6,7 +6,7 @@ def write_dict_to_file(name: str, data):
 
 def read_dict_from_file(name: str):
 	with open(f'./data/{name}.json') as f:
-		json.load(f)
+		return json.load(f)
 
 
 
