@@ -51,6 +51,7 @@ class Track(Base):
 	name = Column(String, nullable=False)
 	duration_ms = Column(Integer, nullable=False)
 	popularity = Column(Integer, nullable=False)
+	liked = Column(Boolean, default=False)
 
 	playlists: relationship = relationship('PlaylistTracksAssociation',
 				back_populates='track')
