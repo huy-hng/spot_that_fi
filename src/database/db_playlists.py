@@ -48,6 +48,13 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 
 
 #region read
+def get_playlists():
+	with Session.begin() as session:
+		session: sess = session
+		q = session.query(Playlist).all()
+		return [playlist.id for playlist in q]
+
+
 def is_track_in_playlist(playlist_id: str, track_id: str):
 	with Session.begin() as session:
 		session: sess = session
