@@ -73,6 +73,7 @@ class Spotipy:
 			if offset < 0:
 				limit += offset
 				offset = 0
+				limit = max(1, min(100, limit))
 
 			items: TracksType = self.sp.playlist_items(playlist_id, limit=limit, offset=offset)
 			tracks: list = items['items']
