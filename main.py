@@ -1,36 +1,76 @@
 import json
-from src.database import db
+from src.helpers import read_dict_from_file, write_dict_to_file
 
+
+from src.logger import log
+# from src.database import db
 from src.api_handler import Spotipy
+
+from src.tests import test_database
 
 with open('./data/playlists.json') as f:
 	playlists = json.loads(f.read())
 
 sp = Spotipy()
 
-def add_tracks_to_playlist():
+def add_playlists():
 	db.add_playlists(playlists)
 
-	# generator = sp.get_liked_tracks_generator()
-	playlist_id = '0oWDXsY9BhT9NKimKwNY9d'
-	# sp.
-	generator = sp.get_playlist_tracks_generator(playlist_id)
-	for batch in generator:
-		db.add_tracks_to_playlist(playlist_id, batch)
-		break
+def add_tracks_to_playlist():
 
-# add_tracks_to_playlist()
+	playlist_id = '0oWDXsY9BhT9NKimKwNY9d'
+
+	generator = sp.get_playlist_tracks_generator(playlist_id)
+	for i, batch in enumerate(generator):
+		log.info(f'Batch {i} for adding playlist tracks')
+		db.add_tracks_to_playlist(playlist_id, batch)
+		if i == 2:
+			break
+
 
 def add_liked_tracks():
 	gen = sp.get_liked_tracks_generator()
 	for i, batch in enumerate(gen):
-		print(i)
-		db.add_tracks(batch)
+		log.info(f'Batch {i} for adding liked tracks')
+		db.add_tracks(batch, liked=True)
+		if i == 10:
+			break
 
 
+def write_liked_tracks():
+	gen = sp.get_liked_tracks_generator()
+	tracks = []
+	for i, batch in enumerate(gen):
+		log.info(f'Batch {i} for adding liked tracks')
 
-def liked_songs_in_playlists():
-	db.get_liked_tracks_not_in_playlists()
+		tracks += batch
 
-# add_liked_tracks()
-liked_songs_in_playlists()
+	write_dict_to_file('liked_tracks', tracks)
+
+def write_tracks_in_playlists():
+	with open('./data/playlists.json') as f:
+		playlists = json.loads(f.read())
+
+	for j, playlist in enumerate(playlists):
+		playlist_id = playlist['id']
+
+		gen = sp.get_playlist_tracks_generator(playlist_id)
+		tracks = []
+		for i, batch in enumerate(gen):
+			log.info(f'Batch {i} for playlist {playlist["name"]}')
+			tracks += batch
+			# break
+
+		write_dict_to_file(f'playlists/{playlist_id}', tracks)
+
+
+if __name__ == '__main__':
+	# add_liked_tracks()
+	# add_tracks_to_playlist()
+	# tracks = db.get_not_liked_tracks()
+	# for track in tracks:
+	# 	print(track)
+	# write_liked_tracks()
+	# write_tracks_in_playlists()
+	test_database.add_tracks_to_all_playlists(		with open(f) as f:
+	)
