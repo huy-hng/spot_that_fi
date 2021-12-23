@@ -12,7 +12,9 @@ def check_track_in_playlist():
 	print(res)
 
 
-def add_playlists(playlists: list[dict]):
+def add_playlists():
+	with open('./data/playlists.json') as f:
+		playlists = json.loads(f.read())
 	db_playlists.add_playlists(playlists)
 
 
@@ -30,8 +32,8 @@ def add_tracks_to_all_playlists():
 	for playlist_id in playlist_ids:
 		with open(f'./data/playlists/{playlist_id}.json') as f:
 			tracks = json.load(f)
+			add_tracks_to_playlist(playlist_id, tracks)
 
-		print(tracks)
 
 	# filenames = glob.glob('./data/playlists/*.json')
 	# for f in filenames:

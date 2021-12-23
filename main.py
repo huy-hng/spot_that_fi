@@ -72,5 +72,5 @@ if __name__ == '__main__':
 	# 	print(track)
 	# write_liked_tracks()
 	# write_tracks_in_playlists()
-	test_database.add_tracks_to_all_playlists(		with open(f) as f:
-	)
+	test_database.add_playlists()
+	test_database.add_tracks_to_all_playlists()
