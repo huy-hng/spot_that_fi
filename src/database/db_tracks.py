@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session as sess
 from .db_helpers import does_exist
 from .tables import Track
 from . import Session 
+from src.logger import log
 
 
 #region create
@@ -10,9 +11,15 @@ def add_track(session: Session, track: dict):
 	""" adds a single track to db (if not already)
 			and returns it """
 	row = Track(track)
+	if row.id is None:
+		return None
 
 	if does_track_exist(row.id):
-		row: Track = session.query(Track).get(row.id)
+		try:
+			row: Track = session.query(Track).get(row.id)
+		except Exception as e:
+			log.error(row.name)
+			return None
 	else:
 		session.add(row)
 
@@ -25,6 +32,8 @@ def add_tracks(tracks: list[dict], liked=False) -> Track:
 		session: sess = session
 		for track in tracks:
 			row = add_track(session, track)
+			if row.id is None:
+				continue
 			row.liked = liked
 #endregion create
 

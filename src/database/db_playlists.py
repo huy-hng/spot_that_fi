@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session as sess
 
 from .db_helpers import does_exist
-from .db_tracks import does_track_exist
+from .db_tracks import does_track_exist, add_track
 from .tables import Playlist, Track, PlaylistTracksAssociation
 from . import Session 
 
@@ -25,16 +25,18 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 		session: sess = session
 		playlist: Playlist = session.query(Playlist).get(playlist_id)
 		for track in tracks:
-			row = Track(track)
 
-			if does_track_exist(row.id):
-				row = session.query(Track).get(row.id)
-			else:
-				session.add(row)
+			row = add_track(session, track)
+			if row.id is None:
+				continue
 
-			if is_track_in_playlist(playlist.id, row.id):
-				log.debug(f'{row.name} is already in {playlist.name}')
-				return
+			try:
+				if is_track_in_playlist(session, playlist.id, row.id):
+					log.debug(f'{row.name} is already in {playlist.name}')
+					continue
+			except Exception as e:
+				# log.error(row.name)
+				continue
 
 			association = PlaylistTracksAssociation(track)
 			association.track = row
@@ -55,15 +57,16 @@ def get_playlists():
 		return [playlist.id for playlist in q]
 
 
-def is_track_in_playlist(playlist_id: str, track_id: str):
-	with Session.begin() as session:
-		session: sess = session
-
+def is_track_in_playlist(session:sess, playlist_id: str, track_id: str):
+	try:
 		q = session.query(PlaylistTracksAssociation).filter(
 				PlaylistTracksAssociation.track_id == track_id,
 				PlaylistTracksAssociation.playlist_id == playlist_id)
 
 		return does_exist(q)
+	except Exception as e:
+		log.error('song already in playlist')
+		return True
 
 
 def does_playlist_exist(playlist_id: str):
