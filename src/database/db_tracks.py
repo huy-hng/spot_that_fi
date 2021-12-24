@@ -1,13 +1,12 @@
 from sqlalchemy.orm import Session as sess
 
-from .db_helpers import does_exist
 from .tables import Track
 from . import Session 
 from src.logger import log
 
 
 #region create
-def add_track(session: Session, track: dict):
+def add_track(session: Session, track: dict, liked=False):
 	""" adds a single track to db (if not already)
 			and returns it """
 	row = Track(track)
@@ -23,6 +22,7 @@ def add_track(session: Session, track: dict):
 	else:
 		session.add(row)
 
+	row.liked = liked
 	return row
 
 
@@ -31,18 +31,18 @@ def add_tracks(tracks: list[dict], liked=False) -> Track:
 	with Session.begin() as session:
 		session: sess = session
 		for track in tracks:
-			row = add_track(session, track)
-			if row.id is None:
-				continue
-			row.liked = liked
+			add_track(session, track, liked)
 #endregion create
 
 
 #region read
 def does_track_exist(track_id: str):
 	with Session.begin() as session:
-		q = session.query(Track).filter(Track.id == track_id)
-		return does_exist(q)
+		q = session.query(Track).get(track_id)
+
+		if q is None:
+			return False
+		return True
 
 
 def get_liked_tracks_not_in_playlists() -> list[str]:
