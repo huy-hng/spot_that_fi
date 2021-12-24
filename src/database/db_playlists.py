@@ -23,11 +23,13 @@ def add_playlists(playlists: list[dict]):
 def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 	with Session.begin() as session:
 		session: sess = session
+
 		playlist: Playlist = session.query(Playlist).get(playlist_id)
+
 		for track in tracks:
 
 			row = add_track(session, track)
-			if row.id is None:
+			if row is None or row.id is None:
 				continue
 
 			try:
@@ -35,7 +37,8 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 					log.debug(f'{row.name} is already in {playlist.name}')
 					continue
 			except Exception as e:
-				# log.error(row.name)
+				log.exception(e) # TODO find out what this error is
+				log.error(f'Not sure what this error is.')
 				continue
 
 			association = PlaylistTracksAssociation(track)
@@ -58,21 +61,18 @@ def get_playlists():
 
 
 def is_track_in_playlist(session:sess, playlist_id: str, track_id: str):
-	try:
-		q = session.query(PlaylistTracksAssociation).filter(
-				PlaylistTracksAssociation.track_id == track_id,
-				PlaylistTracksAssociation.playlist_id == playlist_id)
-
-		return does_exist(q)
-	except Exception as e:
-		log.error('song already in playlist')
-		return True
+	q = session.query(PlaylistTracksAssociation).filter(
+										PlaylistTracksAssociation.track_id == track_id,
+										PlaylistTracksAssociation.playlist_id == playlist_id)
+	return does_exist(q)
 
 
 def does_playlist_exist(playlist_id: str):
 	with Session.begin() as session:
-		q = session.query(Playlist).filter(Playlist.id == playlist_id)
-		return does_exist(q)
+		q = session.query(Playlist).get(playlist_id)
+		if q is None:
+			return False
+		return True
 #endregion read
 
 
