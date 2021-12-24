@@ -33,9 +33,3 @@ def add_tracks_to_all_playlists():
 		with open(f'./data/playlists/{playlist_id}.json') as f:
 			tracks = json.load(f)
 			add_tracks_to_playlist(playlist_id, tracks)
-
-
-	# filenames = glob.glob('./data/playlists/*.json')
-	# for f in filenames:
-	# 	print(len(tracks))
-
