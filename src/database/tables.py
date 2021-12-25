@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
@@ -5,14 +7,13 @@ from sqlalchemy.orm import relationship
 
 from src.database import Base
 
-
 class PlaylistTracksAssociation(Base):
 	__tablename__ = 'playlist_tracks_association'
 
 	playlist_id = Column(ForeignKey('playlist.id'), primary_key=True)
 	track_id = Column(ForeignKey('track.id'), primary_key=True)
-	track = relationship('Track', back_populates='playlists')
-	playlist = relationship('Playlist', back_populates='tracks')
+	track: Track = relationship('Track', back_populates='playlists')
+	playlist: Playlist = relationship('Playlist', back_populates='tracks')
 
 	added_by = Column(String, nullable=False)
 	added_at = Column(String, nullable=False)
@@ -32,7 +33,7 @@ class Playlist(Base):
 	snapshot_id = Column(String, nullable=False)
 	owner_id = Column(String, nullable=False)
 
-	tracks: relationship = relationship('PlaylistTracksAssociation',
+	track_associations: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
 			back_populates='playlist')
 
 	def __init__(self, playlist) -> None:
@@ -53,7 +54,7 @@ class Track(Base):
 	popularity = Column(Integer, nullable=False)
 	liked = Column(Boolean, default=False)
 
-	playlists: relationship = relationship('PlaylistTracksAssociation',
+	playlists: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
 				back_populates='track')
 
 	def __init__(self, track: dict):
