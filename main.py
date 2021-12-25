@@ -72,5 +72,10 @@ if __name__ == '__main__':
 	# 	print(track)
 	# write_liked_tracks()
 	# write_tracks_in_playlists()
-	test_database.add_playlists()
-	test_database.add_tracks_to_all_playlists()
+
+
+	# test_database.add_playlists()
+	# test_database.add_tracks_to_all_playlists()
+	# test_database.add_liked_tracks()
+	# test_database.liked_tracks_not_in_playlists()
+	test_database.get_playlist_tracks('Tech House')
