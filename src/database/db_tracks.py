@@ -36,6 +36,10 @@ def add_tracks(tracks: list[dict], liked=False) -> Track:
 
 
 #region read
+def get_track(session: sess, track_id: str):
+	return session.query(Track).get(track_id)
+
+
 def does_track_exist(track_id: str):
 	with Session.begin() as session:
 		q = session.query(Track).get(track_id)

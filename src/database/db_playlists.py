@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session as sess
 
 from .db_helpers import does_exist
-from .db_tracks import does_track_exist, add_track
-from .tables import Playlist, Track, PlaylistTracksAssociation
+from .db_tracks import add_track
+from .tables import Playlist, PlaylistTracksAssociation
 from . import Session 
 
 from src.logger import log
@@ -44,7 +44,7 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 			association = PlaylistTracksAssociation(track)
 			association.track = row
 			association.playlist = playlist
-			playlist.tracks.append(association)
+			playlist.track_associations.append(association)
 
 			session.add(association)
 
@@ -53,6 +53,12 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 
 
 #region read
+def get_playlist_tracks(session: sess, playlist_name: str):
+	playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
+	return playlist.track_associations
+
+
+
 def get_playlists():
 	with Session.begin() as session:
 		session: sess = session
@@ -77,6 +83,12 @@ def does_playlist_exist(playlist_id: str):
 
 
 #region update
+def update_liked_tracks_not_in_playlists(tracks: list[str]):
+	""" this function updates the playlist that containes songs
+			that are liked, but not in any other playlists
+			(except for this one)\n
+			tracks is a list with track ids """
+
 #endregion update
 
 
