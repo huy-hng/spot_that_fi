@@ -5,7 +5,7 @@ from .db_tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
 from . import Session 
 
-from src.logger import log
+from src.helpers.logger import log
 
 #region create
 def add_playlists(playlists: list[dict]):
@@ -44,7 +44,7 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 			association = PlaylistTracksAssociation(track)
 			association.track = row
 			association.playlist = playlist
-			playlist.track_associations.append(association)
+			playlist.playlist_track_association.append(association)
 
 			session.add(association)
 
@@ -55,7 +55,7 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 #region read
 def get_playlist_tracks(session: sess, playlist_name: str):
 	playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
-	return playlist.track_associations
+	return playlist.playlist_track_association
 
 
 

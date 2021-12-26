@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session as sess
 
 from .tables import Track
 from . import Session 
-from src.logger import log
+from src.helpers.logger import log
 
 
 #region create

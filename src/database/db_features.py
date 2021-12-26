@@ -1,19 +1,30 @@
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session as sess
 
 from . import Session 
+from src.database.tables import Playlist
+# from .db_playlists
 
-from src.logger import log
+from src.helpers.logger import log
 
 #region create
-def add_playlists(playlists: list[dict]):
+def get_latest_tracks_added_to_playlists(days_old=14) -> list[str]:
+	""" returns a list with track_ids
+			that have been recently added to playlists """
+
 	with Session.begin() as session:
+		session: sess = session
+		playlists = session.query(Playlist).all()
+
+		latest_tracks = [] # list with track_ids
+		oldest_time = datetime.now() - timedelta(days=days_old)
 		for playlist in playlists:
-			row = Playlist(playlist)
+			tracks = playlist.playlist_track_association
+			for track in tracks:
+				if track.added_at > oldest_time:
+					latest_tracks.append(track.track.id)
 
-			if not does_playlist_exist(row.id) and row.owner_id == 'slaybesh':
-				log.info(f'Adding playlist: {row.name}')
-				session.add(row)
-			else:
-				log.debug(f'Playlist {row.name} already exists or doesnt belong to you.')
-
+		return latest_tracks
+				
+				
 

@@ -2,8 +2,8 @@ import json
 from src.helpers import read_dict_from_file, write_dict_to_file
 
 
-from src.logger import log
-# from src.database import db
+from src.helpers.logger import log
+from src.database.db_features import get_latest_tracks_added_to_playlists
 from src.api_handler import Spotipy
 
 from src.tests import test_database
@@ -78,4 +78,5 @@ if __name__ == '__main__':
 	# test_database.add_tracks_to_all_playlists()
 	# test_database.add_liked_tracks()
 	# test_database.liked_tracks_not_in_playlists()
-	test_database.get_playlist_tracks('Tech House')
+	# test_database.get_playlist_tracks('Tech House')
+	playlists = sp.get_all_playlists()

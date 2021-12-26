@@ -6,7 +6,7 @@ from sqlalchemy.orm.query import Query
 
 from src.database import Session 
 
-from src.logger import log
+from src.helpers.logger import log
 
 
 def does_exist(query: Query):
