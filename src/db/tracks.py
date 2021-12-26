@@ -54,7 +54,7 @@ def get_liked_tracks_not_in_playlists() -> list[str]:
 	with Session.begin() as session:
 		session: sess = session
 
-		q = session.query(Track).filter(~Track.playlists.any()).all()
+		q = session.query(Track).filter(~Track.playlist_track_association.any()).all()
 		ids = [track.id for track in q]
 		return ids
 

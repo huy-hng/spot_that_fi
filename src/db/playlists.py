@@ -63,9 +63,18 @@ def get_playlist_by_id(session: sess, playlist_id):
 	return playlist
 
 
+def get_playlist_by_name(session: sess, playlist_name):
+	playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
+	
+	if playlist is None:
+		raise PlaylistNotFoundError(playlist_name)
+
+	return playlist
+
+
 
 def get_playlist_tracks_by_name(session: sess, playlist_name: str):
-	playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
+	playlist = get_playlist_by_name(session, playlist_name)
 	return playlist.playlist_track_association
 
 def get_playlist_snapshot_id(playlist_id: str):

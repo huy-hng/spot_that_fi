@@ -1,8 +1,7 @@
 import json
-import db
+from src import db
 
 from src.db import Session
-from src.db.tables import PlaylistTracksAssociation
 
 
 def check_track_in_playlist():
@@ -49,8 +48,8 @@ def liked_tracks_not_in_playlists():
 
 def get_playlist_tracks(playlist_name: str):
 	with Session.begin() as session:
-		playlist = db.playlists.get_playlist(session, playlist_name)
-		associations: list[PlaylistTracksAssociation] = playlist.tracks
+		playlist = db.playlists.get_playlist_by_name(session, playlist_name)
+		associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
 		associations.sort(key=lambda x: x.added_at)
 		# sorted(associations/, )
 
