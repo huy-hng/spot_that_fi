@@ -4,7 +4,7 @@ from sqlalchemy import literal
 from sqlalchemy.orm import Session as sess
 from sqlalchemy.orm.query import Query
 
-from src.database import Session 
+from src.db import Session 
 
 from src.helpers.logger import log
 

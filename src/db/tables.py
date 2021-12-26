@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
 
-from src.database import Base
+from src.db import Base
 
 class PlaylistTracksAssociation(Base):
 	__tablename__ = 'playlist_tracks_association'

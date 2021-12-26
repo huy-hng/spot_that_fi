@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session as sess
 
 from . import Session 
-from src.database.tables import Playlist
+from src.db.tables import Playlist
 # from .db_playlists
 
 from src.helpers.logger import log

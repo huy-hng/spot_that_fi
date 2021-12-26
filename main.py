@@ -3,7 +3,7 @@ from src.helpers.helpers import read_dict_from_file, write_dict_to_file
 
 
 from src.helpers.logger import log
-from src.database.db_features import get_latest_tracks_added_to_playlists
+from db.features import get_latest_tracks_added_to_playlists
 from src.api_handler.api_handler import Spotipy
 
 from src.tests import test_database
