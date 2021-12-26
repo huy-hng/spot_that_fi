@@ -39,7 +39,7 @@ class Spotipy:
 		all_playlists: list[LivePlaylistType] = []
 		offset = 0
 		while True:
-			playlists: list[LivePlaylistType] = self.sp.current_user_playlists(offset=offset)
+			playlists: dict = self.sp.current_user_playlists(offset=offset)
 			all_playlists += playlists['items']
 			if playlists['next'] is None:
 				break

@@ -1,6 +1,7 @@
-from typing import TypedDict
+from dataclasses import dataclass
 
-class LivePlaylistsTracksType(TypedDict):
+@dataclass
+class LivePlaylistsTracksType:
 	href: str
 	total: int
 	type: str
@@ -11,7 +12,8 @@ class LivePlaylistsTracksType(TypedDict):
 	previous: None
 	total: int
 
-class LivePlaylistType(TypedDict):
+@dataclass
+class LivePlaylistType:
 	collaborative: bool
 	description: str
 	external_urls: dict
@@ -27,14 +29,18 @@ class LivePlaylistType(TypedDict):
 	type: str
 	uri: str
 
+	def __init__(self, **kwargs):
+		self.tracks = LivePlaylistsTracksType(**kwargs['tracks'])
 
-class TrackedPlaylistType(TypedDict):
+@dataclass
+class TrackedPlaylistType:
 	name: str
 	archive: str
 	current: str
 	snapshot_id: str
 
-class TracksType(TypedDict):
+@dataclass
+class TracksType:
 	# TODO
 	next: str
 	items: list

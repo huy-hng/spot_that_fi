@@ -14,10 +14,10 @@ class LivePlaylist:
 	on the playlists on spotify.
 	"""
 	def __init__(self, playlist: LivePlaylistType):
-		self.uri = playlist['uri']
-		self.snapshot_id = playlist['snapshot_id']
-		self.name = playlist['name']
-		self.tracks_in_playlist = playlist['tracks']['total']
+		self.uri = playlist.uri
+		self.snapshot_id = playlist.snapshot_id
+		self.name = playlist.name
+		self.tracks_in_playlist = playlist.tracks.total
 
 
 	def get_latest_tracks(self, num_tracks: int=None):
@@ -92,8 +92,8 @@ class LivePlaylists:
 		playlists: list[LivePlaylistType] = sp.get_all_playlists()
 		for index, playlist in zip(range(len(playlists)), playlists):
 			self.playlists.append(LivePlaylist(playlist))
-			self.names[playlist['name']] = index
-			self.uri[playlist['uri']] = index
+			self.names[playlist.name] = index
+			self.uri[playlist.uri] = index
 
 	def get_by_name(self, name: str):
 		index = self.names.get(name)

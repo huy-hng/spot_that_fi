@@ -11,10 +11,10 @@ class TrackedPlaylist:
 	def __init__(self, tracked_playlist: TrackedPlaylistType,
 										 update_snapshot: Callable):
 
-		self.name = tracked_playlist['name']
-		self.snapshot_id = tracked_playlist['snapshot_id']
-		self.current_uri = tracked_playlist['current']
-		self.archive_uri = tracked_playlist['archive']
+		self.name = tracked_playlist.name
+		self.snapshot_id = tracked_playlist.snapshot_id
+		self.current_uri = tracked_playlist.current
+		self.archive_uri = tracked_playlist.archive
 
 		self.update_snapshot = update_snapshot
 
