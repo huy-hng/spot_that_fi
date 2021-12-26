@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass
-class LivePlaylistsTracksType:
+class SpotifyPlaylistsTracksType:
 	href: str
 	total: int
 	type: str
@@ -13,7 +13,7 @@ class LivePlaylistsTracksType:
 	total: int
 
 @dataclass
-class LivePlaylistType:
+class SpotifyPlaylistType:
 	collaborative: bool
 	description: str
 	external_urls: dict
@@ -25,12 +25,12 @@ class LivePlaylistType:
 	primary_color: None
 	public: bool
 	snapshot_id: str
-	tracks: LivePlaylistsTracksType
+	tracks: SpotifyPlaylistsTracksType
 	type: str
 	uri: str
 
 	def __init__(self, **kwargs):
-		self.tracks = LivePlaylistsTracksType(**kwargs['tracks'])
+		self.tracks = SpotifyPlaylistsTracksType(**kwargs['tracks'])
 
 @dataclass
 class TrackedPlaylistType:

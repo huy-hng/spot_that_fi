@@ -2,7 +2,7 @@ import math
 from typing import Union
 
 from src.api_handler.tracks import Tracks
-from src.helpers.data_types import LivePlaylistType, TracksType
+from src.helpers.data_types import SpotifyPlaylistType, TracksType
 from src.api_handler import sp
 
 class LivePlaylist:
@@ -13,7 +13,7 @@ class LivePlaylist:
 	This class doesn't save state, it just performs actions
 	on the playlists on spotify.
 	"""
-	def __init__(self, playlist: LivePlaylistType):
+	def __init__(self, playlist: SpotifyPlaylistType):
 		self.uri = playlist.uri
 		self.snapshot_id = playlist.snapshot_id
 		self.name = playlist.name
@@ -89,7 +89,7 @@ class LivePlaylists:
 		self.names: dict[str, int] = {}
 		self.uri: dict[str, int] = {}
 
-		playlists: list[LivePlaylistType] = sp.get_all_playlists()
+		playlists: list[SpotifyPlaylistType] = sp.get_all_playlists()
 		for index, playlist in zip(range(len(playlists)), playlists):
 			self.playlists.append(LivePlaylist(playlist))
 			self.names[playlist.name] = index

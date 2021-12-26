@@ -1,9 +1,9 @@
-from helpers.data_types import LivePlaylistType
+from helpers.data_types import SpotifyPlaylistType
 from src.api_handler import sp
 from src.database.db_playlists import get_playlist_snapshot_id, update_playlist_snapshot
 
 
-def has_playlist_changed(playlist: LivePlaylistType):
+def has_playlist_changed(playlist: SpotifyPlaylistType):
 	current_snapshot = playlist.snapshot_id
 	previous_snapshot = get_playlist_snapshot_id(playlist.id)
 	return previous_snapshot != current_snapshot
