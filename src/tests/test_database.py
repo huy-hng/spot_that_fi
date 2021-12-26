@@ -56,7 +56,3 @@ def get_playlist_tracks(playlist_name: str):
 
 		for ass in associations:
 			print(ass.track.name)
-
-
-
-	

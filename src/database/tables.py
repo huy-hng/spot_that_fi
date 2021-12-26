@@ -12,11 +12,13 @@ class PlaylistTracksAssociation(Base):
 
 	playlist_id = Column(ForeignKey('playlist.id'), primary_key=True)
 	track_id = Column(ForeignKey('track.id'), primary_key=True)
-	track: Track = relationship('Track', back_populates='playlists')
-	playlist: Playlist = relationship('Playlist', back_populates='tracks')
+	track: Track = relationship('Track',
+										back_populates='playlist_track_association')
+	playlist: Playlist = relationship('Playlist',
+													back_populates='playlist_track_association')
 
 	added_by = Column(String, nullable=False)
-	added_at = Column(String, nullable=False)
+	added_at = Column(DateTime, nullable=False)
 
 	def __init__(self, track):
 		self.added_at = datetime.strptime(track['added_at'], '%Y-%m-%dT%H:%M:%SZ')
@@ -33,7 +35,7 @@ class Playlist(Base):
 	snapshot_id = Column(String, nullable=False)
 	owner_id = Column(String, nullable=False)
 
-	track_associations: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
+	playlist_track_association: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
 			back_populates='playlist')
 
 	def __init__(self, playlist) -> None:
@@ -54,7 +56,7 @@ class Track(Base):
 	popularity = Column(Integer, nullable=False)
 	liked = Column(Boolean, default=False)
 
-	playlists: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
+	playlist_track_association: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
 				back_populates='track')
 
 	def __init__(self, track: dict):
