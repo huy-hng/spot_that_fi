@@ -6,7 +6,7 @@ from spotipy.oauth2 import SpotifyOAuth
 
 from ..helpers.helpers import write_dict_to_file
 from src.api_handler.tracks import Tracks
-from ..helpers.data_types import TracksType
+from ..helpers.data_types import LivePlaylistType, TracksType
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -33,13 +33,13 @@ class Spotipy:
 		return self.sp.playlist(playlist_id)
 
 
-	def get_all_playlists(self):
+	def get_all_playlists(self) -> list[LivePlaylistType]:
 		self.api_calls += 1
 
-		all_playlists = []
+		all_playlists: list[LivePlaylistType] = []
 		offset = 0
 		while True:
-			playlists: dict = self.sp.current_user_playlists(offset=offset)
+			playlists: list[LivePlaylistType] = self.sp.current_user_playlists(offset=offset)
 			all_playlists += playlists['items']
 			if playlists['next'] is None:
 				break
