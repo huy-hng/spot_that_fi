@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session as sess
 
-from .exceptions import PlaylistNotFoundError
+from src.helpers.exceptions import PlaylistNotFoundError
 from .db_helpers import does_exist
 from .db_tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
