@@ -4,9 +4,9 @@ import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-from .helpers import write_dict_to_file
+from ..helpers import write_dict_to_file
 from src.tracks import Tracks
-from .data_types import TracksType
+from ..data_types import TracksType
 
 from dotenv import load_dotenv
 load_dotenv()
