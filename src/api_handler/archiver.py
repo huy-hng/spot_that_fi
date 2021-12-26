@@ -1,5 +1,5 @@
 from src.playlists.live_playlists import LivePlaylists
-from src.tracks import Tracks
+from src.api_handler.tracks import Tracks
 from src.playlists.tracked_playlists import TrackedPlaylists, TrackedPlaylist
 
 class Archiver:

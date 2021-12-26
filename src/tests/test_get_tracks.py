@@ -1,8 +1,8 @@
 import pytest
 
-from src import sp
+from src.api_handler import sp
 from src.playlists.live_playlists import LivePlaylists
-from src.tracks import Tracks
+from src.api_handler.tracks import Tracks
 from src.tests.fixtures import reset_playlists, track_ids_55
 
 live_playlists = LivePlaylists()

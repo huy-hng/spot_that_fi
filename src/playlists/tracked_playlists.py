@@ -1,6 +1,6 @@
 import json
 from typing import Callable
-from src.data_types import TrackedPlaylistType
+from src.helpers.data_types import TrackedPlaylistType
 from .live_playlists import LivePlaylist, LivePlaylists
 
 class TrackedPlaylist:

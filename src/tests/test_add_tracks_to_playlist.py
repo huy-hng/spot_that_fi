@@ -1,10 +1,10 @@
 import time
 import pytest
 
-from src import sp
+from src.api_handler import sp
 from src.playlists.live_playlists import LivePlaylists
 from src.playlists.tracked_playlists import TrackedPlaylists
-from src.tracks import Tracks
+from src.api_handler.tracks import Tracks
 from src.tests.fixtures import replace_tracks, track_ids_55
 
 new_tracks = ["4M3wJczMgJmUsSg1Hy4p5D",

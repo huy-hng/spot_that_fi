@@ -1,4 +1,4 @@
-from src.tracks import Tracks
+from src.api_handler.tracks import Tracks
 from src.playlists.live_playlists import LivePlaylists
 from src.playlists.tracked_playlists import TrackedPlaylists
 from src.features.archiver import Archiver

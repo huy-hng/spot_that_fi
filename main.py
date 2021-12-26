@@ -1,5 +1,5 @@
 import json
-from src.helpers import read_dict_from_file, write_dict_to_file
+from src.helpers.helpers import read_dict_from_file, write_dict_to_file
 
 
 from src.helpers.logger import log

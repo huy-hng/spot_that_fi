@@ -1,9 +1,9 @@
 import math
 from typing import Union
 
-from src.tracks import Tracks
-from src.data_types import LivePlaylistType, TracksType
-from src import sp
+from src.api_handler.tracks import Tracks
+from src.helpers.data_types import LivePlaylistType, TracksType
+from src.api_handler import sp
 
 class LivePlaylist:
 	""" handles crud operations of a live playlist

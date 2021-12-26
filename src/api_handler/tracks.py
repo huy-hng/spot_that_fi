@@ -1,4 +1,4 @@
-from src.data_types import TracksType
+from src.helpers.data_types import TracksType
 class Tracks:
 
 	@staticmethod
