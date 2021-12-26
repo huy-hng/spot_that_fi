@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session as sess
 
+from .exceptions import PlaylistNotFoundError
 from .db_helpers import does_exist
 from .db_tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
@@ -53,10 +54,24 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 
 
 #region read
-def get_playlist_tracks(session: sess, playlist_name: str):
+def get_playlist_by_id(session: sess, playlist_id):
+	playlist = session.query(Playlist).get(playlist_id)
+	
+	if playlist is None:
+		raise PlaylistNotFoundError(playlist_id)
+
+	return playlist
+
+
+
+def get_playlist_tracks_by_name(session: sess, playlist_name: str):
 	playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
 	return playlist.playlist_track_association
 
+def get_playlist_snapshot_id(playlist_id: str):
+	with Session.begin() as session:
+		playlist = get_playlist_by_id(session, playlist_id)
+		return playlist.snapshot_id
 
 
 def get_playlists():
@@ -89,6 +104,12 @@ def update_liked_tracks_not_in_playlists(tracks: list[str]):
 			(except for this one)\n
 			tracks is a list with track ids """
 
+
+
+def update_playlist_snapshot(playlist_id: str, snapshot_id: str):
+	with Session.begin() as session:
+		playlist = get_playlist_by_id(session, playlist_id)
+		playlist.snapshot_id = snapshot_id
 #endregion update
 
 
