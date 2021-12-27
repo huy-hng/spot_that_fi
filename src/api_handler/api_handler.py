@@ -67,7 +67,8 @@ class Spotipy:
 				no tracks are left """
 		items = {'previous': True}
 		limit = 100
-		tracks_in_playlist: int = self.sp.playlist_items(playlist_id, limit=1)['total']
+		tracks_in_playlist: int = self.sp.playlist_items(
+																									playlist_id, limit=1)['total']
 		offset = tracks_in_playlist - limit
 		while items['previous']:
 			if offset < 0:
@@ -75,7 +76,8 @@ class Spotipy:
 				offset = 0
 				limit = max(1, min(100, limit))
 
-			items: TracksType = self.sp.playlist_items(playlist_id, limit=limit, offset=offset)
+			items: TracksType = self.sp.playlist_items(
+																				playlist_id, limit=limit, offset=offset)
 			tracks: list = items['items']
 			# tracks.reverse()
 			offset -= limit
