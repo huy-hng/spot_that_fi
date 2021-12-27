@@ -54,7 +54,7 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 
 
 #region read
-def get_playlist_by_id(session: sess, playlist_id):
+def get_playlist(session: sess, playlist_id):
 	playlist = session.query(Playlist).get(playlist_id)
 	
 	if playlist is None:
@@ -63,27 +63,36 @@ def get_playlist_by_id(session: sess, playlist_id):
 	return playlist
 
 
-def get_playlist_by_name(session: sess, playlist_name):
-	playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
-	
-	if playlist is None:
-		raise PlaylistNotFoundError(playlist_name)
+def name_to_id(playlist_name) -> str:
+	with Session.begin() as session:
+		playlist: Playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
+		
+		if playlist is None:
+			raise PlaylistNotFoundError(playlist_name)
 
-	return playlist
+		return playlist.id
 
 
 
-def get_playlist_tracks_by_name(session: sess, playlist_name: str):
-	playlist = get_playlist_by_name(session, playlist_name)
-	return playlist.playlist_track_association
+def get_track_ids(playlist_id: str):
+	""" returns a list with track_ids sorted by added_at (time) """
+	with Session.begin() as session:
+		playlist = get_playlist(session, playlist_id)
+		associations = playlist.playlist_track_association
+		associations.sort(key=lambda x: x.added_at)
+		track_ids: list[str] = []
+		for ass in associations:
+			track_ids.append(ass.track_id)
+		return track_ids
+
 
 def get_playlist_snapshot_id(playlist_id: str):
 	with Session.begin() as session:
-		playlist = get_playlist_by_id(session, playlist_id)
+		playlist = get_playlist(session, playlist_id)
 		return playlist.snapshot_id
 
 
-def get_playlists():
+def get_all_playlists():
 	with Session.begin() as session:
 		session: sess = session
 		q = session.query(Playlist).all()
@@ -117,7 +126,7 @@ def update_liked_tracks_not_in_playlists(tracks: list[str]):
 
 def update_playlist_snapshot(playlist_id: str, snapshot_id: str):
 	with Session.begin() as session:
-		playlist = get_playlist_by_id(session, playlist_id)
+		playlist = get_playlist(session, playlist_id)
 		playlist.snapshot_id = snapshot_id
 #endregion update
 

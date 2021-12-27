@@ -29,7 +29,7 @@ def add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 
 
 def add_tracks_to_all_playlists():
-	playlist_ids = db.playlists.get_playlists()	
+	playlist_ids = db.playlists.get_all_playlists()	
 
 	for playlist_id in playlist_ids:
 		with open(f'./data/playlists/{playlist_id}.json') as f:
@@ -48,7 +48,8 @@ def liked_tracks_not_in_playlists():
 
 def get_playlist_tracks(playlist_name: str):
 	with Session.begin() as session:
-		playlist = db.playlists.get_playlist_by_name(session, playlist_name)
+		playlist_id = db.playlists.name_to_id(playlist_name)
+		playlist = db.playlists.get_playlist(session, playlist_id)
 		associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
 		associations.sort(key=lambda x: x.added_at)
 		# sorted(associations/, )
