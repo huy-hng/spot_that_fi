@@ -1,5 +1,8 @@
+from helpers.myers import myers_diff
 from helpers.data_types import SpotifyPlaylistType
+
 from src.api_handler import sp
+
 import db
 
 
@@ -16,6 +19,22 @@ def changed_playlists() -> list[SpotifyPlaylistType]:
 			changed.append(playlist)
 
 	return changed
+
+
+
+
+
+
+def calculate_diff(playlist_id: str):
+	prev_track_list = db.playlists.get_track_ids(playlist_id)
+	curr_track_list_gen = sp.get_playlist_tracks_generator(playlist_id)
+	curr_track_list = []
+
+	while True:
+		curr_track_list = curr_track_list_gen.next() + curr_track_list
+
+	# diff = myers_diff(prev_track_list, curr_track_list)
+
 
 def update_playlist(playlist: SpotifyPlaylistType):
 	db.playlists.update_playlist_snapshot()
