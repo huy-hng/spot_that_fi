@@ -64,3 +64,7 @@ class Track(Base):
 		self.name = track['track']['name']
 		self.duration_ms = track['track']['duration_ms']
 		self.popularity = track['track']['popularity']
+		self.is_local = track['is_local']
+
+	def __repr__(self):
+		return f'{self.id=}\n{self.name=}\n{self.is_local=}'

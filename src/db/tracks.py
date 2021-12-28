@@ -31,6 +31,9 @@ def add_tracks(tracks: list[dict], liked=False) -> Track:
 	with Session.begin() as session:
 		session: sess = session
 		for track in tracks:
+			if track['is_local']:
+				return
+
 			add_track(session, track, liked)
 #endregion create
 
