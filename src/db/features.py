@@ -25,6 +25,3 @@ def get_latest_tracks_added_to_playlists(days_old=14) -> list[str]:
 					latest_tracks.append(track.track.id)
 
 		return latest_tracks
-				
-				
-
