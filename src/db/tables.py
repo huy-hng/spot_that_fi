@@ -39,6 +39,9 @@ class Playlist(Base):
 			'PlaylistTracksAssociation', back_populates='playlist')
 
 	def __init__(self, playlist) -> None:
+		self.update(playlist)
+
+	def update(self, playlist) -> None:
 		self.id = playlist['id']
 		self.name = playlist['name']
 		self.total_tracks = playlist['tracks']['total']

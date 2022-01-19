@@ -84,6 +84,7 @@ class Spotipy:
 
 			yield tracks
 
+
 	def get_liked_tracks_generator(self):
 		items = {'previous': True}
 		limit = 50
