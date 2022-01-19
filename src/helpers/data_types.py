@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 
 @dataclass
+class SpotifyPlaylistsOwnerType:
+	id: str
+@dataclass
 class SpotifyPlaylistsTracksType:
 	href: str
 	total: int
@@ -21,7 +24,7 @@ class SpotifyPlaylistType:
 	id: str
 	images: list
 	name: str
-	owner: dict
+	owner: SpotifyPlaylistsOwnerType
 	primary_color: None
 	public: bool
 	snapshot_id: str
@@ -31,6 +34,7 @@ class SpotifyPlaylistType:
 
 	def __init__(self, **kwargs):
 		self.tracks = SpotifyPlaylistsTracksType(**kwargs['tracks'])
+		self.owner = SpotifyPlaylistsOwnerType(**kwargs['owner'])
 
 @dataclass
 class TrackedPlaylistType:

@@ -29,7 +29,7 @@ class Spotipy:
 				redirect_uri=redirect_uri, scope=scope))
 		
 
-	def get_one_playlist(self, playlist_id: str):
+	def get_one_playlist(self, playlist_id: str) -> SpotifyPlaylistType:
 		return self.sp.playlist(playlist_id)
 
 
