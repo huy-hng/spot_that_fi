@@ -117,10 +117,13 @@ def does_playlist_exist(playlist_id: str):
 
 
 #region update
-def update_playlist(playlist: SpotifyPlaylistType):
+def update_playlist(live_playlist: SpotifyPlaylistType):
 	""" this function updates a playlist in the db
-			it updates the playlist length, snapshot  """
-	
+			it updates the playlist length, snapshot, etc """
+	with Session.begin() as session:
+		db_playlist = get_playlist(session, live_playlist.id)
+		db_playlist.update(live_playlist) # TODO: check if this actually updates
+
 
 def update_playlist_tracks(playlist_id: str, track_ids: list[str]):
 	pass
