@@ -122,16 +122,17 @@ def main():
 
 	# with open(b_file) as b_handle:
 	# 	b_lines = [line.rstrip() for line in b_handle]
+
 	a_lines = ['1', '2', '3']
 	b_lines = ['1', '2', '34']
 
 	diff = myers_diff(a_lines, b_lines)
 	for elem in diff:
-		if isinstance(elem, Keep):
-			print(' ' + elem.line)
-		elif isinstance(elem, Insert):
+		# if isinstance(elem, Keep):
+		# 	print(' ' + elem.line)
+		if isinstance(elem, Insert):
 			print('+' + elem.line)
-		else:
+		elif isinstance(elem, Remove):
 			print('-' + elem.line)
 
 	

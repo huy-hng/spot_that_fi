@@ -35,8 +35,8 @@ class Playlist(Base):
 	snapshot_id = Column(String, nullable=False)
 	owner_id = Column(String, nullable=False)
 
-	playlist_track_association: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
-			back_populates='playlist')
+	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
+			'PlaylistTracksAssociation', back_populates='playlist')
 
 	def __init__(self, playlist) -> None:
 		self.id = playlist['id']
@@ -56,8 +56,8 @@ class Track(Base):
 	popularity = Column(Integer, nullable=False)
 	liked = Column(Boolean, default=False)
 
-	playlist_track_association: list[PlaylistTracksAssociation] = relationship('PlaylistTracksAssociation',
-				back_populates='track')
+	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
+			'PlaylistTracksAssociation', back_populates='track')
 
 	def __init__(self, track: dict):
 		self.id = track['track']['id']
