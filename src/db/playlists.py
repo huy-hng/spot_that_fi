@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session as sess
+from helpers.data_types import SpotifyPlaylistType
 
 from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
@@ -99,7 +100,7 @@ def get_all_playlists():
 		return [playlist.id for playlist in q]
 
 
-def is_track_in_playlist(session:sess, playlist_id: str, track_id: str):
+def is_track_in_playlist(session: sess, playlist_id: str, track_id: str):
 	q = session.query(PlaylistTracksAssociation).filter(
 										PlaylistTracksAssociation.track_id == track_id,
 										PlaylistTracksAssociation.playlist_id == playlist_id)
@@ -116,6 +117,15 @@ def does_playlist_exist(playlist_id: str):
 
 
 #region update
+def update_playlist(playlist: SpotifyPlaylistType):
+	""" this function updates a playlist in the db
+			it updates the playlist length, snapshot  """
+	
+
+def update_playlist_tracks(playlist_id: str, track_ids: list[str]):
+	pass
+
+
 def update_liked_tracks_not_in_playlists(tracks: list[str]):
 	""" this function updates the playlist that containes songs
 			that are liked, but not in any other playlists

@@ -6,7 +6,7 @@ from src.helpers.logger import log
 from src.db.features import get_latest_tracks_added_to_playlists
 from src.api_handler.api_handler import Spotipy
 
-from src.tests import test_database
+from src.tests import test_database, test_diff
 
 with open('./data/playlists.json') as f:
 	playlists = json.loads(f.read())
@@ -73,9 +73,8 @@ if __name__ == '__main__':
 	# write_liked_tracks()
 	# write_tracks_in_playlists()
 
-
-	test_database.add_playlists()
 	# test_database.add_tracks_to_all_playlists()
 	# test_database.add_liked_tracks()
 	# test_database.liked_tracks_not_in_playlists()
 	# test_database.get_playlist_tracks('Tech House')
+	test_diff.diff()
