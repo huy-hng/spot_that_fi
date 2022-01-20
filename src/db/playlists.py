@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session as sess
-from helpers.data_types import SpotifyPlaylistType
+from src.helpers.data_types import SpotifyPlaylistType
 
 from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
@@ -85,6 +85,17 @@ def get_track_ids(playlist_id: str):
 		for ass in associations:
 			track_ids.append(ass.track_id)
 		return track_ids
+
+def get_track_names(playlist_id: str):
+	""" returns a list with track_ids sorted by added_at (time) """
+	with Session.begin() as session:
+		playlist = get_playlist(session, playlist_id)
+		associations = playlist.playlist_track_association
+		associations.sort(key=lambda x: x.added_at)
+		track_names: list[str] = []
+		for ass in associations:
+			track_names.append(ass.track.name)
+		return track_names
 
 
 def get_playlist_snapshot_id(playlist_id: str):

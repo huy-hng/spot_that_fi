@@ -30,7 +30,8 @@ class Spotipy:
 		
 
 	def get_one_playlist(self, playlist_id: str) -> SpotifyPlaylistType:
-		return self.sp.playlist(playlist_id)
+		playlist = self.sp.playlist(playlist_id)
+		return SpotifyPlaylistType(**playlist)
 
 
 	def get_all_playlists(self) -> list[SpotifyPlaylistType]:

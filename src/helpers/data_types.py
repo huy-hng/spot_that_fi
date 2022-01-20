@@ -1,19 +1,37 @@
 from dataclasses import dataclass
+from typing import Optional
 
 @dataclass
 class SpotifyPlaylistsOwnerType:
 	id: str
+	display_name: str
+	external_urls: str
+	href: str
+	type: str
+	uri: str
+
 @dataclass
 class SpotifyPlaylistsTracksType:
 	href: str
 	total: int
-	type: str
-	uri: str
 	limit: int
 	next: None
 	offset: int
 	previous: None
 	total: int
+	type: str
+	uri: str
+
+
+@dataclass
+class SpotifySinglePlaylistTracksType:
+	href: str
+	items: list
+	limit: int
+	total: int
+	offset: int
+	next: str
+	previous: str
 
 @dataclass
 class SpotifyPlaylistType:
@@ -33,8 +51,25 @@ class SpotifyPlaylistType:
 	uri: str
 
 	def __init__(self, **kwargs):
-		self.tracks = SpotifyPlaylistsTracksType(**kwargs['tracks'])
+		self.collaborative = kwargs['collaborative']
+		self.description = kwargs['description']
+		self.external_urls = kwargs['external_urls']
+		self.href = kwargs['href']
+		self.id = kwargs['id']
+		self.images = kwargs['images']
+		self.name = kwargs['name']
 		self.owner = SpotifyPlaylistsOwnerType(**kwargs['owner'])
+		if kwargs['tracks'].get('items') is None:
+			self.tracks = SpotifyPlaylistsTracksType(**kwargs['tracks'])
+		else:
+			self.tracks = SpotifySinglePlaylistTracksType(**kwargs['tracks'])
+
+	def __post_init__(self, **kwargs):
+		self.owner = SpotifyPlaylistsOwnerType(**kwargs['owner'])
+		if kwargs['tracks'].get('items') is None:
+			self.tracks = SpotifyPlaylistsTracksType(**kwargs['tracks'])
+		else:
+			self.tracks = SpotifySinglePlaylistTracksType(**kwargs['tracks'])
 
 @dataclass
 class TrackedPlaylistType:

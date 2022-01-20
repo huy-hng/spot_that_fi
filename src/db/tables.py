@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
-from helpers.data_types import SpotifyPlaylistType
+from src.helpers.data_types import SpotifyPlaylistType
 
 from src.db import Base
 
