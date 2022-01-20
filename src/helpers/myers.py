@@ -29,6 +29,8 @@ import sys
 
 # These define the structure of the history, and correspond to diff output with
 # lines that start with a space, a + and a - respectively.
+
+
 Keep = namedtuple('Keep', ['line'])
 Insert = namedtuple('Insert', ['line'])
 Remove = namedtuple('Remove', ['line'])
@@ -109,6 +111,36 @@ def myers_diff(a_lines, b_lines):
 				frontier[k] = Frontier(x, history)
 
 	assert False, 'Could not find edit script'
+
+
+class Myers:
+	def __init__(self, a_lines: list, b_lines: list):
+		self.diff = myers_diff(a_lines, b_lines)
+	
+	@property
+	def get_num_elems_after(self):
+		counter = 0
+		for elem in self.diff:
+			if isinstance(elem, Keep) or isinstance(elem, Insert):
+				counter += 1
+		return counter
+
+	def has_something(self, something: namedtuple):
+		for elem in self.diff:
+			if isinstance(elem, something):
+				return True
+		return False
+
+	def print_diff(self):
+		for elem in self.diff:
+			if isinstance(elem, Keep):
+				print(' ' + elem.line)
+			elif isinstance(elem, Insert):
+				print('+' + elem.line)
+			elif isinstance(elem, Remove):
+				print('-' + elem.line)
+
+		
 
 def main():
 	# try:
