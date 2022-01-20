@@ -1,7 +1,7 @@
-from src.controller.playlist_change_detection import calculate_diff
+from src.controller.playlist_change_detection import update_playlist
 
 tech_house_id = '0oWDXsY9BhT9NKimKwNY9d'
 
 def diff():
-	calculate_diff(tech_house_id)
+	update_playlist(tech_house_id)
 
