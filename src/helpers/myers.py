@@ -38,7 +38,7 @@ Remove = namedtuple('Remove', ['line'])
 # See frontier in myers_diff
 Frontier = namedtuple('Frontier', ['x', 'history'])
 
-def myers_diff(a_lines, b_lines):
+def myers_diff(a_lines, b_lines) -> list[namedtuple]:
 	"""
 	An implementation of the Myers diff algorithm.
 
@@ -130,6 +130,13 @@ class Myers:
 			if isinstance(elem, something):
 				return True
 		return False
+
+	@property
+	def index_of_first_keep(self):
+		for i, elem in enumerate(self.diff):
+			if isinstance(elem, Keep):
+				return i
+		return None
 
 	def print_diff(self):
 		for elem in self.diff:
