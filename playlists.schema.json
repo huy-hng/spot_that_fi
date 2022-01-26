@@ -1,0 +1,27 @@
+{
+  "snippet_playlists": [
+    {
+      "name": "Calm",
+      "all": {
+        "uri": "",
+        "snapshot_id": ""
+      },
+      "snippet": {
+        "uri": "",
+        "snapshot_id": ""
+      }
+    },
+    {
+      "name": "Up",
+      "all": {
+        "uri": "",
+        "snapshot_id": ""
+      },
+      "snippet": {
+        "uri": "",
+        "snapshot_id": ""
+      }
+    }
+  ],
+  "liked_tracks_without_playlists": ""
+}
