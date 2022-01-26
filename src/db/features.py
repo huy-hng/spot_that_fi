@@ -25,3 +25,11 @@ def get_latest_tracks_added_to_playlists(days_old=14) -> list[str]:
 					latest_tracks.append(track.track.id)
 
 		return latest_tracks
+
+
+def update_liked_tracks_not_in_playlists(tracks: list[str]):
+	""" this function updates the playlist that containes songs
+			that are liked, but not in any other playlists
+			(except for this one)\n
+			tracks is a list with track ids """
+

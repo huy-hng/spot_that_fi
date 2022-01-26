@@ -138,14 +138,14 @@ class Myers:
 				return i
 		return None
 
-	def print_diff(self):
+	def print_diff(self, print_fn):
 		for elem in self.diff:
 			if isinstance(elem, Keep):
-				print(' ' + elem.line)
+				print_fn(' ' + elem.line)
 			elif isinstance(elem, Insert):
-				print('+' + elem.line)
+				print_fn('+' + elem.line)
 			elif isinstance(elem, Remove):
-				print('-' + elem.line)
+				print_fn('-' + elem.line)
 
 		
 

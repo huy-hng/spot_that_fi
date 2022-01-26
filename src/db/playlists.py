@@ -1,3 +1,4 @@
+from sqlalchemy import delete
 from sqlalchemy.orm import Session as sess
 from src.helpers.data_types import SpotifyPlaylistType
 
@@ -9,7 +10,9 @@ from . import Session
 
 from src.helpers.logger import log
 
-#region create
+#region playlist functions
+
+# creates
 def add_playlists(playlists: list[dict]):
 	with Session.begin() as session:
 		for playlist in playlists:
@@ -22,7 +25,67 @@ def add_playlists(playlists: list[dict]):
 				log.debug(f'Playlist {row.name} already exists or doesnt belong to you.')
 
 
-def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
+# reads
+def get_all_playlists():
+	with Session.begin() as session:
+		session: sess = session
+		q = session.query(Playlist).all()
+		return [playlist.id for playlist in q]
+
+
+def get_playlist(session: sess, playlist_id):
+	playlist = session.query(Playlist).get(playlist_id)
+	
+	if playlist is None:
+		raise PlaylistNotFoundError(playlist_id)
+
+	return playlist
+
+
+def get_id_from_name(playlist_name) -> str:
+	with Session.begin() as session:
+		playlist: Playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
+		
+		if playlist is None:
+			raise PlaylistNotFoundError(playlist_name)
+
+		return playlist.id
+
+
+def get_playlist_snapshot_id(playlist_id: str):
+	with Session.begin() as session:
+		playlist = get_playlist(session, playlist_id)
+		return playlist.snapshot_id
+
+
+def does_playlist_exist(playlist_id: str):
+	with Session.begin() as session:
+		q = session.query(Playlist).get(playlist_id)
+		if q is None:
+			return False
+		return True
+
+
+# updates
+def update_playlist(live_playlist: SpotifyPlaylistType):
+	""" this function updates a playlist in the db
+			it updates the playlist length, snapshot, etc """
+	with Session.begin() as session:
+		db_playlist = get_playlist(session, live_playlist.id)
+		db_playlist.update(live_playlist) # TODO: check if this actually updates
+
+
+""" def update_playlist_snapshot(playlist_id: str, snapshot_id: str):
+	with Session.begin() as session:
+		playlist = get_playlist(session, playlist_id)
+		playlist.snapshot_id = snapshot_id """
+#endregion playlist functions
+
+
+#region tracks functions
+
+# creates
+def	add_tracks(playlist_id: str, tracks: list[dict]):
 	with Session.begin() as session:
 		session: sess = session
 
@@ -51,30 +114,8 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 			session.add(association)
 
 			log.debug(f'Adding {row.name} to {playlist.name}')
-#endregion create
 
-
-#region read
-def get_playlist(session: sess, playlist_id):
-	playlist = session.query(Playlist).get(playlist_id)
-	
-	if playlist is None:
-		raise PlaylistNotFoundError(playlist_id)
-
-	return playlist
-
-
-def name_to_id(playlist_name) -> str:
-	with Session.begin() as session:
-		playlist: Playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
-		
-		if playlist is None:
-			raise PlaylistNotFoundError(playlist_name)
-
-		return playlist.id
-
-
-
+# reads
 def get_track_ids(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
 	with Session.begin() as session:
@@ -98,19 +139,6 @@ def get_track_names(playlist_id: str):
 		return track_names
 
 
-def get_playlist_snapshot_id(playlist_id: str):
-	with Session.begin() as session:
-		playlist = get_playlist(session, playlist_id)
-		return playlist.snapshot_id
-
-
-def get_all_playlists():
-	with Session.begin() as session:
-		session: sess = session
-		q = session.query(Playlist).all()
-		return [playlist.id for playlist in q]
-
-
 def is_track_in_playlist(session: sess, playlist_id: str, track_id: str):
 	q = session.query(PlaylistTracksAssociation).filter(
 										PlaylistTracksAssociation.track_id == track_id,
@@ -118,43 +146,15 @@ def is_track_in_playlist(session: sess, playlist_id: str, track_id: str):
 	return does_exist(q)
 
 
-def does_playlist_exist(playlist_id: str):
-	with Session.begin() as session:
-		q = session.query(Playlist).get(playlist_id)
-		if q is None:
-			return False
-		return True
-#endregion read
-
-
-#region update
-def update_playlist(live_playlist: SpotifyPlaylistType):
-	""" this function updates a playlist in the db
-			it updates the playlist length, snapshot, etc """
-	with Session.begin() as session:
-		db_playlist = get_playlist(session, live_playlist.id)
-		db_playlist.update(live_playlist) # TODO: check if this actually updates
-
-
-def update_playlist_tracks(playlist_id: str, track_ids: list[str]):
-	pass
-
-
-def update_liked_tracks_not_in_playlists(tracks: list[str]):
-	""" this function updates the playlist that containes songs
-			that are liked, but not in any other playlists
-			(except for this one)\n
-			tracks is a list with track ids """
-
-
-
-def update_playlist_snapshot(playlist_id: str, snapshot_id: str):
-	with Session.begin() as session:
-		playlist = get_playlist(session, playlist_id)
-		playlist.snapshot_id = snapshot_id
-#endregion update
-
-
-#region delete
-#endregion delete
+# deletes
+def remove_tracks(playlist_id: str, tracks: list[str]):
+	# with Session.begin() as session:
+	# TODO: if track has no assocation with any playlists anymore 
+	# and also isnt liked, delete
+			
+	for track_id in tracks:
+		delete(PlaylistTracksAssociation) \
+			.where(PlaylistTracksAssociation.playlist_id == playlist_id) \
+			.where( PlaylistTracksAssociation.track_id == track_id)
+#endregion tracks functions
 
