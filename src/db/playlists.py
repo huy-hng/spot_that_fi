@@ -85,7 +85,7 @@ def update_playlist(live_playlist: SpotifyPlaylistType):
 #region tracks functions
 
 # creates
-def	add_tracks(playlist_id: str, tracks: list[dict]):
+def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 	with Session.begin() as session:
 		session: sess = session
 
@@ -147,14 +147,14 @@ def is_track_in_playlist(session: sess, playlist_id: str, track_id: str):
 
 
 # deletes
-def remove_tracks(playlist_id: str, tracks: list[str]):
+def remove_tracks_from_playlist(playlist_id: str, tracks: list[str]):
 	# with Session.begin() as session:
 	# TODO: if track has no assocation with any playlists anymore 
 	# and also isnt liked, delete
-			
-	for track_id in tracks:
-		delete(PlaylistTracksAssociation) \
-			.where(PlaylistTracksAssociation.playlist_id == playlist_id) \
-			.where( PlaylistTracksAssociation.track_id == track_id)
+	with Session.begin() as session:
+		for track_id in tracks:
+			session.query(PlaylistTracksAssociation).filter(
+										PlaylistTracksAssociation.track_id == track_id,
+										PlaylistTracksAssociation.playlist_id == playlist_id).delete()
 #endregion tracks functions
 

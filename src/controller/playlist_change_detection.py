@@ -13,8 +13,7 @@ def has_playlist_changed(playlist: SpotifyPlaylistType):
 	previous_snapshot = db.playlists.get_playlist_snapshot_id(playlist.id)
 	return previous_snapshot != current_snapshot
 
-def changed_playlists() -> list[SpotifyPlaylistType]:
-	playlists = sp.get_all_playlists()
+def changed_playlists(playlists: list[SpotifyPlaylistType]):
 	changed: list[SpotifyPlaylistType] = []
 	for playlist in playlists:
 		if has_playlist_changed(playlist):
@@ -26,50 +25,51 @@ def changed_playlists() -> list[SpotifyPlaylistType]:
 def calculate_diff(playlist_id: str, num_tracks: int):
 	""" returns a tuple where the first value is removals 
 			and second is inserts """
-	db_track_list = db.playlists.get_track_names(playlist_id)
+	
+	db_track_list = db.playlists.get_track_ids(playlist_id)
 	# prev_track_list = db.playlists.get_track_ids(playlist_id)
 	sp_track_list_gen = sp.get_playlist_tracks_generator(playlist_id)
-	sp_track_list = []
+	sp_track_list = {}
+	track_ids = []
 
 	for tracks in sp_track_list_gen:
-		sp_track_list = Tracks.get_names(tracks) + sp_track_list
-		myers = Myers(db_track_list, sp_track_list)
-		myers.print_diff()
+		sp_track_list.update({track['track']['id']: track for track in tracks})
+		track_ids = Tracks.get_ids(tracks) + track_ids
+
+		myers = Myers(db_track_list, track_ids)
 		index_first_keep = myers.index_of_first_keep
 		if index_first_keep is not None:
 			first_keep = myers.diff[index_first_keep].line
 
 			index_in_db_list = db_track_list.index(first_keep)
-			total_tracks_after = index_in_db_list + len(sp_track_list)
+			total_tracks_after = index_in_db_list + len(track_ids)
 			if total_tracks_after == num_tracks:
+				myers.print_diff(print)
 				break
-
-	# curr_track_list = Tracks.get_ids(curr_track_list)
 
 	inserts = []
 	removals = []
 	for elem in myers.diff[myers.index_of_first_keep:]:
 		if isinstance(elem, Insert):
-			inserts.append(elem.line)
+			track = sp_track_list.get(elem.line)
+			inserts.append(track)
 		elif isinstance(elem, Remove):
 			removals.append(elem.line)
 
-	# print(num_tracks, myers.get_num_elems_after)
 	return removals, inserts
 
 
 def update_playlist(playlist_id: str):
-	# playlist = db.playlists.get_playlist(playlist.id)
 	playlist = sp.get_one_playlist(playlist_id)
-	# db.playlists.update_playlist(playlist)
+	db.playlists.update_playlist(playlist)
 
 	removals, inserts = calculate_diff(playlist.id, playlist.tracks.total)
-	print(removals)
-	print()
-	print(inserts)
+	db.playlists.remove_tracks_from_playlist(playlist.id, removals)
+	db.playlists.add_tracks_to_playlist(playlist.id, inserts)
+
 	
-
-
-def update_all_playlists(playlists: list[SpotifyPlaylistType]):
-	for playlist in playlists:
-		update_playlist(playlist)
+def update_playlists(playlists: list[SpotifyPlaylistType]):
+	# playlists = sp.get_all_playlists()
+	changed = changed_playlists(playlists)
+	for playlist in changed:
+		update_playlist(playlist.id)

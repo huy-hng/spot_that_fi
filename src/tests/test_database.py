@@ -25,7 +25,7 @@ def add_liked_tracks():
 
 
 def add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
-	db.playlists.add_tracks(playlist_id, tracks)
+	db.playlists.add_tracks_to_playlist(playlist_id, tracks)
 
 
 def add_tracks_to_all_playlists():
