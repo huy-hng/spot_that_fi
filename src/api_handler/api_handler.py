@@ -79,8 +79,7 @@ class Spotipy:
 
 			items: TracksType = self.sp.playlist_items(
 																				playlist_id, limit=limit, offset=offset)
-			tracks: list = items['items']
-			# tracks.reverse()
+			tracks: list[TracksType] = items['items']
 			offset -= limit
 
 			yield tracks

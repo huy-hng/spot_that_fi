@@ -1,4 +1,11 @@
+from enum import Enum
 from src.helpers.data_types import TracksType
+
+class DurationScale(Enum):
+	SECONDS = 'seconds'
+	MINUTES = 'minutes'
+	HOURS = 'hours'
+
 class Tracks:
 
 	@staticmethod
@@ -10,7 +17,7 @@ class Tracks:
 		return [track['track']['id'] for track in tracks]
 
 	@staticmethod
-	def get_duration(tracks: list, duration_scale: str='minutes'):
+	def get_duration(tracks: list, duration_scale: DurationScale):
 		""" returns duration of tracks \n
 				duration scale should be 'seconds', 'minutes' or 'hours' \n
 				default is minutes """
@@ -24,4 +31,4 @@ class Tracks:
 			'hours': duration / (60 * 60)
 		}
 
-		return types.get(duration_scale)
+		return types.get(duration_scale.value)

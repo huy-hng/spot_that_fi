@@ -1,6 +1,6 @@
 from functools import wraps
 
-from sqlalchemy import literal
+from sqlalchemy import literal, exists
 from sqlalchemy.orm import Session as sess
 from sqlalchemy.orm.query import Query
 
