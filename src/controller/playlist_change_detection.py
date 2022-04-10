@@ -9,11 +9,15 @@ from src import db
 
 
 def has_playlist_changed(playlist: SpotifyPlaylistType):
+	""" check if current snapshot_id and db snapshot_id are different """
 	current_snapshot = playlist.snapshot_id
 	previous_snapshot = db.playlists.get_playlist_snapshot_id(playlist.id)
 	return previous_snapshot != current_snapshot
 
+
 def changed_playlists(playlists: list[SpotifyPlaylistType]):
+	""" filteres the playlists param and returns only
+			playlists that changed """
 	changed: list[SpotifyPlaylistType] = []
 	for playlist in playlists:
 		if has_playlist_changed(playlist):
