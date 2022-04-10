@@ -29,6 +29,13 @@ class Spotipy:
 				redirect_uri=redirect_uri, scope=scope))
 		
 
+	#region create
+	def like_tracks(self, track_ids: list[str]):
+		self.sp.current_user_saved_tracks_add(track_ids)
+	#endregion
+
+
+	#region read
 	def get_one_playlist(self, playlist_id: str) -> SpotifyPlaylistType:
 		playlist = self.sp.playlist(playlist_id)
 		return SpotifyPlaylistType(**playlist)
@@ -50,17 +57,6 @@ class Spotipy:
 		write_dict_to_file('playlists', all_playlists)
 
 		return all_playlists
-
-
-	# def get_playlist_tracks(self, playlist_id: str, num_tracks: int):
-	# 	tracks = []
-	# 	for t in self.get_playlist_tracks_generator(playlist_id):
-	# 		if len(tracks) + len(t) > num_tracks:
-	# 			rest = num_tracks % 100
-	# 			tracks = t[rest:] + tracks
-	# 			break
-	# 		tracks = t + tracks
-	# 	return tracks
 
 
 	def get_playlist_tracks_generator(self, playlist_id: str):
@@ -101,13 +97,12 @@ class Spotipy:
 
 			yield tracks
 
+	#endregion
+	
 
+	#region update
 	def replace_playlist_tracks(self, playlist_id: str, track_ids: list[str]):
 		self.sp.playlist_replace_items(playlist_id, track_ids)
-
-
-	def remove_tracks(self, uri: str, track_ids: list[str]):
-		self.sp.playlist_remove_all_occurrences_of_items(uri, track_ids)
 
 
 	def add_tracks_at_beginning(self, uri: str, track_ids: list[str]):
@@ -133,3 +128,27 @@ class Spotipy:
 																			track_ids: list[str],
 																			last_position: int):
 		self.sp.playlist_add_items(uri, track_ids, last_position)
+	#endregion
+
+
+	#region delete
+	def remove_tracks(self, uri: str, track_ids: list[str]):
+		self.sp.playlist_remove_all_occurrences_of_items(uri, track_ids)
+	#endregion
+
+
+
+
+
+
+
+
+	# def get_playlist_tracks(self, playlist_id: str, num_tracks: int):
+	# 	tracks = []
+	# 	for t in self.get_playlist_tracks_generator(playlist_id):
+	# 		if len(tracks) + len(t) > num_tracks:
+	# 			rest = num_tracks % 100
+	# 			tracks = t[rest:] + tracks
+	# 			break
+	# 		tracks = t + tracks
+	# 	return tracks
