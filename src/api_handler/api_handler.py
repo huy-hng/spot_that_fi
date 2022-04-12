@@ -80,6 +80,7 @@ class Spotipy:
 
 			items: dict = self.sp.playlist_items(
 																				playlist_id, limit=limit, offset=offset)
+			write_dict_to_file('playlist_tracks', items)
 			tracks: list[dict] = items['items']
 			offset -= limit
 
@@ -87,13 +88,13 @@ class Spotipy:
 
 
 	def get_liked_tracks_generator(self):
-		items: types.liked_tracks.LikedTracks = {'next': True}
+		items: types.tracks.LikedTracks = {'next': True}
 		limit = 50
 		offset = 0
 		while items['next']:
 
 			items = self.sp.current_user_saved_tracks(limit, offset)
-			items = types.liked_tracks.LikedTracks(items)
+			items = types.tracks.LikedTracks(items)
 			write_dict_to_file('liked_tracks', items)
 			offset += limit
 

@@ -7,6 +7,7 @@ class LikedTracksItemTrack(DotDict):
 	available_markets: list
 	disc_number: int
 	duration_ms: int
+	# episode: bool
 	explicit: bool
 	external_ids: dict
 	external_urls: dict
@@ -16,6 +17,7 @@ class LikedTracksItemTrack(DotDict):
 	name: str
 	popularity: int
 	preview_url: str
+	# track: bool
 	track_number: int
 	type: str
 	uri: str
@@ -42,3 +44,20 @@ class LikedTracks(DotDict):
 	def __init__(self, item: dict):
 		super().__init__(item)
 		self.tracks = [LikedTracksItem(track) for track in self.get('items')]
+
+
+class PlaylistTracksItem(DotDict):
+	added_at: str
+	added_by: dict
+	is_local: bool
+	primary_color: None
+	track: LikedTracksItemTrack
+	video_thumbnail: dict
+
+	def __init__(self, item: dict):
+		super().__init__(item)
+		self.track = LikedTracksItemTrack(self.track)
+
+class PlaylistTracks(DotDict):
+	# TODO: same as LikedTracks
+	pass
