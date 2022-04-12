@@ -4,9 +4,10 @@ import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-from ..helpers.helpers import write_dict_to_file
-from src.api_handler.tracks import Tracks
-from ..helpers.data_types import SpotifyPlaylistType, TracksType
+from src import types
+from src.helpers.logger import log
+from src.helpers.helpers import write_dict_to_file
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -36,16 +37,17 @@ class Spotipy:
 
 
 	#region read
-	def get_one_playlist(self, playlist_id: str) -> SpotifyPlaylistType:
+	def get_one_playlist(self, playlist_id: str) -> types.playlists.SpotifyPlaylistType:
 		playlist = self.sp.playlist(playlist_id)
-		return SpotifyPlaylistType(**playlist)
+		return types.playlists.SpotifyPlaylistType(playlist)
 
 
-	def get_all_playlists(self) -> list[SpotifyPlaylistType]:
+	def get_all_playlists(self) -> list[types.playlists.SpotifyPlaylistType]:
 		self.api_calls += 1
 
-		all_playlists: list[SpotifyPlaylistType] = []
+		all_playlists: list[dict] = []
 		offset = 0
+
 		while True:
 			playlists: dict = self.sp.current_user_playlists(offset=offset)
 			all_playlists += playlists['items']
@@ -56,6 +58,9 @@ class Spotipy:
 
 		write_dict_to_file('playlists', all_playlists)
 
+		all_playlists: list[types.playlists.SpotifyPlaylistType] = [
+			types.playlists.SpotifyPlaylistType(playlist) for playlist in all_playlists
+		]
 		return all_playlists
 
 
@@ -73,30 +78,26 @@ class Spotipy:
 				offset = 0
 				limit = max(1, min(100, limit))
 
-			items: TracksType = self.sp.playlist_items(
+			items: dict = self.sp.playlist_items(
 																				playlist_id, limit=limit, offset=offset)
-			tracks: list[TracksType] = items['items']
+			tracks: list[dict] = items['items']
 			offset -= limit
 
 			yield tracks
 
 
 	def get_liked_tracks_generator(self):
-		items = {'previous': True}
+		items: types.liked_tracks.LikedTracks = {'next': True}
 		limit = 50
-		liked_tracks_amount = self.sp.current_user_saved_tracks(1)['total']
-		offset = liked_tracks_amount - limit
-		while items['previous']:
-			if offset < 0:
-				limit += offset
-				offset = 0
+		offset = 0
+		while items['next']:
 
-			items: TracksType = self.sp.current_user_saved_tracks(limit, offset)
-			tracks: list = items['items']
-			offset -= limit
+			items = self.sp.current_user_saved_tracks(limit, offset)
+			items = types.liked_tracks.LikedTracks(items)
+			write_dict_to_file('liked_tracks', items)
+			offset += limit
 
-			yield tracks
-
+			yield items
 	#endregion
 	
 

@@ -13,7 +13,7 @@ from src.helpers.logger import log
 #region playlist functions
 
 # creates
-def add_playlists(playlists: list[dict]):
+def add_playlists(playlists: list[SpotifyPlaylistType]):
 	with Session.begin() as session:
 		for playlist in playlists:
 			row = Playlist(playlist)
@@ -26,7 +26,8 @@ def add_playlists(playlists: list[dict]):
 
 
 # reads
-def get_all_playlists():
+def get_all_playlists() -> list[str]: 
+	""" returns a list with playlist ids """
 	with Session.begin() as session:
 		session: sess = session
 		q = session.query(Playlist).all()
