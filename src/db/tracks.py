@@ -10,7 +10,9 @@ def add_track(session: Session, track: dict, liked=False):
 	""" adds a single track to db (if not already)
 			and returns it """
 	row = Track(track)
-	if row.id is None:
+	if row.id is None: # TODO whats this case?
+		# this case might be when its a local song that is not on spotify servers
+		# and therefore has no id
 		return None
 
 	if does_track_exist(row.id):
@@ -53,7 +55,7 @@ def does_track_exist(track_id: str):
 
 
 def get_liked_tracks_not_in_playlists() -> list[str]:
-	""" returns a list of track ids """
+	""" returns a list of track ids that are liked but not in any playlist"""
 	with Session.begin() as session:
 		session: sess = session
 
@@ -62,8 +64,8 @@ def get_liked_tracks_not_in_playlists() -> list[str]:
 		return ids
 
 
-def get_not_liked_tracks() -> list[str]:
-	""" returns a list of track ids """
+def get_not_liked_tracks_in_playlists() -> list[str]:
+	""" returns a list of track ids that are in playlists but not liked """
 	with Session.begin() as session:
 		session: sess = session
 
