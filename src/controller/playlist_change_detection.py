@@ -1,4 +1,3 @@
-# from src import api_handler
 from src.helpers.myers import Myers, myers_diff, Keep, Insert, Remove
 from src.helpers.data_types import SpotifyPlaylistType
 
@@ -18,6 +17,7 @@ def has_playlist_changed(playlist: SpotifyPlaylistType):
 def changed_playlists(playlists: list[SpotifyPlaylistType]):
 	""" filteres the playlists param and returns only
 			playlists that changed """
+
 	changed: list[SpotifyPlaylistType] = []
 	for playlist in playlists:
 		if has_playlist_changed(playlist):
@@ -61,19 +61,3 @@ def calculate_diff(playlist_id: str, num_tracks: int):
 			removals.append(elem.line)
 
 	return removals, inserts
-
-
-def update_playlist(playlist_id: str):
-	playlist = sp.get_one_playlist(playlist_id)
-	db.playlists.update_playlist(playlist)
-
-	removals, inserts = calculate_diff(playlist.id, playlist.tracks.total)
-	db.playlists.remove_tracks_from_playlist(playlist.id, removals)
-	db.playlists.add_tracks_to_playlist(playlist.id, inserts)
-
-	
-def update_playlists(playlists: list[SpotifyPlaylistType]):
-	# playlists = sp.get_all_playlists()
-	changed = changed_playlists(playlists)
-	for playlist in changed:
-		update_playlist(playlist.id)
