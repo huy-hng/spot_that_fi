@@ -1,3 +1,4 @@
+# from typing import Protocol
 class DotDict(dict):
 	"""dot.notation access to dictionary attributes"""
 	__getattr__ = dict.get
