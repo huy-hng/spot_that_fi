@@ -4,11 +4,11 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
-from src.helpers.data_types import SpotifyPlaylistType
+from src.types.playlists import SpotifyPlaylistType
 
-from src.db import Base
+from src.db import Base as TableBase
 
-class PlaylistTracksAssociation(Base):
+class PlaylistTracksAssociation(TableBase):
 	__tablename__ = 'playlist_tracks_association'
 
 	playlist_id = Column(ForeignKey('playlist.id'), primary_key=True)
@@ -26,7 +26,7 @@ class PlaylistTracksAssociation(Base):
 		self.added_by = track['added_by']['id']
 
 
-class Playlist(Base):
+class Playlist(TableBase):
 	__tablename__ = 'playlist'
 
 	id = Column(String, primary_key=True)
@@ -51,7 +51,7 @@ class Playlist(Base):
 		self.owner_id = playlist.owner.id
 
 
-class Track(Base):
+class Track(TableBase):
 	__tablename__ = 'track'
 
 	id = Column(String, primary_key=True)

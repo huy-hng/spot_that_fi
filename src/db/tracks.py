@@ -6,7 +6,7 @@ from src.helpers.logger import log
 
 
 #region create
-def add_track(session: Session, track: dict, liked=False):
+def add_track(session: sess, track: dict, liked=False) -> Track | None:
 	""" adds a single track to db (if not already)
 			and returns it """
 	row = Track(track)
@@ -28,13 +28,13 @@ def add_track(session: Session, track: dict, liked=False):
 	return row
 
 
-def add_tracks(tracks: list[dict], liked=False) -> Track:
+def add_tracks(tracks: list[dict], liked=False):
 	""" adds a (liked) track to the database (if not already) """
 	with Session.begin() as session:
 		session: sess = session
 		for track in tracks:
 			if track['is_local']:
-				return
+				continue
 
 			add_track(session, track, liked)
 #endregion create

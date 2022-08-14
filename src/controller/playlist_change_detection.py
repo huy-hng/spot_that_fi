@@ -1,5 +1,5 @@
 from src.helpers.myers import Myers, myers_diff, Keep, Insert, Remove
-from src.helpers.data_types import SpotifyPlaylistType
+from src.types.playlists import SpotifyPlaylistType
 
 from src.api_handler import sp
 from src.api_handler.tracks import Tracks
@@ -14,7 +14,7 @@ def has_playlist_changed(playlist: SpotifyPlaylistType):
 	return previous_snapshot != current_snapshot
 
 
-def changed_playlists(playlists: list[SpotifyPlaylistType]):
+def get_changed_playlists(playlists: list[SpotifyPlaylistType]):
 	""" filteres the playlists param and returns only
 			playlists that changed """
 
@@ -26,7 +26,7 @@ def changed_playlists(playlists: list[SpotifyPlaylistType]):
 	return changed
 
 
-def calculate_diff(playlist_id: str, num_tracks: int):
+def get_track_diff(playlist_id: str, num_tracks: int):
 	""" returns a tuple where the first value is removals 
 			and second is inserts """
 	
@@ -36,6 +36,7 @@ def calculate_diff(playlist_id: str, num_tracks: int):
 	sp_track_list = {}
 	track_ids = []
 
+	myers = None
 	for tracks in sp_track_list_gen:
 		sp_track_list.update({track['track']['id']: track for track in tracks})
 		track_ids = Tracks.get_ids(tracks) + track_ids

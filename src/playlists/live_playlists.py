@@ -2,7 +2,8 @@ import math
 from typing import Union
 
 from src.api_handler.tracks import Tracks
-from src.helpers.data_types import SpotifyPlaylistType, TracksType
+from src.helpers.data_types import TracksType
+from src.types.playlists import SpotifyPlaylistType
 from src.api_handler import sp
 
 class LivePlaylist:
@@ -20,12 +21,12 @@ class LivePlaylist:
 		self.tracks_in_playlist = playlist.tracks.total
 
 
-	def get_latest_tracks(self, num_tracks: int=None):
+	def get_latest_tracks(self, num_tracks: int=0):
 		""" returns the latest n songs in playlist in added order.
 		That means the latest added song is at the end of the list\n
-		if num_songs == None: return all songs in playlist """
+		if num_songs == 0: return all songs in playlist """
 
-		if num_tracks is None:
+		if num_tracks == 0:
 			# * update num_tracks incase it has changed
 			new_data = sp.get_one_playlist(self.uri)
 			new_total_tracks = new_data['tracks']['total']
@@ -33,7 +34,7 @@ class LivePlaylist:
 			num_tracks = self.tracks_in_playlist
 
 		tracks = []
-		for t in sp.get_playlist_tracks_generator(self.uri, self.tracks_in_playlist):
+		for t in sp.get_playlist_tracks_generator(self.uri):
 			if len(tracks) + len(t) > num_tracks:
 				rest = num_tracks % 100
 				tracks = t[rest:] + tracks
@@ -68,7 +69,7 @@ class LivePlaylist:
 		sp.replace_playlist_tracks(self.uri, track_ids)
 
 	@staticmethod
-	def get_ids(tracks): # TODO: added union typing python 3.10 style with |
+	def get_ids(tracks: list[TracksType] | list[str]) -> list[str]:
 		if len(tracks) == 0:
 			return []
 
@@ -76,6 +77,8 @@ class LivePlaylist:
 			return tracks
 		else:
 			return Tracks.get_ids(tracks)
+
+
 
 class LivePlaylists:
 	""" handles loading live playlist data and manages them """

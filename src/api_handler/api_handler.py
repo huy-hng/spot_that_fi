@@ -58,10 +58,11 @@ class Spotipy:
 
 		write_dict_to_file('playlists', all_playlists)
 
-		all_playlists: list[types.playlists.SpotifyPlaylistType] = [
+		converted_playlists: list[types.playlists.SpotifyPlaylistType] = [
 			types.playlists.SpotifyPlaylistType(playlist) for playlist in all_playlists
 		]
-		return all_playlists
+
+		return converted_playlists
 
 
 	def get_playlist_tracks_generator(self, playlist_id: str):
