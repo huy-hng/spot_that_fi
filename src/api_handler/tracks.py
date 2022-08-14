@@ -26,9 +26,9 @@ class Tracks:
 		duration = sum(durations_ms) / 1000
 
 		types = {
-			'seconds': duration,
-			'minutes': duration / 60,
-			'hours': duration / (60 * 60)
+			DurationScale.SECONDS: duration,
+			DurationScale.MINUTES: duration / 60,
+			DurationScale.HOURS: duration / (60 * 60)
 		}
 
-		return types.get(duration_scale.value)
+		return types[duration_scale]
