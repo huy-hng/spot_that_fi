@@ -1,41 +1,44 @@
 from sqlalchemy import delete
 from sqlalchemy.orm import Session as sess
-from src.helpers.data_types import SpotifyPlaylistType
+# from src.helpers.data_types import SpotifyPlaylistType
+from src.types.playlists import SpotifyPlaylistType
 
 from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
 from .tracks import add_track
-from .tables import Playlist, PlaylistTracksAssociation
-from . import Session 
+# from .tables import Playlist, PlaylistTracksAssociation
+from src.db import tables, get_session
+# from . import Session 
 
 from src.helpers.logger import log
 
 #region playlist functions
 
 # creates
-def add_playlists(playlists: list[SpotifyPlaylistType]):
-	with Session.begin() as session:
-		for playlist in playlists:
-			row = Playlist(playlist)
+@get_session
+def add_playlists(session: sess, playlists: list[SpotifyPlaylistType]):
+	""" adds spotify playlist to db
+			if playlists already exist, skip """
+	for playlist in playlists:
+		row = tables.Playlist(playlist)
 
-			if not does_playlist_exist(row.id) and row.owner_id == 'slaybesh':
-				log.info(f'Adding playlist: {row.name}')
-				session.add(row)
-			else:
-				log.debug(f'Playlist {row.name} already exists or doesnt belong to you.')
+		if not does_playlist_exist(row.id) and row.owner_id == 'slaybesh':
+			log.info(f'Adding playlist: {row.name}')
+			session.add(row)
+		else:
+			log.debug(f'Playlist {row.name} already exists or doesnt belong to you.')
 
 
 # reads
-def get_all_playlists() -> list[str]: 
+@get_session
+def get_all_playlists(session: sess) -> list[str]: 
 	""" returns a list with playlist ids """
-	with Session.begin() as session:
-		session: sess = session
-		q = session.query(Playlist).all()
-		return [playlist.id for playlist in q]
+	q = session.query(tables.Playlist).all()
+	return [playlist.id for playlist in q]
 
 
-def get_playlist(session: sess, playlist_id):
-	playlist = session.query(Playlist).get(playlist_id)
+def get_playlist(session: sess, playlist_id: str):
+	playlist = session.query(tables.Playlist).get(playlist_id)
 	
 	if playlist is None:
 		raise PlaylistNotFoundError(playlist_id)
@@ -43,37 +46,38 @@ def get_playlist(session: sess, playlist_id):
 	return playlist
 
 
-def get_id_from_name(playlist_name) -> str:
-	with Session.begin() as session:
-		playlist: Playlist = session.query(Playlist).filter(Playlist.name == playlist_name).first()
-		
-		if playlist is None:
-			raise PlaylistNotFoundError(playlist_name)
+@get_session
+def get_id_from_name(session: sess, playlist_name: str) -> str:
+	# playlist: tables.Playlist = session.query(tables.Playlist).filter(tables.Playlist.name == playlist_name).first()
+	playlist = session.query(tables.Playlist).filter(tables.Playlist.name == playlist_name).first()
+	
+	if playlist is None:
+		raise PlaylistNotFoundError(playlist_name)
 
-		return playlist.id
-
-
-def get_playlist_snapshot_id(playlist_id: str):
-	with Session.begin() as session:
-		playlist = get_playlist(session, playlist_id)
-		return playlist.snapshot_id
+	return playlist.id
 
 
-def does_playlist_exist(playlist_id: str):
-	with Session.begin() as session:
-		q = session.query(Playlist).get(playlist_id)
-		if q is None:
-			return False
-		return True
+@get_session
+def get_playlist_snapshot_id(session: sess, playlist_id: str):
+	playlist = get_playlist(session, playlist_id)
+	return playlist.snapshot_id
+
+
+@get_session
+def does_playlist_exist(session: sess,playlist_id: str):
+	q = session.query(tables.Playlist).get(playlist_id)
+	if q is None:
+		return False
+	return True
 
 
 # updates
-def update_playlist(live_playlist: SpotifyPlaylistType):
+@get_session
+def update_playlist(session: sess, live_playlist: SpotifyPlaylistType):
 	""" this function updates a playlist in the db
 			it updates the playlist length, snapshot, etc """
-	with Session.begin() as session:
-		db_playlist = get_playlist(session, live_playlist.id)
-		db_playlist.update(live_playlist) # TODO: check if this actually updates
+	db_playlist = get_playlist(session, live_playlist.id)
+	db_playlist.update(live_playlist) # TODO: check if this actually updates
 
 
 """ def update_playlist_snapshot(playlist_id: str, snapshot_id: str):
@@ -121,12 +125,13 @@ def get_track_ids(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
 	with Session.begin() as session:
 		playlist = get_playlist(session, playlist_id)
+
 		associations = playlist.playlist_track_association
 		associations.sort(key=lambda x: x.added_at)
-		track_ids: list[str] = []
-		for ass in associations:
-			track_ids.append(ass.track_id)
+
+		track_ids: list[str] = [ass.track_id for ass in associations]
 		return track_ids
+
 
 def get_track_names(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
