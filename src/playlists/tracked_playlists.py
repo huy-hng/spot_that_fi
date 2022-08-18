@@ -31,7 +31,7 @@ class TrackedPlaylist:
 		return changed
 
 
-	def __dict__(self) -> TrackedPlaylistType:
+	def __dict__(self) -> dict[str, str]:
 		return {
 			'name': self.name,
 			'current': self.current_uri,
@@ -45,7 +45,6 @@ class TrackedPlaylists:
 	def __init__(self, live_playlists: LivePlaylists):
 		self.live_playlists = live_playlists
 
-		# self.FILE_LOCATION = '/home/huy/repositories/spot_that_fi/data/tracked_playlists.json'
 		self.FILE_LOCATION = './data/tracked_playlists.json'
 		self.playlists: dict[str, TrackedPlaylist] = {}
 		self.load_data()
@@ -56,20 +55,20 @@ class TrackedPlaylists:
 
 
 	def load_data(self):
-		playlists = self.read_file()
+		playlists = self._read_file()
 
 		for playlist in playlists:
 			try: 
-				name = playlist['name']
-				current_uri = playlist['current']
-				archive_uri = playlist['archive']
+				name = playlist.name
+				current_uri = playlist.current
+				archive_uri = playlist.archive
 				self.check_existence(current_uri, name)
 				self.check_existence(archive_uri, name + ' Archive')
 			except ValueError as e:
 				raise e
 
 			tracked = TrackedPlaylist(playlist, self.update_snapshot)
-			self.playlists[playlist['name']] = tracked
+			self.playlists[playlist.name] = tracked
 
 
 	def update_snapshot(self, playlist_name: str, snapshot_id: str):
@@ -77,18 +76,19 @@ class TrackedPlaylists:
 		playlist = self.playlists[playlist_name]
 		playlist.snapshot_id = snapshot_id
 
-		self.write_file()
+		self._write_file()
 		self.load_data()
 		# TODO check if this behaves correctly
 		# FIX this might be a race condition
 
 
-	def write_file(self):
+	def _write_file(self):
+		# FIX could cause race condition
 		data = self.convert_playlists_to_json()
 		with open(self.FILE_LOCATION, 'w') as f:
 			f.write(data)
 
-	def read_file(self) -> list[TrackedPlaylistType]:
+	def _read_file(self) -> list[TrackedPlaylistType]:
 		with open(self.FILE_LOCATION) as f:
 			return json.load(f)
 
@@ -105,7 +105,7 @@ class TrackedPlaylists:
 
 	def convert_playlists_to_json(self):
 		# FIX theres a better way to do this
-		json_list = []
+		json_list: list[dict[str, str]] = []
 		for name, tracked in self.playlists.items():
 			json_list.append(tracked.__dict__())
 

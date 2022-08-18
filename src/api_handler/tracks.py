@@ -9,15 +9,15 @@ class DurationScale(Enum):
 class Tracks:
 
 	@staticmethod
-	def get_names(tracks: list):
+	def get_names(tracks: list[dict]):
 		return [track['track']['name'] for track in tracks]
 		
 	@staticmethod
-	def get_ids(tracks: list):
+	def get_ids(tracks: list[dict]):
 		return [track['track']['id'] for track in tracks]
 
 	@staticmethod
-	def get_duration(tracks: list, duration_scale: DurationScale):
+	def get_duration(tracks: list[dict], duration_scale: DurationScale):
 		""" returns duration of tracks \n
 				duration scale should be 'seconds', 'minutes' or 'hours' \n
 				default is minutes """
