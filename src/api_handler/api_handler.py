@@ -37,12 +37,16 @@ class Spotipy:
 
 
 	#region read
-	def get_one_playlist(self, playlist_id: str) -> types.playlists.SpotifyPlaylistType:
+	def get_one_playlist(self, playlist_id: str):
 		playlist = self.sp.playlist(playlist_id)
 		return types.playlists.SpotifyPlaylistType(playlist)
 
 
 	def get_all_playlists(self) -> list[types.playlists.SpotifyPlaylistType]:
+		""" api call expense: 50 playlists = 1 call \n
+				if one has 60 playlists in their spotify,
+				this functions would do 2 api calls """
+
 		self.api_calls += 1
 
 		all_playlists: list[dict] = []
@@ -89,17 +93,20 @@ class Spotipy:
 
 
 	def get_liked_tracks_generator(self):
-		items: types.tracks.LikedTracks = {'next': True}
+		items: types.tracks.LikedTracks
 		limit = 50
 		offset = 0
-		while items['next']:
 
+		while True:
 			items = self.sp.current_user_saved_tracks(limit, offset)
 			items = types.tracks.LikedTracks(items)
 			write_dict_to_file('liked_tracks', items)
 			offset += limit
 
 			yield items
+			if not items.next:
+				# TODO: check if this logic works
+				break
 	#endregion
 	
 

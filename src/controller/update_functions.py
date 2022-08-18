@@ -31,6 +31,6 @@ def update_playlist_tracks_in_db(playlist: SpotifyPlaylistType):
 def update_all_playlist_tracks_in_db():
 	playlists = sp.get_all_playlists()
 	db.playlists.add_playlists(playlists)
-	changed = playlist_change_detection.get_changed_playlists(playlists)
+	changed = playlist_change_detection.get_changed_playlists()
 	for playlist in changed:
 		update_playlist_tracks_in_db(playlist)

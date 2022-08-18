@@ -14,10 +14,10 @@ def has_playlist_changed(playlist: SpotifyPlaylistType):
 	return previous_snapshot != current_snapshot
 
 
-def get_changed_playlists(playlists: list[SpotifyPlaylistType]):
+def get_changed_playlists():
 	""" filteres the playlists param and returns only
 			playlists that changed """
-
+	playlists = sp.get_all_playlists()
 	changed: list[SpotifyPlaylistType] = []
 	for playlist in playlists:
 		if has_playlist_changed(playlist):
