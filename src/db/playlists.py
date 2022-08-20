@@ -6,7 +6,7 @@ from src.types.playlists import SpotifyPlaylistType
 from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
 from .tracks import add_track
-# from .tables import Playlist, PlaylistTracksAssociation
+from .tables import Playlist, PlaylistTracksAssociation
 from src.db import tables, get_session
 # from . import Session 
 
@@ -90,35 +90,33 @@ def update_playlist(session: sess, live_playlist: SpotifyPlaylistType):
 #region tracks functions
 
 # creates
-def	add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
-	with Session.begin() as session:
-		session: sess = session
+@get_session
+def	add_tracks_to_playlist(session: sess, playlist_id: str, tracks: list[dict]):
+	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
-		playlist: Playlist = session.query(Playlist).get(playlist_id)
+	for track in tracks:
 
-		for track in tracks:
+		row = add_track(session, track)
+		if row is None or row.id is None:
+			continue
 
-			row = add_track(session, track)
-			if row is None or row.id is None:
+		try:
+			if is_track_in_playlist(session, playlist.id, row.id):
+				log.debug(f'{row.name} is already in {playlist.name}')
 				continue
+		except Exception as e:
+			log.exception(e) # TODO find out what this error is
+			log.error(f'Not sure what this error is.')
+			continue
 
-			try:
-				if is_track_in_playlist(session, playlist.id, row.id):
-					log.debug(f'{row.name} is already in {playlist.name}')
-					continue
-			except Exception as e:
-				log.exception(e) # TODO find out what this error is
-				log.error(f'Not sure what this error is.')
-				continue
+		association = PlaylistTracksAssociation(track)
+		association.track = row
+		association.playlist = playlist
+		playlist.playlist_track_association.append(association)
 
-			association = PlaylistTracksAssociation(track)
-			association.track = row
-			association.playlist = playlist
-			playlist.playlist_track_association.append(association)
+		session.add(association)
 
-			session.add(association)
-
-			log.debug(f'Adding {row.name} to {playlist.name}')
+		log.debug(f'Adding {row.name} to {playlist.name}')
 
 # reads
 def get_track_ids(playlist_id: str):

@@ -1,3 +1,4 @@
 {
-	"playlist_mode": "snippet_mode"
+	"playlist_mode": "snippet_mode",
+	"snippet_size": 50
 }
