@@ -1,6 +1,6 @@
 import pytest
 
-from src.playlists.live_playlists import LivePlaylists
+from src.playlists_deprecated.live_playlists import LivePlaylists
 from src.api_handler import sp
 from src.api_handler.tracks import Tracks
 

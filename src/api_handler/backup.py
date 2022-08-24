@@ -1,9 +1,9 @@
 import json
 from datetime import date
 
-from src.playlists.live_playlists import LivePlaylists
+# from src.playlists_deprecated.live_playlists import LivePlaylists
 
-def backup_all_playlists(playlistsCls: LivePlaylists):
+def backup_all_playlists(playlistsCls):
 
 	backups = []
 	playlists = playlistsCls.playlists
