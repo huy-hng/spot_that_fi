@@ -119,28 +119,28 @@ def	add_tracks_to_playlist(session: sess, playlist_id: str, tracks: list[dict]):
 		log.debug(f'Adding {row.name} to {playlist.name}')
 
 # reads
-def get_track_ids(playlist_id: str):
+@get_session
+def get_track_ids(session: sess, playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
-	with Session.begin() as session:
-		playlist = get_playlist(session, playlist_id)
+	playlist = get_playlist(session, playlist_id)
 
-		associations = playlist.playlist_track_association
-		associations.sort(key=lambda x: x.added_at)
+	associations = playlist.playlist_track_association
+	associations.sort(key=lambda x: x.added_at)
 
-		track_ids: list[str] = [ass.track_id for ass in associations]
-		return track_ids
+	track_ids: list[str] = [ass.track_id for ass in associations]
+	return track_ids
 
 
-def get_track_names(playlist_id: str):
+@get_session
+def get_track_names(session: sess, playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
-	with Session.begin() as session:
-		playlist = get_playlist(session, playlist_id)
-		associations = playlist.playlist_track_association
-		associations.sort(key=lambda x: x.added_at)
-		track_names: list[str] = []
-		for ass in associations:
-			track_names.append(ass.track.name)
-		return track_names
+	playlist = get_playlist(session, playlist_id)
+	associations = playlist.playlist_track_association
+	associations.sort(key=lambda x: x.added_at)
+	track_names: list[str] = []
+	for ass in associations:
+		track_names.append(ass.track.name)
+	return track_names
 
 
 def is_track_in_playlist(session: sess, playlist_id: str, track_id: str):
@@ -151,14 +151,14 @@ def is_track_in_playlist(session: sess, playlist_id: str, track_id: str):
 
 
 # deletes
-def remove_tracks_from_playlist(playlist_id: str, tracks: list[str]):
+@get_session
+def remove_tracks_from_playlist(session: sess, playlist_id: str, tracks: list[str]):
 	# with Session.begin() as session:
 	# TODO: if track has no assocation with any playlists anymore 
 	# and also isnt liked, delete
-	with Session.begin() as session:
-		for track_id in tracks:
-			session.query(PlaylistTracksAssociation).filter(
-										PlaylistTracksAssociation.track_id == track_id,
-										PlaylistTracksAssociation.playlist_id == playlist_id).delete()
+	for track_id in tracks:
+		session.query(PlaylistTracksAssociation).filter(
+									PlaylistTracksAssociation.track_id == track_id,
+									PlaylistTracksAssociation.playlist_id == playlist_id).delete()
 #endregion tracks functions
 
