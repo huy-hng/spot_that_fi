@@ -22,13 +22,14 @@ class Playlists:
 		snippet_data = playlist_data['snippet_playlist']
 
 		for data in snippet_data:
-			# TODO data['main_uri'] needs some type checking, wether its a uri
-			# or id. Also think about if I want to have it checked before hand
-			# so its garantueed.
+			"""
+			TODO: data['main_uri'] needs some type checking, wether its a uri
+			or id. Also think about if I want to have it checked before hand
+			so its garantueed.
+			"""
 			main_playlist = self.get_playlist_by_id(data['main_uri'])
 			snippet_playlist = self.get_playlist_by_id(data['snippet_uri'])
 			pair = SyncPairs(main_playlist, snippet_playlist)
 			pairs.append(pair)
 
 		return pairs
-		
