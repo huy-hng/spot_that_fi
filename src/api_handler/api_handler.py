@@ -174,17 +174,3 @@ class Spotipy:
 			log.warning(f'Expected id of type {type_} but found type {itype}, {id}')
 		return id
 
-
-
-
-
-
-	# def get_playlist_tracks(self, playlist_id: str, num_tracks: int):
-	# 	tracks = []
-	# 	for t in self.get_playlist_tracks_generator(playlist_id):
-	# 		if len(tracks) + len(t) > num_tracks:
-	# 			rest = num_tracks % 100
-	# 			tracks = t[rest:] + tracks
-	# 			break
-	# 		tracks = t + tracks
-	# 	return tracks
