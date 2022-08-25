@@ -32,7 +32,7 @@ def update_sp_snippet_playlists():
 		tracks = get_track_ids(uri)
 
 
-def sync_playlists(main: SpotifyPlaylistType, snippet: SpotifyPlaylistType):
+def sync_playlist_pair(main: SpotifyPlaylistType, snippet: SpotifyPlaylistType):
 	# prerequisite: know which playlists have changed
 	# if only main or snippet changed:
 	# 	add changes to other playlist
@@ -48,6 +48,7 @@ def sync_playlists(main: SpotifyPlaylistType, snippet: SpotifyPlaylistType):
 		... # TODO
 	elif main_changed:
 		... # copy last x tracks from main to snippet
+		gen = sp.get_playlist_tracks_generator(main.id)
 	elif snippet_changed:
 		... # get diff between snippet and main
 	else:
@@ -60,5 +61,5 @@ def sync_all_playlists():
 	playlists = api.Playlists(all_sp_playlists)
 
 	for pair in playlists.get_sync_pairs():
-		sync_playlists(pair.main, pair.snippet)
+		sync_playlist_pair(pair.main, pair.snippet)
 
