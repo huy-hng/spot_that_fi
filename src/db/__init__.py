@@ -1,5 +1,4 @@
 from functools import wraps
-from typing import Callable
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session as session_type
@@ -12,19 +11,13 @@ engine = create_engine('sqlite:///src/db/SpotifyData.db')
 SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base(bind=engine)
 
-def get_session(function: Callable):
-	# @wraps(function)
+def get_session(fn):
+	@wraps(fn)
 	def wrapper(*args, **kwargs):
 		with SessionMaker.begin() as session:
 			session: session_type
-			result = function(session, *args, **kwargs)
-		return result
+			return fn(session, *args, **kwargs)
 	return wrapper
-
-def get_session_fn(function):
-	session: session_type = SessionMaker.begin()
-	# with Session.begin() as session:
-	# 	session: session_type
 
 from .tables import *
 # Base.metadata.drop_all(bind=engine)
