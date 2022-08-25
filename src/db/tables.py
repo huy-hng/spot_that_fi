@@ -5,6 +5,8 @@ from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
 from src.types.playlists import SpotifyPlaylistType
+from src.types.tracks import TrackDict
+
 
 from src.db import Base as TableBase
 
@@ -63,12 +65,12 @@ class Track(TableBase):
 	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
 			'PlaylistTracksAssociation', back_populates='track')
 
-	def __init__(self, track: dict):
-		self.id = track['track']['id']
-		self.name = track['track']['name']
-		self.duration_ms = track['track']['duration_ms']
-		self.popularity = track['track']['popularity']
-		self.is_local = track['is_local']
+	def __init__(self, track: TrackDict):
+		self.id = track.id
+		self.name = track.name
+		self.duration_ms = track.duration_ms
+		self.popularity = track.popularity
+		self.is_local = track.is_local
 
 	def __repr__(self):
 		return f'{self.id=}\n{self.name=}\n{self.is_local=}'
