@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session as sess
 
+from src import types
 from .tables import Track
 from . import Session 
 from src.helpers.logger import log
+from . import get_session
 
 
 #region create
@@ -28,15 +30,14 @@ def add_track(session: sess, track: dict, liked=False) -> Track | None:
 	return row
 
 
-def add_tracks(tracks: list[dict], liked=False):
+@get_session
+def add_tracks(session: sess, tracks: list[types.tracks.Track], liked=False):
 	""" adds a (liked) track to the database (if not already) """
-	with Session.begin() as session:
-		session: sess = session
-		for track in tracks:
-			if track['is_local']:
-				continue
+	for track in tracks:
+		if track['is_local']:
+			continue
 
-			add_track(session, track, liked)
+		add_track(session, track, liked)
 #endregion create
 
 
@@ -45,33 +46,29 @@ def get_track(session: sess, track_id: str):
 	return session.query(Track).get(track_id)
 
 
-def does_track_exist(track_id: str):
-	with Session.begin() as session:
-		q = session.query(Track).get(track_id)
+@get_session
+def does_track_exist(session:sess, track_id: str):
+	q = session.query(Track).get(track_id)
 
-		if q is None:
-			return False
-		return True
+	if q is None:
+		return False
+	return True
 
 
-def get_liked_tracks_not_in_playlists() -> list[str]:
+@get_session
+def get_liked_tracks_not_in_playlists(session: sess) -> list[str]:
 	""" returns a list of track ids that are liked but not in any playlist"""
-	with Session.begin() as session:
-		session: sess = session
-
-		q = session.query(Track).filter(~Track.playlist_track_association.any()).all()
-		ids = [track.id for track in q]
-		return ids
+	q = session.query(Track).filter(~Track.playlist_track_association.any()).all()
+	ids = [track.id for track in q]
+	return ids
 
 
-def get_not_liked_tracks_in_playlists() -> list[str]:
+@get_session
+def get_not_liked_tracks_in_playlists(session: sess) -> list[str]:
 	""" returns a list of track ids that are in playlists but not liked """
-	with Session.begin() as session:
-		session: sess = session
-
-		q = session.query(Track).filter(Track.liked == False).all()
-		ids = [track.name for track in q]
-		return ids
+	q = session.query(Track).filter(Track.liked == False).all()
+	ids = [track.name for track in q]
+	return ids
 #endregion read
 
 
