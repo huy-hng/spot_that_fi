@@ -1,7 +1,7 @@
 import json
 from src import db
 
-from src.db import Session
+from src.db import SessionMaker
 
 
 def check_track_in_playlist():
@@ -40,14 +40,14 @@ def add_tracks_to_all_playlists():
 def liked_tracks_not_in_playlists():
 	track_ids = db.tracks.get_liked_tracks_not_in_playlists()
 
-	with Session.begin() as session:
+	with SessionMaker.begin() as session:
 		for track_id in track_ids:
 			row = db.tracks.get_track(session, track_id)
 			print(row.name)
 
 
 def get_playlist_tracks(playlist_name: str):
-	with Session.begin() as session:
+	with SessionMaker.begin() as session:
 		playlist_id = db.playlists.get_id_from_name(playlist_name)
 		playlist = db.playlists.get_playlist(session, playlist_id)
 		associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
