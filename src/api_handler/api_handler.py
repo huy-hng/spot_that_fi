@@ -135,9 +135,10 @@ class Spotipy:
 			time.sleep(0.5)
 
 
-	def add_tracks_at_end_as_bulk(self,	uri: str,
-																			track_ids: list[str],
-																			last_position: int):
+	def add_tracks_at_end_as_bulk(self,
+		uri: str,
+		track_ids: list[str],
+		last_position: int):
 		self.sp.playlist_add_items(uri, track_ids, last_position)
 	#endregion
 
