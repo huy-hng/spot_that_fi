@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src import types
+from types.tracks import TrackDict
 from .tables import Track
 from . import SessionMaker
 from src.helpers.logger import log
@@ -8,7 +9,7 @@ from . import get_session
 
 
 #region create
-def add_track(session: Session, track: dict, liked=False) -> Track | None:
+def add_track(session: Session, track: TrackDict, liked=False) -> Track | None:
 	""" adds a single track to db (if not already)
 			and returns it """
 	row = Track(track)
@@ -30,11 +31,11 @@ def add_track(session: Session, track: dict, liked=False) -> Track | None:
 	return row
 
 
-def add_tracks(tracks: list[types.tracks.TrackDict], liked=False):
+def add_tracks(tracks: list[TrackDict], liked=False):
 	with SessionMaker.begin() as session:
 		""" adds a (liked) track to the database (if not already) """
 		for track in tracks:
-			if track['is_local']:
+			if track.is_local:
 				continue
 
 			add_track(session, track, liked)
@@ -46,7 +47,7 @@ def get_track(session: Session, track_id: str):
 	return session.query(Track).get(track_id)
 
 
-def does_track_exist(session:Session, track_id: str):
+def does_track_exist(track_id: str):
 	with SessionMaker.begin() as session:
 		q = session.query(Track).get(track_id)
 
