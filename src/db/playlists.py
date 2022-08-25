@@ -158,7 +158,7 @@ def remove_tracks_from_playlist(session: sess, playlist_id: str, tracks: list[st
 	# and also isnt liked, delete
 	for track_id in tracks:
 		session.query(PlaylistTracksAssociation).filter(
-									PlaylistTracksAssociation.track_id == track_id,
-									PlaylistTracksAssociation.playlist_id == playlist_id).delete()
+				PlaylistTracksAssociation.track_id == track_id,
+				PlaylistTracksAssociation.playlist_id == playlist_id).delete()
 #endregion tracks functions
 

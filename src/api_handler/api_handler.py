@@ -64,7 +64,8 @@ class Spotipy:
 		write_dict_to_file('playlists', all_playlists)
 
 		converted_playlists: list[types.playlists.SpotifyPlaylistType] = [
-			types.playlists.SpotifyPlaylistType(playlist) for playlist in all_playlists
+			types.playlists.SpotifyPlaylistType(playlist)
+			for playlist in all_playlists
 		]
 
 		return converted_playlists
@@ -96,13 +97,13 @@ class Spotipy:
 
 
 	def get_liked_tracks_generator(self):
-		items: types.tracks.LikedTracks
+		items: types.tracks.LikedTracksList
 		limit = 50
 		offset = 0
 
 		while True:
 			items = self.sp.current_user_saved_tracks(limit, offset)
-			items = types.tracks.LikedTracks(items)
+			items = types.tracks.LikedTracksList(items)
 			write_dict_to_file('liked_tracks', items)
 			offset += limit
 

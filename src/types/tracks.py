@@ -7,7 +7,7 @@ class TrackItem(DotDict):
 	available_markets: list
 	disc_number: int
 	duration_ms: int
-	# episode: bool
+	# episode: bool # playlistTrack has this field
 	explicit: bool
 	external_ids: dict
 	external_urls: dict
@@ -17,10 +17,15 @@ class TrackItem(DotDict):
 	name: str
 	popularity: int
 	preview_url: str
-	# track: bool
+	# track: bool # playlistTrack has this field
 	track_number: int
 	type: str
 	uri: str
+
+
+class PlaylistTrackItem(TrackItem):
+	episode: bool
+	track: bool
 
 
 class LikedTracksItem(DotDict):
@@ -32,7 +37,7 @@ class LikedTracksItem(DotDict):
 		self.track = TrackItem(self.track)
 	
 
-class LikedTracks(DotDict):
+class LikedTracksList(DotDict):
 	href: str
 	tracks: list[LikedTracksItem] # actually called items but renamed for dot notation access
 	limit: int
@@ -53,12 +58,12 @@ class PlaylistTracksItem(DotDict):
 	added_by: dict
 	is_local: bool
 	primary_color: None
-	track: TrackItem
+	track: PlaylistTrackItem
 	video_thumbnail: dict
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.track = TrackItem(self.track)
+		self.track = PlaylistTrackItem(self.track)
 
 class PlaylistTracks(DotDict):
 	# TODO: same as LikedTracks
