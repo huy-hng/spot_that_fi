@@ -1,7 +1,7 @@
 from src.types import DotDict
 
-class LikedTracksItemTrack(DotDict):
-	# TODO: might be a generic track
+class TrackItem(DotDict):
+	""" previously called LikedTracksItemTrack """
 	album: dict
 	artists: list
 	available_markets: list
@@ -25,11 +25,11 @@ class LikedTracksItemTrack(DotDict):
 
 class LikedTracksItem(DotDict):
 	added_at: str # TODO could be datetime
-	track: LikedTracksItemTrack
+	track: TrackItem
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.track = LikedTracksItemTrack(self.track)
+		self.track = TrackItem(self.track)
 	
 
 class LikedTracks(DotDict):
@@ -43,7 +43,9 @@ class LikedTracks(DotDict):
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.tracks = [LikedTracksItem(track) for track in self.get('items')]
+		# self.tracks = [LikedTracksItem(track) for track in self.get('items')]
+		# TODO check if this works
+		self.tracks = [LikedTracksItem(track) for track in item['items']]
 
 
 class PlaylistTracksItem(DotDict):
@@ -51,13 +53,13 @@ class PlaylistTracksItem(DotDict):
 	added_by: dict
 	is_local: bool
 	primary_color: None
-	track: LikedTracksItemTrack
+	track: TrackItem
 	video_thumbnail: dict
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.track = LikedTracksItemTrack(self.track)
+		self.track = TrackItem(self.track)
 
 class PlaylistTracks(DotDict):
 	# TODO: same as LikedTracks
-	pass
+	...
