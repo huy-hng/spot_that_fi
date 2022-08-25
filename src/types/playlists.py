@@ -41,7 +41,12 @@ class SpotifySinglePlaylistTracksType(DotDict):
 
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
-		self.tracks = [SinglePlaylistTracksItemType(track) for track in self.get('items')]
+		# TODO check if this works
+		self.tracks = [
+			SinglePlaylistTracksItemType(track)
+			for track in playlist['items']
+		]
+		# self.tracks = [SinglePlaylistTracksItemType(track) for track in self.get('items')]
 
 
 class SpotifyPlaylistType(DotDict):

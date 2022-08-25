@@ -1,6 +1,6 @@
 from src.types import DotDict
 
-class TrackItem(DotDict):
+class Track(DotDict):
 	""" previously called LikedTracksItemTrack """
 	album: dict
 	artists: list
@@ -23,18 +23,18 @@ class TrackItem(DotDict):
 	uri: str
 
 
-class PlaylistTrackItem(TrackItem):
+class PlaylistTrack(Track):
 	episode: bool
 	track: bool
 
 
 class LikedTracksItem(DotDict):
 	added_at: str # TODO could be datetime
-	track: TrackItem
+	track: Track
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.track = TrackItem(self.track)
+		self.track = Track(self.track)
 	
 
 class LikedTracksList(DotDict):
@@ -58,13 +58,14 @@ class PlaylistTracksItem(DotDict):
 	added_by: dict
 	is_local: bool
 	primary_color: None
-	track: PlaylistTrackItem
+	track: PlaylistTrack
 	video_thumbnail: dict
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.track = PlaylistTrackItem(self.track)
+		self.track = PlaylistTrack(self.track)
 
-class PlaylistTracks(DotDict):
+
+class PlaylistTracksList(DotDict):
 	# TODO: same as LikedTracks
 	...
