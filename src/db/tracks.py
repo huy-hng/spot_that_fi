@@ -30,7 +30,7 @@ def add_track(session: Session, track: dict, liked=False) -> Track | None:
 	return row
 
 
-def add_tracks(tracks: list[types.tracks.Track], liked=False):
+def add_tracks(tracks: list[types.tracks.TrackDict], liked=False):
 	with SessionMaker.begin() as session:
 		""" adds a (liked) track to the database (if not already) """
 		for track in tracks:

@@ -1,6 +1,6 @@
 from src.types import DotDict
 
-class Track(DotDict):
+class TrackDict(DotDict):
 	""" previously called LikedTracksItemTrack """
 	album: dict
 	artists: list
@@ -23,23 +23,23 @@ class Track(DotDict):
 	uri: str
 
 
-class PlaylistTrack(Track):
+class PlaylistTrackDict(TrackDict):
 	episode: bool
 	track: bool
 
 
-class LikedTracksItem(DotDict):
+class LikedTracksItemDict(DotDict):
 	added_at: str # TODO could be datetime
-	track: Track
+	track: TrackDict
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.track = Track(self.track)
+		self.track = TrackDict(self.track)
 	
 
-class LikedTracksList(DotDict):
+class LikedTracksListDict(DotDict):
 	href: str
-	tracks: list[LikedTracksItem] # actually called items but renamed for dot notation access
+	tracks: list[LikedTracksItemDict] # actually called items but renamed for dot notation access
 	limit: int
 	next: str | None
 	offset: int
@@ -50,22 +50,22 @@ class LikedTracksList(DotDict):
 		super().__init__(item)
 		# self.tracks = [LikedTracksItem(track) for track in self.get('items')]
 		# TODO check if this works
-		self.tracks = [LikedTracksItem(track) for track in item['items']]
+		self.tracks = [LikedTracksItemDict(track) for track in item['items']]
 
 
-class PlaylistTracksItem(DotDict):
+class PlaylistTracksItemDict(DotDict):
 	added_at: str
 	added_by: dict
 	is_local: bool
 	primary_color: None
-	track: PlaylistTrack
+	track: PlaylistTrackDict
 	video_thumbnail: dict
 
 	def __init__(self, item: dict):
 		super().__init__(item)
-		self.track = PlaylistTrack(self.track)
+		self.track = PlaylistTrackDict(self.track)
 
 
-class PlaylistTracksList(DotDict):
+class PlaylistTracksListDict(DotDict):
 	# TODO: same as LikedTracks
 	...
