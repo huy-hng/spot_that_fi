@@ -75,9 +75,10 @@ class Spotipy:
 				no tracks are left """
 		items = {'previous': True}
 		limit = 100
-		tracks_in_playlist: int = self.sp.playlist_items(
-																									playlist_id, limit=1)['total']
+
+		tracks_in_playlist: int = self.sp.playlist_items(playlist_id)['total']
 		offset = tracks_in_playlist - limit
+
 		while items['previous']:
 			if offset < 0:
 				limit += offset
@@ -85,11 +86,12 @@ class Spotipy:
 				limit = max(1, min(100, limit))
 
 			items: dict = self.sp.playlist_items(
-																				playlist_id, limit=limit, offset=offset)
-			write_dict_to_file('playlist_tracks', items)
+				playlist_id, limit=limit, offset=offset)
+
 			tracks: list[dict] = items['items']
 			offset -= limit
 
+			# write_dict_to_file('playlist_tracks', items)
 			yield tracks
 
 
@@ -124,9 +126,9 @@ class Spotipy:
 		self.sp.playlist_add_items(uri, track_ids, position)
 
 
-	def add_tracks_at_end(self, uri: str,
-															track_ids: list[str],
-															last_position: int):
+	def add_tracks_at_end(self,
+			uri: str, track_ids: list[str], last_position: int):
+
 		position = last_position
 
 		for track_id in track_ids:
