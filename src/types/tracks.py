@@ -28,7 +28,8 @@ class PlaylistTrackDict(TrackDict):
 	track: bool
 
 
-class LikedTracksItemDict(DotDict):
+class LikedItemDict(DotDict):
+	
 	added_at: str # TODO could be datetime
 	track: TrackDict
 
@@ -39,7 +40,7 @@ class LikedTracksItemDict(DotDict):
 
 class LikedTracksListDict(DotDict):
 	href: str
-	tracks: list[LikedTracksItemDict] # actually called items but renamed for dot notation access
+	items_: list[LikedItemDict] # actually called items but renamed for dot notation access
 	limit: int
 	next: str | None
 	offset: int
@@ -50,7 +51,10 @@ class LikedTracksListDict(DotDict):
 		super().__init__(item)
 		# self.tracks = [LikedTracksItem(track) for track in self.get('items')]
 		# TODO check if this works
-		self.tracks = [LikedTracksItemDict(track) for track in item['items']]
+		self.items_ = [LikedItemDict(track) for track in item['items']]
+
+	def get_tracks(self):
+		return [item.track for item in self.items_]
 
 
 class PlaylistTracksItemDict(DotDict):
