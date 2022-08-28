@@ -4,4 +4,4 @@ __pycache__
 logs*
 requests/
 .env
-playlists.json
+# playlists.json
