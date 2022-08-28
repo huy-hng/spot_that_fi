@@ -1,9 +1,8 @@
 from sqlalchemy import delete
 from sqlalchemy.orm import Session as Session
-from src.types.playlists import AbstractPlaylistType, AllPlaylists
+from src.types.playlists import AbstractPlaylistType, AllPlaylists, PlaylistTracksItem
 
 from src.helpers.exceptions import PlaylistNotFoundError
-from types.playlists import PlaylistTracksItem
 from .helpers import does_exist
 from .tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation

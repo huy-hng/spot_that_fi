@@ -11,7 +11,6 @@ from src.helpers.helpers import write_dict_to_file
 
 from dotenv import load_dotenv
 
-from types.playlists import SinglePlaylistTracks
 load_dotenv()
 
 class Spotipy:
@@ -58,13 +57,14 @@ class Spotipy:
 
 		while True:
 			playlists: dict = self.sp.current_user_playlists(offset=offset)
+			# write_dict_to_file('current_user_playlists2', playlists)
+			# break
 			all_playlists += playlists['items']
 			if playlists['next'] is None:
 				break
 
 			offset += 50
 
-		# write_dict_to_file('current_user_playlists', all_playlists)
 
 		parsed_playlists = [
 			types.playlists.AllPlaylists(playlist)
@@ -93,7 +93,7 @@ class Spotipy:
 				playlist_id, limit=limit, offset=offset)
 
 			offset -= limit
-			yield SinglePlaylistTracks(items)
+			yield types.playlists.SinglePlaylistTracks(items)
 
 
 	def get_liked_tracks_generator(self):
