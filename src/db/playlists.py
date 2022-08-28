@@ -1,9 +1,9 @@
 from sqlalchemy import delete
 from sqlalchemy.orm import Session as Session
-# from src.helpers.data_types import SpotifyPlaylistType
 from src.types.playlists import SpotifyPlaylistType
 
 from src.helpers.exceptions import PlaylistNotFoundError
+from types.playlists import PlaylistTracksItem
 from .helpers import does_exist
 from .tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
@@ -72,7 +72,7 @@ def does_playlist_exist(session: Session,playlist_id: str):
 
 
 # updates
-def update_playlist(session: Session, live_playlist: SpotifyPlaylistType):
+def update_playlist(live_playlist: SpotifyPlaylistType):
 	""" this function updates a playlist in the db
 			it updates the playlist length, snapshot, etc """
 	with SessionMaker.begin() as session:
@@ -90,13 +90,13 @@ def update_playlist(session: Session, live_playlist: SpotifyPlaylistType):
 #region tracks functions
 
 # creates
-def	add_tracks_to_playlist(session: Session, playlist_id: str, tracks: list[dict]):
+def	add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
 	with SessionMaker.begin() as session:
 		playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
 		for track in tracks:
 
-			row = add_track(session, track)
+			row = add_track(session, track.track)
 			if row is None or row.id is None:
 				continue
 
@@ -119,7 +119,7 @@ def	add_tracks_to_playlist(session: Session, playlist_id: str, tracks: list[dict
 			log.debug(f'Adding {row.name} to {playlist.name}')
 
 # reads
-def get_track_ids(session: Session, playlist_id: str):
+def get_track_ids(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
 	with SessionMaker.begin() as session:
 		playlist = get_playlist(session, playlist_id)
@@ -131,7 +131,7 @@ def get_track_ids(session: Session, playlist_id: str):
 		return track_ids
 
 
-def get_track_names(session: Session, playlist_id: str):
+def get_track_names(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
 	with SessionMaker.begin() as session:
 		playlist = get_playlist(session, playlist_id)
@@ -151,7 +151,7 @@ def is_track_in_playlist(session: Session, playlist_id: str, track_id: str):
 
 
 # deletes
-def remove_tracks_from_playlist(session: Session, playlist_id: str, tracks: list[str]):
+def remove_tracks_from_playlist(playlist_id: str, tracks: list[str]):
 	with SessionMaker.begin() as session:
 		# with Session.begin() as session:
 		# TODO: if track has no assocation with any playlists anymore 
