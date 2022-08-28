@@ -1,6 +1,6 @@
 from sqlalchemy import delete
 from sqlalchemy.orm import Session as Session
-from src.types.playlists import SpotifyPlaylistType, AllPlaylists
+from src.types.playlists import AbstractPlaylistType, AllPlaylists
 
 from src.helpers.exceptions import PlaylistNotFoundError
 from types.playlists import PlaylistTracksItem
@@ -72,7 +72,7 @@ def does_playlist_exist(playlist_id: str):
 
 
 # updates
-def update_playlist(live_playlist: SpotifyPlaylistType):
+def update_playlist(live_playlist: AbstractPlaylistType):
 	""" this function updates a playlist in the db
 			it updates the playlist length, snapshot, etc """
 	with SessionMaker.begin() as session:
@@ -144,21 +144,26 @@ def get_track_names(playlist_id: str):
 
 
 def is_track_in_playlist(session: Session, playlist_id: str, track_id: str):
-	q = session.query(PlaylistTracksAssociation).filter(
-										PlaylistTracksAssociation.track_id == track_id,
-										PlaylistTracksAssociation.playlist_id == playlist_id)
+	q = get_PlaylistTracksAssociation(session, playlist_id, track_id)
 	return does_exist(q)
+
+def get_PlaylistTracksAssociation(
+		session: Session,
+		playlist_id: str,
+		track_id: str):
+
+	return session.query(PlaylistTracksAssociation).filter(
+			PlaylistTracksAssociation.track_id == track_id,
+			PlaylistTracksAssociation.playlist_id == playlist_id)
 
 
 # deletes
-def remove_tracks_from_playlist(playlist_id: str, tracks: list[str]):
+def remove_tracks_from_playlist(playlist_id: str, items: list[PlaylistTracksItem]):
 	with SessionMaker.begin() as session:
-		# with Session.begin() as session:
 		# TODO: if track has no assocation with any playlists anymore 
 		# and also isnt liked, delete
-		for track_id in tracks:
-			session.query(PlaylistTracksAssociation).filter(
-					PlaylistTracksAssociation.track_id == track_id,
-					PlaylistTracksAssociation.playlist_id == playlist_id).delete()
+		for item in items:
+			q = get_PlaylistTracksAssociation(session, playlist_id, item.track.id)
+			q.delete()
 #endregion tracks functions
 

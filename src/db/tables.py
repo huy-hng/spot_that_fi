@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
-from src.types.playlists import SpotifyPlaylistType, PlaylistTracksItem
+from src.types.playlists import AbstractPlaylistType, PlaylistTracksItem
 from src.types.tracks import TrackDict
 
 
@@ -43,11 +43,11 @@ class Playlist(TableBase):
 	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
 			'PlaylistTracksAssociation', back_populates='playlist')
 
-	def __init__(self, playlist: SpotifyPlaylistType) -> None:
+	def __init__(self, playlist: AbstractPlaylistType) -> None:
 		self.id = playlist.id
 		self.update(playlist)
 
-	def update(self, playlist: SpotifyPlaylistType) -> None:
+	def update(self, playlist: AbstractPlaylistType) -> None:
 		self.name = playlist.name
 		self.total_tracks = playlist.tracks.total
 		self.public = playlist.public

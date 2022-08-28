@@ -1,15 +1,7 @@
+from __future__ import annotations
 from src.types import DotDict
 from src.types.tracks import TrackDict
 
-# region Sub Dicts
-class PlaylistOwner(DotDict):
-	id: str
-	display_name: str
-	external_urls: str
-	href: str
-	type: str
-	uri: str
-# endregion
 
 
 # REFACTOR: move back to types.tracks
@@ -19,7 +11,10 @@ class PlaylistTrackDict(TrackDict):
 
 
 class PlaylistTracksItem(DotDict):
-	""" when getting a single playlist: playlist.tracks.items[0] """
+	"""
+		api_handler.get_one_playlist.tracks.items_[0] \n
+		when getting a single playlist: playlist.tracks.items[0]
+	"""
 	added_at: str
 	added_by: dict
 	is_local: bool
@@ -32,12 +27,8 @@ class PlaylistTracksItem(DotDict):
 		self.track = PlaylistTrackDict(self.track)
 
 
-class AllPlaylistsTracks(DotDict):
-	href: str
-	total: int
-
-
 class SinglePlaylistTracks(DotDict):
+	""" api_handler.get_one_playlist.tracks """	
 	href: str
 	items_: list[PlaylistTracksItem]
 	limit: int
@@ -49,14 +40,21 @@ class SinglePlaylistTracks(DotDict):
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
 		# TODO check if this works
-		self.items_ = [
-			PlaylistTracksItem(item)
-			for item in playlist['items']
-		]
-		# self.tracks = [SinglePlaylistTracksItemType(track) for track in self.get('items')]
+		self.items_ = [PlaylistTracksItem(item) for item in playlist['items']]
+
+	@property
+	def track_ids(self):
+		return [item.track.id for item in self.items_]
 
 
-class SpotifyPlaylistType(DotDict):
+
+class AllPlaylistsTracks(DotDict):
+	href: str
+	total: int
+
+
+# TODO: turn this into an ABC or protocoll
+class AbstractPlaylistType(DotDict):
 	collaborative: bool
 	description: str
 	external_urls: dict
@@ -80,16 +78,27 @@ class SpotifyPlaylistType(DotDict):
 		# else:
 		# 	self.tracks = SpotifySinglePlaylistTracksType(self.tracks)
 
-class AllPlaylists(SpotifyPlaylistType):
+class AllPlaylists(AbstractPlaylistType):
 	""" sp.current_user_playlists """
 	tracks: AllPlaylistsTracks
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
 		self.tracks = AllPlaylistsTracks(self.tracks)
 	
-class SinglePlaylist(SpotifyPlaylistType):
+class SinglePlaylist(AbstractPlaylistType):
+	""" api_handler.get_one_playlist """
 	followers: dict
 	tracks: SinglePlaylistTracks
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
 		self.tracks = SinglePlaylistTracks(self.tracks)
+
+# region Sub Dicts
+class PlaylistOwner(DotDict):
+	id: str
+	display_name: str
+	external_urls: str
+	href: str
+	type: str
+	uri: str
+# endregion

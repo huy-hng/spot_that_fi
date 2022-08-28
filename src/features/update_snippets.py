@@ -4,7 +4,7 @@ from src import api_handler as api
 from src.controller.update_functions import update_all_playlist_tracks_in_db
 from src.db.playlists import get_track_ids
 from src.controller import playlist_change_detection as pcd
-from types.playlists import SpotifyPlaylistType
+from types.playlists import AllPlaylists
 
 # TODO move this to settings.json or .env
 SNIPPET_SIZE = 50
@@ -32,7 +32,7 @@ def update_sp_snippet_playlists():
 		tracks = get_track_ids(uri)
 
 
-def sync_playlist_pair(main: SpotifyPlaylistType, snippet: SpotifyPlaylistType):
+def sync_playlist_pair(main: AllPlaylists, snippet: AllPlaylists):
 	# prerequisite: know which playlists have changed
 	# if only main or snippet changed:
 	# 	add changes to other playlist
