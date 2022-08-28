@@ -58,6 +58,7 @@ class Playlists:
 
 		return pairs
 
+# REFACTOR: I might be able to put this in types.playlists somewhere
 class Playlist:
 	""" handles crud operations of a live playlist
 	the methods shouldnt be complicated
