@@ -1,5 +1,5 @@
 import json
-from typing import Type, TypedDict
+from typing import TypedDict
 
 class SnippetPlaylistType(TypedDict):
 	name: str

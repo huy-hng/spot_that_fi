@@ -1,4 +1,3 @@
-from operator import xor
 from src.api_handler import sp
 from src import api_handler as api
 from src.controller.update_functions import update_all_playlist_tracks_in_db
