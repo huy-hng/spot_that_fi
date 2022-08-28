@@ -1,5 +1,6 @@
 from src.helpers.myers import Myers, myers_diff, Keep, Insert, Remove
-from src.types.playlists import SpotifyPlaylistType
+from src.types.playlists import SpotifyPlaylistType, AllPlaylists, SinglePlaylist
+from src import types
 
 from src.api_handler import sp
 from src.api_handler.tracks import Tracks
@@ -7,17 +8,17 @@ from src.api_handler.tracks import Tracks
 from src import db
 
 
-def has_playlist_changed(playlist: SpotifyPlaylistType):
+def has_playlist_changed(playlist: AllPlaylists | SinglePlaylist):
 	""" check if current snapshot_id and db snapshot_id are different """
 	current_snapshot = playlist.snapshot_id
 	previous_snapshot = db.playlists.get_playlist_snapshot_id(playlist.id)
 	return previous_snapshot != current_snapshot
 
 
-def get_changed_playlists(playlists: list[SpotifyPlaylistType]):
+def get_changed_playlists(playlists: list[AllPlaylists | SinglePlaylist]):
 	""" filteres the playlists param and returns only
 			playlists that changed """
-	changed: list[SpotifyPlaylistType] = []
+	changed: list[AllPlaylists | SinglePlaylist] = []
 	for playlist in playlists:
 		if has_playlist_changed(playlist):
 			changed.append(playlist)

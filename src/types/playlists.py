@@ -1,27 +1,18 @@
 from src.types import DotDict
-from types.tracks import TrackDict
+from src.types.tracks import TrackDict
 
-class SpotifyPlaylistsOwnerType(DotDict):
+# region Sub Dicts
+class PlaylistOwner(DotDict):
 	id: str
 	display_name: str
 	external_urls: str
 	href: str
 	type: str
 	uri: str
+# endregion
 
 
-class SpotifySinglePlaylistTracksType(DotDict):
-	href: str
-	# total: int
-	# limit: int
-	# next: None
-	# offset: int
-	# previous: None
-	total: int
-	# type: str
-	# uri: str
-
-
+# REFACTOR: move back to types.tracks
 class PlaylistTrackDict(TrackDict):
 	episode: bool
 	track: bool
@@ -39,8 +30,14 @@ class PlaylistTracksItem(DotDict):
 	def __init__(self, item: dict):
 		super().__init__(item)
 		self.track = PlaylistTrackDict(self.track)
-# belong together
-class SpotifySinglePlaylistTracksType(DotDict):
+
+
+class AllPlaylistsTracks(DotDict):
+	href: str
+	total: int
+
+
+class SinglePlaylistTracks(DotDict):
 	href: str
 	items_: list[PlaylistTracksItem]
 	limit: int
@@ -63,24 +60,36 @@ class SpotifyPlaylistType(DotDict):
 	collaborative: bool
 	description: str
 	external_urls: dict
-	# followers: dict
 	href: str
 	id: str
 	images: list
 	name: str
-	owner: SpotifyPlaylistsOwnerType
+	owner: PlaylistOwner
 	primary_color: None 
 	public: bool
 	snapshot_id: str
-	tracks: SpotifySinglePlaylistTracksType | SpotifySinglePlaylistTracksType
-	# tracks: SpotifyPlaylistsTracksType
+	tracks: AllPlaylistsTracks | SinglePlaylistTracks
 	type: str
 	uri: str
 
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
-		self.owner = SpotifyPlaylistsOwnerType(self.owner)
-		if self.tracks.get('items') is None:
-			self.tracks = SpotifySinglePlaylistTracksType(self.tracks)
-		else:
-			self.tracks = SpotifySinglePlaylistTracksType(self.tracks)
+		self.owner = PlaylistOwner(self.owner)
+		# if self.tracks.get('items') is None:
+		# 	self.tracks = SpotifyPlaylistsTracksType(self.tracks)
+		# else:
+		# 	self.tracks = SpotifySinglePlaylistTracksType(self.tracks)
+
+class AllPlaylists(SpotifyPlaylistType):
+	""" sp.current_user_playlists """
+	tracks: AllPlaylistsTracks
+	def __init__(self, playlist: dict):
+		super().__init__(playlist)
+		self.tracks = AllPlaylistsTracks(self.tracks)
+	
+class SinglePlaylist(SpotifyPlaylistType):
+	followers: dict
+	tracks: SinglePlaylistTracks
+	def __init__(self, playlist: dict):
+		super().__init__(playlist)
+		self.tracks = SinglePlaylistTracks(self.tracks)
