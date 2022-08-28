@@ -11,7 +11,9 @@ def update_db_liked_tracks():
 			and is therefore very expensive rate limiting wise """
 	gen = sp.get_liked_tracks_generator()
 	for batch in gen:
-		db.tracks.add_tracks(batch, liked=True)
+		tracks = batch.tracks
+		
+		db.tracks.add_tracks(tracks, liked=True)
 
 
 def update_playlist_tracks_in_db(playlist: SpotifyPlaylistType):

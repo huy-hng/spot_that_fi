@@ -19,5 +19,5 @@ def test_get_playlists():
 
 def test_get_single_playlist():
 	playlist = sp.get_one_playlist('2OBconDUKoGs6BoDTVMVvk')
-	log.info(playlist.tracks.tracks[0].added_at)
+	log.info(playlist.tracks.items_[0].added_at)
 	# write_dict_to_file('temp', playlist)

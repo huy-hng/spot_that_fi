@@ -23,13 +23,9 @@ class TrackDict(DotDict):
 	uri: str
 
 
-class PlaylistTrackDict(TrackDict):
-	episode: bool
-	track: bool
-
 
 class LikedItemDict(DotDict):
-	
+
 	added_at: str # TODO could be datetime
 	track: TrackDict
 
@@ -53,23 +49,6 @@ class LikedTracksListDict(DotDict):
 		# TODO check if this works
 		self.items_ = [LikedItemDict(track) for track in item['items']]
 
-	def get_tracks(self):
+	@property
+	def tracks(self):
 		return [item.track for item in self.items_]
-
-
-class PlaylistTracksItemDict(DotDict):
-	added_at: str
-	added_by: dict
-	is_local: bool
-	primary_color: None
-	track: PlaylistTrackDict
-	video_thumbnail: dict
-
-	def __init__(self, item: dict):
-		super().__init__(item)
-		self.track = PlaylistTrackDict(self.track)
-
-
-class PlaylistTracksListDict(DotDict):
-	# TODO: same as LikedTracks
-	...

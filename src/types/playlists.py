@@ -1,4 +1,5 @@
 from src.types import DotDict
+from types.tracks import TrackDict
 
 class SpotifyPlaylistsOwnerType(DotDict):
 	id: str
@@ -9,7 +10,7 @@ class SpotifyPlaylistsOwnerType(DotDict):
 	uri: str
 
 
-class SpotifyPlaylistsTracksType(DotDict):
+class SpotifySinglePlaylistTracksType(DotDict):
 	href: str
 	# total: int
 	# limit: int
@@ -21,18 +22,27 @@ class SpotifyPlaylistsTracksType(DotDict):
 	# uri: str
 
 
-class SinglePlaylistTracksItemType(DotDict):
+class PlaylistTrackDict(TrackDict):
+	episode: bool
+	track: bool
+
+
+class PlaylistTracksItem(DotDict):
 	""" when getting a single playlist: playlist.tracks.items[0] """
-	added_at: str # TODO: could be datetime instead
+	added_at: str
 	added_by: dict
 	is_local: bool
 	primary_color: None
-	track: dict
+	track: PlaylistTrackDict
 	video_thumbnail: dict
+
+	def __init__(self, item: dict):
+		super().__init__(item)
+		self.track = PlaylistTrackDict(self.track)
 # belong together
 class SpotifySinglePlaylistTracksType(DotDict):
 	href: str
-	tracks: list[SinglePlaylistTracksItemType]
+	items_: list[PlaylistTracksItem]
 	limit: int
 	next: str
 	offset: int
@@ -42,9 +52,9 @@ class SpotifySinglePlaylistTracksType(DotDict):
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
 		# TODO check if this works
-		self.tracks = [
-			SinglePlaylistTracksItemType(track)
-			for track in playlist['items']
+		self.items_ = [
+			PlaylistTracksItem(item)
+			for item in playlist['items']
 		]
 		# self.tracks = [SinglePlaylistTracksItemType(track) for track in self.get('items')]
 
@@ -62,7 +72,7 @@ class SpotifyPlaylistType(DotDict):
 	primary_color: None 
 	public: bool
 	snapshot_id: str
-	tracks: SpotifyPlaylistsTracksType | SpotifySinglePlaylistTracksType
+	tracks: SpotifySinglePlaylistTracksType | SpotifySinglePlaylistTracksType
 	# tracks: SpotifyPlaylistsTracksType
 	type: str
 	uri: str
@@ -71,6 +81,6 @@ class SpotifyPlaylistType(DotDict):
 		super().__init__(playlist)
 		self.owner = SpotifyPlaylistsOwnerType(self.owner)
 		if self.tracks.get('items') is None:
-			self.tracks = SpotifyPlaylistsTracksType(self.tracks)
+			self.tracks = SpotifySinglePlaylistTracksType(self.tracks)
 		else:
 			self.tracks = SpotifySinglePlaylistTracksType(self.tracks)

@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
-from src.types.playlists import SpotifyPlaylistType
+from src.types.playlists import SpotifyPlaylistType, PlaylistTracksItem
 from src.types.tracks import TrackDict
 
 
@@ -16,16 +16,16 @@ class PlaylistTracksAssociation(TableBase):
 	playlist_id = Column(ForeignKey('playlist.id'), primary_key=True)
 	track_id = Column(ForeignKey('track.id'), primary_key=True)
 	track: Track = relationship('Track',
-										back_populates='playlist_track_association')
+			back_populates='playlist_track_association')
 	playlist: Playlist = relationship('Playlist',
-													back_populates='playlist_track_association')
+			back_populates='playlist_track_association')
 
 	added_by = Column(String, nullable=False)
 	added_at = Column(DateTime, nullable=False)
 
-	def __init__(self, track):
-		self.added_at = datetime.strptime(track['added_at'], '%Y-%m-%dT%H:%M:%SZ')
-		self.added_by = track['added_by']['id']
+	def __init__(self, track: PlaylistTracksItem):
+		self.added_at = datetime.strptime(track.added_at, '%Y-%m-%dT%H:%M:%SZ')
+		self.added_by = track.added_by['id']
 
 
 class Playlist(TableBase):
