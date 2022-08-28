@@ -93,6 +93,18 @@ class SinglePlaylist(AbstractPlaylistType):
 		super().__init__(playlist)
 		self.tracks = SinglePlaylistTracks(self.tracks)
 
+
+class _CurrentUserPlaylists(DotDict):
+	""" for reference when calling sp.current_user_playlists """
+	href: str
+	items: list[AbstractPlaylistType]
+	limit: int
+	next: str | None
+	offset: int
+	previous: str | None
+	total: int
+
+
 # region Sub Dicts
 class PlaylistOwner(DotDict):
 	id: str
