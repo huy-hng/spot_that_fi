@@ -24,12 +24,11 @@ def get_track_diff(playlist_id: str, num_tracks: int):
 	
 	db_track_list = db.playlists.get_track_ids(playlist_id)
 	# prev_track_list = db.playlists.get_track_ids(playlist_id)
-	sp_track_list_gen = sp.get_playlist_tracks_generator(playlist_id)
 	sp_track_list: dict[str, PlaylistTracksItem] = {}
 
 	myers = None
 	# TEST changes
-	for playlist_tracks in sp_track_list_gen:
+	for playlist_tracks in sp.get_playlist_tracks_generator(playlist_id):
 		track_ids = playlist_tracks.track_ids
 
 		# REFACTOR: seems a little unelegant
