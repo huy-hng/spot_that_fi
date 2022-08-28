@@ -1,6 +1,7 @@
 from src.types.playlists import AllPlaylists, PlaylistTracksItem
 from src.api_handler import sp
 
+# TODO: merge with types.playlists.AllPlaylists?
 class LivePlaylist:
 	""" handles crud operations of a live playlist
 	the methods shouldnt be complicated
@@ -73,37 +74,3 @@ class LivePlaylist:
 			return []
 
 		return [item.track.id for item in tracks]
-
-
-class LivePlaylists:
-	""" handles loading live playlist data and manages them """
-	def __init__(self):
-		self.update_data()
-
-
-	def update_data(self):
-		""" this method updates all live playlists, basically reinitializes """
-		self.playlists: list[LivePlaylist] = []
-		self.names: dict[str, int] = {}
-		self.uri: dict[str, int] = {}
-
-		playlists: list[AllPlaylists] = sp.get_all_playlists()
-		for index, playlist in zip(range(len(playlists)), playlists):
-			self.playlists.append(LivePlaylist(playlist))
-			self.names[playlist.name] = index
-			self.uri[playlist.uri] = index
-
-	def get_by_name(self, name: str):
-		index = self.names.get(name)
-		if index is None:
-			raise Exception('Playlist Name does not exist.')
-
-		return self.playlists[index]
-
-
-	def get_by_uri(self, uri: str):
-		index = self.uri.get(uri)
-		if index is None:
-			raise ValueError('Playlist uri does not exist.')
-
-		return self.playlists[index]

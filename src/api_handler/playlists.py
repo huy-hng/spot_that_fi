@@ -8,12 +8,35 @@ class SyncPairs(NamedTuple):
 	main: AllPlaylists
 	snippet: AllPlaylists
 
+
 class Playlists:
 	def __init__(self, playlists: list[AllPlaylists]):
-		self.playlists = {playlist.id: playlist for playlist in playlists}
+		self.playlists = playlists
+
+		# for easier lookup
+		self.names: dict[str, int] = {}
+		self.ids: dict[str, int] = {}
+
+		for index, playlist in enumerate(playlists):
+			self.names[playlist.name] = index
+			self.ids[playlist.id] = index
+
 
 	def get_playlist_by_id(self, playlist_id: str):
-		return self.playlists[playlist_id]
+		index = self.ids.get(playlist_id)
+		if index is None:
+			raise ValueError('Playlist id does not exist.')
+
+		return self.playlists[index]
+
+
+	def get_by_name(self, name: str):
+		index = self.names.get(name)
+		if index is None:
+			raise Exception('Playlist Name does not exist.')
+
+		return self.playlists[index]
+
 
 	def get_sync_pairs(self) -> list[SyncPairs]:
 		# read pairs from some file
