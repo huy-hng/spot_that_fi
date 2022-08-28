@@ -16,17 +16,18 @@ def write_liked_tracks():
 
 
 def write_tracks_in_playlists():
-	with open('./data/playlists.json') as f:
-		playlists = json.loads(f.read())
+	...
+	# with open('./data/playlists.json') as f:
+	# 	playlists = json.loads(f.read())
 
-	for j, playlist in enumerate(playlists):
-		playlist_id = playlist['id']
+	# for j, playlist in enumerate(playlists):
+	# 	playlist_id = playlist['id']
 
-		gen = sp.get_playlist_tracks_generator(playlist_id)
-		tracks = []
-		for i, batch in enumerate(gen):
-			log.info(f'Batch {i} for playlist {playlist["name"]}')
-			tracks += batch
-			# break
+	# 	gen = sp.get_playlist_tracks_generator(playlist_id)
+	# 	tracks = []
+	# 	for i, batch in enumerate(gen):
+	# 		log.info(f'Batch {i} for playlist {playlist["name"]}')
+	# 		tracks += batch
+	# 		# break
 
-		write_dict_to_file(f'playlists/{playlist_id}', tracks)
+	# 	write_dict_to_file(f'playlists/{playlist_id}', tracks)
