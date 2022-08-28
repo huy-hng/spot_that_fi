@@ -2,7 +2,7 @@ from src import db
 from src.api_handler import sp
 from src.helpers.logger import log
 from src.controller import playlist_change_detection as pcd
-from src.types.playlists import SpotifyPlaylistType
+from src.types.playlists import AllPlaylists, SinglePlaylist, AbstractPlaylistType
 
 
 
@@ -16,7 +16,7 @@ def update_db_liked_tracks():
 		db.tracks.add_tracks(tracks, liked=True)
 
 
-def update_playlist_tracks_in_db(playlist: SpotifyPlaylistType):
+def update_playlist_tracks_in_db(playlist: AllPlaylists | SinglePlaylist):
 	""" playlist should be very up to date """
 	# TODO: check if this function works for an empty playlist that has just been added
 

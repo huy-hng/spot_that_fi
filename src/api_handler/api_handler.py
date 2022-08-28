@@ -10,6 +10,8 @@ from src.helpers.helpers import write_dict_to_file
 
 
 from dotenv import load_dotenv
+
+from types.playlists import SinglePlaylistTracks
 load_dotenv()
 
 class Spotipy:
@@ -39,11 +41,12 @@ class Spotipy:
 	#region read
 	def get_one_playlist(self, playlist_id: str):
 		""" should accept argument as uri, url and id """
-		playlist = self.sp.playlist(playlist_id)
-		return types.playlists.SpotifyPlaylistType(playlist)
+		playlist: dict = self.sp.playlist(playlist_id)
+		# write_dict_to_file('get_one_playlist', playlist)
+		return types.playlists.SinglePlaylist(playlist)
 
 
-	def get_all_playlists(self) -> list[types.playlists.SpotifyPlaylistType]:
+	def get_all_playlists(self):
 		""" api call expense: 50 playlists = 1 call \n
 				if one has 60 playlists in their spotify,
 				this functions would do 2 api calls """
@@ -61,19 +64,19 @@ class Spotipy:
 
 			offset += 50
 
-		write_dict_to_file('playlists', all_playlists)
+		# write_dict_to_file('current_user_playlists', all_playlists)
 
-		converted_playlists: list[types.playlists.SpotifyPlaylistType] = [
-			types.playlists.SpotifyPlaylistType(playlist)
+		parsed_playlists = [
+			types.playlists.AllPlaylists(playlist)
 			for playlist in all_playlists
 		]
 
-		return converted_playlists
+		return parsed_playlists
 
 
 	def get_playlist_tracks_generator(self, playlist_id: str):
 		""" get latest tracks until num_tracks has been reached or
-				no tracks are left """
+			no tracks are left """
 		items = {'previous': True}
 		limit = 100
 
@@ -89,11 +92,8 @@ class Spotipy:
 			items: dict = self.sp.playlist_items(
 				playlist_id, limit=limit, offset=offset)
 
-			tracks: list[dict] = items['items']
 			offset -= limit
-
-			# write_dict_to_file('playlist_tracks', items)
-			yield tracks
+			yield SinglePlaylistTracks(items)
 
 
 	def get_liked_tracks_generator(self):
@@ -112,7 +112,6 @@ class Spotipy:
 				# TODO: check if this logic works
 				break
 	#endregion
-	
 
 	#region update
 	def replace_playlist_tracks(self, playlist_id: str, track_ids: list[str]):

@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
-from src.types.playlists import SpotifyPlaylistType, PlaylistTracksItem
+from src.types.playlists import AbstractPlaylistType, PlaylistTracksItem
 from src.types.tracks import TrackDict
 
 
@@ -13,15 +13,17 @@ from src.db import Base as TableBase
 class PlaylistTracksAssociation(TableBase):
 	__tablename__ = 'playlist_tracks_association'
 
-	playlist_id = Column(ForeignKey('playlist.id'), primary_key=True)
-	track_id = Column(ForeignKey('track.id'), primary_key=True)
+	playlist_id: str = Column(
+		ForeignKey('playlist.id'), primary_key=True) # type: ignore
+	track_id: str = Column(
+		ForeignKey('track.id'), primary_key=True) # type: ignore
 	track: Track = relationship('Track',
 			back_populates='playlist_track_association')
 	playlist: Playlist = relationship('Playlist',
 			back_populates='playlist_track_association')
 
-	added_by = Column(String, nullable=False)
-	added_at = Column(DateTime, nullable=False)
+	added_by: str = Column(String, nullable=False) # type: ignore
+	added_at: datetime = Column(DateTime, nullable=False) # type: ignore
 
 	def __init__(self, track: PlaylistTracksItem):
 		self.added_at = datetime.strptime(track.added_at, '%Y-%m-%dT%H:%M:%SZ')
@@ -31,21 +33,21 @@ class PlaylistTracksAssociation(TableBase):
 class Playlist(TableBase):
 	__tablename__ = 'playlist'
 
-	id = Column(String, primary_key=True)
-	name = Column(String, nullable=False)
-	total_tracks = Column(Integer, nullable=False)
-	public = Column(Boolean, nullable=False)
-	snapshot_id = Column(String, nullable=False)
-	owner_id = Column(String, nullable=False)
+	id: str = Column(String, primary_key=True) # type: ignore
+	name: str = Column(String, nullable=False)  # type: ignore
+	total_tracks: int = Column(Integer, nullable=False) # type: ignore
+	public: bool = Column(Boolean, nullable=False) # type: ignore
+	snapshot_id: str = Column(String, nullable=False) # type: ignore
+	owner_id: str = Column(String, nullable=False) # type: ignore
 
 	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
 			'PlaylistTracksAssociation', back_populates='playlist')
 
-	def __init__(self, playlist: SpotifyPlaylistType) -> None:
+	def __init__(self, playlist: AbstractPlaylistType) -> None:
 		self.id = playlist.id
 		self.update(playlist)
 
-	def update(self, playlist: SpotifyPlaylistType) -> None:
+	def update(self, playlist: AbstractPlaylistType) -> None:
 		self.name = playlist.name
 		self.total_tracks = playlist.tracks.total
 		self.public = playlist.public
@@ -56,11 +58,11 @@ class Playlist(TableBase):
 class Track(TableBase):
 	__tablename__ = 'track'
 
-	id = Column(String, primary_key=True)
-	name = Column(String, nullable=False)
-	duration_ms = Column(Integer, nullable=False)
-	popularity = Column(Integer, nullable=False)
-	liked = Column(Boolean, default=False)
+	id: str = Column(String, primary_key=True) # type: ignore
+	name: str = Column(String, nullable=False) # type: ignore
+	duration_ms: int = Column(Integer, nullable=False) # type: ignore
+	popularity: int = Column(Integer, nullable=False) # type: ignore
+	liked: bool = Column(Boolean, default=False) # type: ignore
 
 	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
 			'PlaylistTracksAssociation', back_populates='track')
