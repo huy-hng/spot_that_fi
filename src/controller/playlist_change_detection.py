@@ -1,4 +1,4 @@
-from src.helpers.myers import Myers, Keep, Insert, Remove
+from src.helpers.myers import Myers, Keep, Insert, Operations, Remove
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, AbstractPlaylistType
 from src.api_handler import sp
 
@@ -52,12 +52,13 @@ def get_track_diff(playlist_id: str, num_tracks: int):
 	if myers is None:
 		return removals, inserts
 
-	for elem in myers.diff[myers.index_of_first_keep:]:
-		if isinstance(elem, Insert):
-			track = sp_track_list.get(elem.line)
-			if track is not None:
-				inserts.append(track)
-		elif isinstance(elem, Remove):
-			removals.append(elem.line)
+	for line, operation in myers.diff[myers.index_of_first_keep:]:
+		track = sp_track_list.get(line)
+		if track is None:
+			continue
+		if operation == Operations.Insert:
+			inserts.append(track)
+		elif operation == Operations.Remove:
+			removals.append(track)
 
 	return removals, inserts

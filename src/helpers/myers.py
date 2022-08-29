@@ -23,22 +23,29 @@
 # 
 # For more information, please refer to <http://unlicense.org/> 
 
-from __future__ import print_function # Py2 compat
-from collections import namedtuple
-import sys
+from enum import Enum
+from typing import NamedTuple
 
 # These define the structure of the history, and correspond to diff output with
 # lines that start with a space, a + and a - respectively.
 
+class Operations(Enum):
+	Keep = ' '
+	Insert = '+'
+	Remove = '-'
 
-Keep = namedtuple('Keep', ['line'])
-Insert = namedtuple('Insert', ['line'])
-Remove = namedtuple('Remove', ['line'])
+class Element(NamedTuple):
+	line: str
+	operation: Operations
+
 
 # See frontier in myers_diff
-Frontier = namedtuple('Frontier', ['x', 'history'])
+# Frontier = namedtuple('Frontier', ['x', 'history'])
+class Frontier(NamedTuple):
+	x: int
+	history: list[Element]
 
-def myers_diff(a_lines, b_lines) -> list[namedtuple]:
+def myers_diff(a_lines, b_lines) -> list[Element]:
 	"""
 	An implementation of the Myers diff algorithm.
 
@@ -47,6 +54,7 @@ def myers_diff(a_lines, b_lines) -> list[namedtuple]:
 	# This marks the farthest-right point along each diagonal in the edit
 	# graph, along with the history that got it there
 	frontier = {1: Frontier(0, [])}
+
 
 	def one(idx):
 		"""
@@ -91,9 +99,13 @@ def myers_diff(a_lines, b_lines) -> list[namedtuple]:
 			""" We start at the invalid point (0, 0) - we should only start building
 			up history when we move off of it. """
 			if 1 <= y <= b_max and go_down:
-				history.append(Insert(b_lines[one(y)]))
+				# history.append(Insert(b_lines[one(y)]))
+				elem = Element(b_lines[one(y)], Operations.Insert)
+				history.append(elem)
 			elif 1 <= x <= a_max:
-				history.append(Remove(a_lines[one(x)]))
+				# history.append(Remove(a_lines[one(x)]))
+				elem = Element(a_lines[one(x)], Operations.Remove)
+				history.append(elem)
 
 			""" Chew up as many diagonal moves as we can - these correspond to common lines,
 			and they're considered "free" by the algorithm because we want to maximize
@@ -101,7 +113,9 @@ def myers_diff(a_lines, b_lines) -> list[namedtuple]:
 			while x < a_max and y < b_max and a_lines[one(x + 1)] == b_lines[one(y + 1)]:
 				x += 1
 				y += 1
-				history.append(Keep(a_lines[one(x)]))
+				# history.append(Keep(a_lines[one(x)]))
+				elem = Element(a_lines[one(x)], Operations.Keep)
+				history.append(elem)
 
 			if x >= a_max and y >= b_max:
 				""" If we're here, then we've traversed through the bottom-left corner,
@@ -120,32 +134,56 @@ class Myers:
 	@property
 	def get_num_elems_after(self):
 		counter = 0
-		for elem in self.diff:
-			if isinstance(elem, Keep) or isinstance(elem, Insert):
+		for _, operation in self.diff:
+			if operation == Operations.Keep or operation == Operations.Insert:
 				counter += 1
 		return counter
 
-	def has_something(self, something: namedtuple):
-		for elem in self.diff:
-			if isinstance(elem, something):
+	def has_something(self, something: Operations):
+		for _, operation in self.diff:
+			if operation == something:
 				return True
 		return False
 
 	@property
 	def index_of_first_keep(self):
 		for i, elem in enumerate(self.diff):
-			if isinstance(elem, Keep):
+			_, operation = elem
+			if operation == Operations.Keep:
 				return i
 		return None
 
-	def print_diff(self, print_fn):
-		for elem in self.diff:
-			if isinstance(elem, Keep):
-				print_fn(' ' + elem.line)
-			elif isinstance(elem, Insert):
-				print_fn('+' + elem.line)
-			elif isinstance(elem, Remove):
-				print_fn('-' + elem.line)
+
+	def separate_operations(self):
+		keeps: list[str] = []
+		inserts: list[str] = []
+		removals: list[str] = []
+
+		for line, operation in self.diff[self.index_of_first_keep:]:
+			if operation == Operations.Keep:
+				keeps.append(line)
+			elif operation == Operations.Insert:
+				inserts.append(line)
+			elif operation == Operations.Remove:
+				removals.append(line)
+
+		return keeps, inserts, removals
+
+	@staticmethod
+	def print_formatter(print_fn, left: str, right: str):
+		print_fn(f'{left.rjust(5)} | {right}')
+
+	def print_diff(self, print_fn=print):
+		printer = lambda left, right: print_fn(f'{left.rjust(5)} | {right}')
+		printer('old', 'new')
+		for line, operation in self.diff:
+			line = operation.value + line
+			if operation == Operations.Keep:
+				printer(line, line)
+			elif operation == Operations.Insert:
+				printer('', line)
+			elif operation == Operations.Remove:
+				printer(line, '')
 
 		
 
@@ -167,7 +205,7 @@ def main():
 
 	# diff = myers_diff(a_lines, b_lines)
 	myers = Myers(a_lines, b_lines)
-	myers.print_diff(print)
+	myers.print_diff()
 	
 
 if __name__ == '__main__':
