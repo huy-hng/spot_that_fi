@@ -15,7 +15,7 @@ def check_track_in_playlist():
 def add_playlists():
 	with open('./data/playlists.json') as f:
 		playlists = json.loads(f.read())
-	db.playlists.add_playlists(playlists)
+	db.playlists.update_playlists(playlists)
 
 
 def add_liked_tracks():
@@ -49,7 +49,7 @@ def liked_tracks_not_in_playlists():
 def get_playlist_tracks(playlist_name: str):
 	with SessionMaker.begin() as session:
 		playlist_id = db.playlists.get_id_from_name(playlist_name)
-		playlist = db.playlists.get_playlist(session, playlist_id)
+		playlist = db.playlists._get_playlist(session, playlist_id)
 		associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
 		associations.sort(key=lambda x: x.added_at)
 		# sorted(associations/, )

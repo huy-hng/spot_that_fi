@@ -1,7 +1,7 @@
 from src import db
 from src.api_handler import sp
 from src.helpers.logger import log
-from src.controller import update_functions
+from src.controller import update_db
 
 """ 
 

@@ -23,7 +23,6 @@ def get_track_diff(playlist_id: str, num_tracks: int):
 			and second is inserts """
 	
 	db_track_list = db.playlists.get_track_ids(playlist_id)
-	# prev_track_list = db.playlists.get_track_ids(playlist_id)
 	sp_track_list: dict[str, PlaylistTracksItem] = {}
 
 	myers = None

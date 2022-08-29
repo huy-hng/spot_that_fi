@@ -165,16 +165,11 @@ def main():
 	a_lines = ['1', '2', '3']
 	b_lines = ['a', '1', 'b', '2', '34']
 
-	diff = myers_diff(a_lines, b_lines)
-	for elem in diff:
-		if isinstance(elem, Keep):
-			print(' ' + elem.line)
-		elif isinstance(elem, Insert):
-			print('+' + elem.line)
-		elif isinstance(elem, Remove):
-			print('-' + elem.line)
-
+	# diff = myers_diff(a_lines, b_lines)
+	myers = Myers(a_lines, b_lines)
+	myers.print_diff(print)
 	
 
 if __name__ == '__main__':
-	sys.exit(main())
+	# sys.exit(main())
+	main()
