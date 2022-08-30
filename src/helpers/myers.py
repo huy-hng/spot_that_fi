@@ -134,7 +134,7 @@ class Myers:
 		that a_lines doesnt have these items, which means for the sake of
 		syncing, they should be removed from b_lines
 	"""
-	def __init__(self, a_lines: list, b_lines: list):
+	def __init__(self, a_lines: list[str], b_lines: list[str]):
 		self.diff = myers_diff(a_lines, b_lines)
 	
 	@property
@@ -175,11 +175,14 @@ class Myers:
 		return keeps, inserts, removals
 
 
-	def print_diff(self, print_fn=print):
+	def print_diff(self, title='Difference', print_fn=print):
 		printer = lambda left, right: print_fn(f'| {left.rjust(5)} | {right.ljust(4)} |')
+		# printer = lambda left, right: print_fn(f'| {left} | {right.ljust(4)} |')
 
 		print_fn(16*'-')
-		printer('old', 'new')
+		print_fn(f'|{title.center(14)}|')
+		print_fn(16*'-')
+		# printer('old', 'new')
 		for line, operation in self.diff:
 			line = operation.value + line
 			if operation == Operations.Keep:
