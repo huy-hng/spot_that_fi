@@ -138,3 +138,10 @@ class Playlist:
 			return []
 
 		return [item.track.id for item in tracks]
+
+	@staticmethod
+	def get_names(tracks: list[PlaylistTracksItem]) -> list[str]:
+		if len(tracks) == 0:
+			return []
+
+		return [item.track.name for item in tracks]
