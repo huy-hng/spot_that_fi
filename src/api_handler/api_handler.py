@@ -74,11 +74,22 @@ class Spotipy:
 		return parsed_playlists
 
 
-	def get_playlist_tracks_generator(self, playlist_id: str):
+	def get_playlist_tracks_generator(self, playlist_id: str, limit=100):
 		""" get latest tracks until num_tracks has been reached or
-			no tracks are left """
+			no tracks are left 
+			
+			the order returned is chronologicaly sorted, where the first item
+			has been added furthest in the past.
+			
+			the section that is returned first are the items that have been
+			added last
+			
+			so if my playlist is [0,1,2,3,4] and 0 is the first track 
+			that has been added and my limit is 2, then the first yield is
+			[3,4], then comes [1,2] and at last [0],
+			where the generator terminates
+		"""
 		items = {'previous': True}
-		limit = 100
 
 		tracks_in_playlist: int = self.sp.playlist_items(playlist_id)['total']
 		offset = tracks_in_playlist - limit
@@ -96,9 +107,8 @@ class Spotipy:
 			yield types.playlists.SinglePlaylistTracks(items)
 
 
-	def get_liked_tracks_generator(self):
+	def get_liked_tracks_generator(self, limit=50):
 		items: types.tracks.LikedTracksListDict
-		limit = 50
 		offset = 0
 
 		while True:
@@ -109,7 +119,7 @@ class Spotipy:
 
 			yield items
 			if not items.next:
-				# TODO: check if this logic works
+				# TEST: check if this logic works
 				break
 	#endregion
 
