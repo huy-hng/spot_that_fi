@@ -1,4 +1,3 @@
-from turtle import update
 from sqlalchemy.orm import Session as Session
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
 
@@ -6,7 +5,7 @@ from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
 from .tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
-from src.db import tables, SessionMaker
+from src.db import tables, engine
 # from . import Session 
 
 from src.helpers.logger import log
@@ -35,7 +34,7 @@ def _update_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
 
 def update_playlists(playlists: list[AllPlaylists]):
 	""" adds or updates spotify playlist in db """
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		for playlist in playlists:
 			if playlist.owner.id != 'slaybesh':
 				log.debug(f'Playlist {playlist.name} belong to you.')
@@ -52,15 +51,14 @@ def update_playlists(playlists: list[AllPlaylists]):
 # reads
 def get_all_playlists() -> list[str]: 
 	""" returns a list with playlist ids """
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		q = session.query(tables.Playlist).all()
 		return [playlist.id for playlist in q]
 
 
 
 def get_id_from_name(playlist_name: str) -> str:
-	with SessionMaker.begin() as session:
-		session: Session
+	with Session(engine) as session:
 		playlist: tables.Playlist | None = session.query(tables.Playlist).filter(
 			tables.Playlist.name == playlist_name).first()
 
@@ -71,13 +69,13 @@ def get_id_from_name(playlist_name: str) -> str:
 
 
 def get_playlist_snapshot_id(playlist_id: str):
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		playlist = _get_playlist(session, playlist_id)
 		return playlist.snapshot_id
 
 
 def does_playlist_exist(playlist_id: str):
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		try:
 			_get_playlist(session, playlist_id)
 		except PlaylistNotFoundError:
@@ -97,7 +95,7 @@ def does_playlist_exist(playlist_id: str):
 
 # creates
 def	add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
 		for track in tracks:
@@ -127,7 +125,7 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
 # reads
 def get_track_ids(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		playlist = _get_playlist(session, playlist_id)
 
 		associations = playlist.playlist_track_association
@@ -139,7 +137,7 @@ def get_track_ids(playlist_id: str):
 
 def get_track_names(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		playlist = _get_playlist(session, playlist_id)
 		associations = playlist.playlist_track_association
 		associations.sort(key=lambda x: x.added_at)
@@ -165,7 +163,7 @@ def get_PlaylistTracksAssociation(
 
 # deletes
 def remove_tracks_from_playlist(playlist_id: str, items: list[PlaylistTracksItem]):
-	with SessionMaker.begin() as session:
+	with Session(engine) as session:
 		# TODO: if track has no assocation with any playlists anymore 
 		# and also isnt liked, delete
 		for item in items:
