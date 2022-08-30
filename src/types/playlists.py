@@ -47,7 +47,6 @@ class SinglePlaylistTracks(DotDict):
 		return [item.track.id for item in self.items_]
 
 
-
 class AllPlaylistsTracks(DotDict):
 	href: str
 	total: int

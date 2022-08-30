@@ -2,7 +2,25 @@ import json
 from src import db
 
 from src.db import SessionMaker
+from src.tests import PlaylistIDs
+from src.api_handler import sp
+from src.controller import playlist_change_detection as pcd
+from src import api_handler as api
 
+def test_get_track_diff():
+	snippet = sp.get_one_playlist(PlaylistIDs.snippet)
+	removals, inserts = pcd.get_track_diff(snippet)
+	removals = api.playlists.Playlist.get_names(removals)
+	inserts = api.playlists.Playlist.get_names(inserts)
+	print(removals)
+	print(inserts)
+
+def get_tracks_in_db_playlist():
+	names = db.playlists.get_track_names(PlaylistIDs.snippet)
+	for name in names:
+		print(name)
+
+	
 
 def check_track_in_playlist():
 	playlist_id = '0oWDXsY9BhT9NKimKwNY9d'
