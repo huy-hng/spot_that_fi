@@ -1,8 +1,13 @@
+from typing import NamedTuple
+
 from src.api_handler import sp
+from src import db
+
 from src import api_handler as api
-from src.controller.update_functions import update_all_playlist_tracks_in_db
-from src.db.playlists import get_track_ids
+from src.controller.update_db import update_all_playlist_tracks_in_db
 from src.controller import playlist_change_detection as pcd
+from src.helpers.myers import Myers
+from src.settings.user_data import get_playlist_user_data
 from src.types.playlists import AllPlaylists
 
 # TODO move this to settings.json or .env
@@ -42,6 +47,10 @@ def sync_playlist_pair(main: AllPlaylists, snippet: AllPlaylists):
 		... # nothing changed and can be skipped
 
 
+class SyncPairs(NamedTuple):
+	main: db.tables.Playlist
+	snippet: db.tables.Playlist
+
 def sync_all_playlists():
 	"""
 	update all db playlists
@@ -52,9 +61,25 @@ def sync_all_playlists():
 	"""
 
 	update_all_playlist_tracks_in_db()
-	all_sp_playlists = sp.get_all_playlists()
-	playlists = api.Playlists(all_sp_playlists)
 
+	pairs: list[SyncPairs] = []
+	playlist_data = get_playlist_user_data()
+	snippet_data = playlist_data['snippet_playlist']
+	for data in snippet_data:
+		main_track_ids = db.playlists.get_track_ids(data['main_uri'])
+		snippet_track_ids = db.playlists.get_track_ids(data['snippet_uri'])
+
+		myers = Myers(snippet_track_ids, main_track_ids)
+		myers.index_of_first_keep
+
+	# all_sp_playlists = sp.get_all_playlists()
+	# playlists = api.Playlists(all_sp_playlists)
 	for pair in playlists.get_sync_pairs():
 		sync_playlist_pair(pair.main, pair.snippet)
 
+def sync_algorithm():
+	""" 
+
+	
+	"""
+	...
