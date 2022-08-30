@@ -128,6 +128,12 @@ def myers_diff(a_lines, b_lines) -> list[Element]:
 
 
 class Myers:
+	"""
+		spotify playlist that are sorted by added_at can only have inserts
+		at the bottom (most recently added). All inserts before that mean
+		that a_lines doesnt have these items, which means for the sake of
+		syncing, they should be removed from b_lines
+	"""
 	def __init__(self, a_lines: list, b_lines: list):
 		self.diff = myers_diff(a_lines, b_lines)
 	
@@ -148,8 +154,7 @@ class Myers:
 	@property
 	def index_of_first_keep(self):
 		for i, elem in enumerate(self.diff):
-			_, operation = elem
-			if operation == Operations.Keep:
+			if elem.operation == Operations.Keep:
 				return i
 		return None
 
@@ -169,12 +174,11 @@ class Myers:
 
 		return keeps, inserts, removals
 
-	@staticmethod
-	def print_formatter(print_fn, left: str, right: str):
-		print_fn(f'{left.rjust(5)} | {right}')
 
 	def print_diff(self, print_fn=print):
-		printer = lambda left, right: print_fn(f'{left.rjust(5)} | {right}')
+		printer = lambda left, right: print_fn(f'| {left.rjust(5)} | {right.ljust(4)} |')
+
+		print_fn(16*'-')
 		printer('old', 'new')
 		for line, operation in self.diff:
 			line = operation.value + line
@@ -184,9 +188,9 @@ class Myers:
 				printer('', line)
 			elif operation == Operations.Remove:
 				printer(line, '')
+		print_fn(16*'-')
 
 		
-
 def main():
 	# try:
 	# 	_, a_file, b_file = sys.argv
@@ -200,11 +204,17 @@ def main():
 	# with open(b_file) as b_handle:
 	# 	b_lines = [line.rstrip() for line in b_handle]
 
-	a_lines = ['1', '2', '3']
-	b_lines = ['a', '1', 'b', '2', '34']
+	# a_lines = ['1', '2', '3']
+	# b_lines = ['a', '1', 'b', '2', '34']
+	a_lines = [str(num) for num in range(40)]
+	b_lines = [str(num) for num in range(20, 40)]
+	# del a_lines[15:30]
+	del b_lines[-1]
+	a_lines.append('41')
+	# b_lines.append('40')
 
-	# diff = myers_diff(a_lines, b_lines)
 	myers = Myers(a_lines, b_lines)
+	# myers = Myers(b_lines, a_lines)
 	myers.print_diff()
 	
 
