@@ -25,7 +25,7 @@ def update_playlist_tracks_in_db(playlist: AllPlaylists):
 
 	db.playlists.update_playlists([playlist])
 
-	removals, inserts = pcd.get_track_diff(playlist.id, playlist.tracks.total)
+	removals, inserts = pcd.get_track_diff(playlist)
 	db.playlists.remove_tracks_from_playlist(playlist.id, removals)
 	db.playlists.add_tracks_to_playlist(playlist.id, inserts)
 
