@@ -2,26 +2,6 @@ from dataclasses import dataclass
 import pytest
 from src.helpers.myers import Element, Myers, Operations
 
-def test_delete_first_item(lines):
-
-	a_lines, b_lines = lines
-	del b_lines[0]
-
-	myers = Myers(a_lines, b_lines)
-	myers.print_diff()
-
-
-def test_appending_and_deleting_last_line(lines):
-	# b_lines.append('40')
-	a_lines: list = lines[0]
-	b_lines: list = lines[1]
-
-	a_lines = changer(a_lines, [10], [])
-	b_lines = changer(b_lines, [], [9])
-
-	myers = myers_wrapper(a_lines, b_lines)
-	myers.print_diff()
-
 
 @dataclass
 class Params:
@@ -31,86 +11,83 @@ class Params:
 	expected: list[int]
 
 	def change(self):
-		lines = self.lines.copy()
-		for insert in self.inserts:
-			lines.append(insert)
-		for remove in self.removals:
-			lines.remove(remove)
-		return lines
-
-@dataclass
-class Parameters:
-	a_before: list[int]
-	a_after: list[int]
-	a_inserts: list[int]
-	a_removals: list[int]
-
-	b_before: list[int]
-	b_after: list[int]
-	b_inserts: list[int]
-	b_removals: list[int]
-
-
+		return changer(self.lines.copy(), self.inserts, self.removals)
 
 def parameters():
 	# should delete 5 in a_lines, but that cant be distinguished from the rest
 	# currently cant distinguish between appending something to a_lines and deleting last element from b_lines
+	a_lines = [0,1,2,3,4,5,6,7,8,9]
+	b_lines = [5,6,7,8,9]
 	return [
 		(
 			Params(
-				[0,1,2,3,4],
+				a_lines,
 				[], [],
-				[0,1,2,4],
+				[0,1,2,3,4,6,7,8,9],
 			),
 			Params(
-				[3,4],
-				[], [3],
-				[4]
+				b_lines,
+				[], [5],
+				[4,6,7,8,9]
 			)
 		),
 		(
 			Params(
-				[0,1,2,3,4],
-				[5], [],
-				[0,1,2,3,5],
+				a_lines,
+				[10], [],
+				[0,1,2,3,4,5,6,7,8,10]
 			),
 			Params(
-				[3,4],
-				[], [4],
-				[3,5]
+				b_lines,
+				[], [9],
+				[5,6,7,8,10]
 			)
 		),
 		(
 			Params(
-				[0,1,2,3,4],
-				[5], [0,1],
-				[2,3,4,5],
+				a_lines,
+				[10], [0,1],
+				[2,3,4,5,6,7,8,9,10],
 			),
 			Params(
-				[3,4],
+				b_lines,
 				[], [],
-				[3,4,5]
+				[6,7,8,9,10]
 			)
-		)
-		# Parameters(
-		# 	[0,1,2,3,4],
-		# 	[0,1,2,3,4,5],
-		# 	[5], [],
-
-		# 	[3,4],
-		# 	[3],
-		# 	[], [4]
-		# ),
+		),
+		(
+			Params(
+				a_lines,
+				[], [],
+				[0,1,2,3,4,5,6,7,8,9,10],
+			),
+			Params(
+				b_lines,
+				[10], [],
+				[6,7,8,9,10]
+			)
+		),
+		(
+			Params(
+				a_lines,
+				[], [9],
+				[0,1,2,3,4,5,6,7,8],
+			),
+			Params(
+				b_lines,
+				[], [9],
+				[4,5,6,7,8]
+			)
+		),
 	]
-	# return [
-	# 	([], [], [], [5]), 
-	# 	([10], [], [], [5]),
-	# 	([10], [], [], [9]), 
-	# ]
 
 
 @pytest.mark.parametrize('a,b', parameters())
-def test_diffing_changes_before(a: Params, b: Params):
+def test_syncing_of_two_playlists(a: Params, b: Params):
+	""" tests two playlists that are independently
+		of each other able to change """
+
+	snippet_size = 5
 
 	a_after = a.change()
 	b_after = b.change()
@@ -124,9 +101,10 @@ def test_diffing_changes_before(a: Params, b: Params):
 	ab_myers.print_diff('a/b')
 
 	a_result = changer(a_after, b_myers.inserts, b_myers.removals)
-	b_result = changer(b_after, a_myers.inserts, a_myers.removals)
-	print(a_result)
-	print(b_result)
+	b_result = a_result[-5:]
+	# b_result = changer(b_after, a_myers.inserts, a_myers.removals)
+	print(a.inserts, a.removals)
+	print(b.inserts, b.removals)
 
 	assert a_result == a.expected
 	assert b_result == b.expected
@@ -138,6 +116,8 @@ def changer(lines: list[int], inserts: list[int], removals: list[int]):
 	for remove in removals:
 		if remove in lines:
 			lines.remove(remove)
+		else:
+			print(f'skipping {remove}')
 	return lines
 
 
@@ -149,12 +129,3 @@ def myers_wrapper(a_lines: list[int], b_lines: list[int]):
 	myers.inserts = convert_str_list(myers.inserts)
 	myers.removals = convert_str_list(myers.removals)
 	return myers
-
-
-@pytest.fixture
-def lines():
-	a_lines = list(range(10))
-	b_lines = list(range(5, 10))
-	return a_lines, b_lines
-
-
