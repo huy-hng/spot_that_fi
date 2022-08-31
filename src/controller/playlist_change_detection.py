@@ -24,22 +24,15 @@ class Diff(NamedTuple):
 	removals: list[PlaylistTracksItem] = []
 
 def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
-	""" returns a tuple where the first value is removals 
-			and second is inserts """
-	
 	db_track_list = db.playlists.get_track_ids(playlist.id)
 	sp_track_list: dict[str, PlaylistTracksItem] = {}
 
-	myers = None
+	myers = Myers()
 	# TEST changes
-	for playlist_tracks in sp.get_playlist_tracks_generator(playlist.id):
-		track_ids = playlist_tracks.track_ids
+	for tracks in sp.get_playlist_tracks_generator(playlist.id):
+		sp_track_list.update({item.track.id: item for item in tracks.items_})
 
-		# REFACTOR: seems a little unelegant
-		sp_track_list.update(
-			{item.track.id: item for item in playlist_tracks.items_}
-		)
-
+		track_ids = tracks.track_ids
 		myers = Myers(db_track_list, track_ids)
 
 		if myers.index_of_first_keep is not None:
@@ -51,18 +44,7 @@ def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 				myers.print_diff()
 				break
 
-	diff = Diff()
+	inserts = [sp_track_list[line] for line in myers.inserts]
+	removals = [sp_track_list[line] for line in myers.removals]
 
-	if myers is None:
-		return diff
-
-	for line, operation in myers.diff[myers.index_of_first_keep:]:
-		track = sp_track_list.get(line)
-		if track is None:
-			continue
-		if operation == Operations.Insert:
-			diff.inserts.append(track)
-		elif operation == Operations.Remove:
-			diff.removals.append(track)
-
-	return diff
+	return Diff(inserts, removals)

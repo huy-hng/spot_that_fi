@@ -134,7 +134,7 @@ class Myers:
 		that a_lines doesnt have these items, which means for the sake of
 		syncing, they should be removed from b_lines
 	"""
-	def __init__(self, a_lines: list[str], b_lines: list[str]):
+	def __init__(self, a_lines: list[str]=[], b_lines: list[str]=[]):
 		self.diff = myers_diff(a_lines, b_lines)
 		self._separate_operations()
 	
@@ -216,7 +216,8 @@ def main():
 	a_lines.append('41')
 	# b_lines.append('40')
 
-	myers = Myers(a_lines, b_lines)
+	# myers = Myers(a_lines, b_lines)
+	myers = Myers()
 	# myers = Myers(b_lines, a_lines)
 	myers.print_diff()
 	
