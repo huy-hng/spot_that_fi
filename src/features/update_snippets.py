@@ -79,7 +79,8 @@ def sync_all_playlists():
 
 def sync_algorithm():
 	""" 
-
-	
+	algorithm can be sseen in test_myers.test_diffing_changes_before()
+	basically: get changes in a_lines and b_lines and do all changes
+	on other playlist respectively
 	"""
 	...
