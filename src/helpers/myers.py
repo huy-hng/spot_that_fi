@@ -138,6 +138,21 @@ class Myers:
 		self.diff = myers_diff(a_lines, b_lines)
 		self._separate_operations()
 	
+	def _separate_operations(self):
+		self.keeps: list = []
+		self.inserts: list = []
+		self.removals: list = []
+
+		for line, operation in self.diff:
+			match operation:
+				case Operations.Keep:
+					self.keeps.append(line)
+				case Operations.Insert:
+					self.inserts.append(line)
+				case Operations.Remove:
+					self.removals.append(line)
+
+
 	@property
 	def get_num_elems_after(self):
 		counter = 0
@@ -152,27 +167,12 @@ class Myers:
 				return True
 		return False
 
-	@property
-	def index_of_first_keep(self):
-		for i, elem in enumerate(self.diff):
-			if elem.operation == Operations.Keep:
-				return i
-		return None
-
-
-	def _separate_operations(self):
-		self.keeps: list = []
-		self.inserts: list = []
-		self.removals: list = []
-
-		for line, operation in self.diff:
-			match operation:
-				case Operations.Keep:
-					self.keeps.append(line)
-				case Operations.Insert:
-					self.inserts.append(line)
-				case Operations.Remove:
-					self.removals.append(line)
+	# @property
+	# def index_of_first_keep(self):
+	# 	for i, elem in enumerate(self.diff):
+	# 		if elem.operation == Operations.Keep:
+	# 			return i
+	# 	return None
 
 
 	def print_diff(self, title='Difference', print_fn=print):
@@ -209,15 +209,17 @@ def main():
 
 	# a_lines = ['1', '2', '3']
 	# b_lines = ['a', '1', 'b', '2', '34']
-	a_lines = [str(num) for num in range(40)]
-	b_lines = [str(num) for num in range(20, 40)]
+	a_lines = [str(num) for num in range(10)]
+	b_lines = [str(num) for num in range(5, 20)]
 	# del a_lines[15:30]
-	del b_lines[-1]
-	a_lines.append('41')
-	# b_lines.append('40')
+	# del b_lines[-1]
+	# a_lines.append('41')
+	b_lines.append('10')
 
-	# myers = Myers(a_lines, b_lines)
-	myers = Myers()
+	myers = Myers(a_lines, b_lines)
+	# myers = Myers([], b_lines)
+	if not myers.keeps:
+		print(myers.keeps)
 	# myers = Myers(b_lines, a_lines)
 	myers.print_diff()
 	

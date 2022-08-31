@@ -47,9 +47,11 @@ def sync_playlist_pair(main: AllPlaylists, snippet: AllPlaylists):
 
 	copy_tracks_to_snippet(main_playlist, snippet_playlist)
 
+
 def copy_tracks_to_snippet(main: api.playlists.Playlist, snippet: api.playlists.Playlist):
 	main_latest_tracks = main.get_latest_tracks(SNIPPET_SIZE)
 	snippet.replace_tracks(main_latest_tracks)
+
 
 class SyncPairs(NamedTuple):
 	main: db.tables.Playlist
@@ -74,7 +76,6 @@ def sync_all_playlists():
 		snippet_track_ids = db.playlists.get_track_ids(data['snippet_uri'])
 
 		myers = Myers(snippet_track_ids, main_track_ids)
-		myers.index_of_first_keep
 
 	# all_sp_playlists = sp.get_all_playlists()
 	# playlists = api.Playlists(all_sp_playlists)

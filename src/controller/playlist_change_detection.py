@@ -35,8 +35,9 @@ def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 		track_ids = tracks.track_ids
 		myers = Myers(db_track_list, track_ids)
 
-		if myers.index_of_first_keep is not None:
-			first_keep = myers.diff[myers.index_of_first_keep].line
+		# if myers.index_of_first_keep is not None:
+		if myers.keeps:
+			first_keep = myers.keeps[0]
 
 			index_in_db_list = db_track_list.index(first_keep)
 			total_tracks_after = index_in_db_list + len(track_ids)
