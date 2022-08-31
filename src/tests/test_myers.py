@@ -145,7 +145,7 @@ def random_input():
 
 
 
-@pytest.mark.parametrize('new_lines,insertions,removals', [random_input() for _ in range(1)])
+@pytest.mark.parametrize('new_lines,insertions,removals', [random_input() for _ in range(100)])
 def test_find_earliest_keep(new_lines,insertions,removals):
 	""" testing algorithm for database update\n
 		only b_lines (playlist tracks on spotify side) can be changed\n
@@ -158,13 +158,9 @@ def test_find_earliest_keep(new_lines,insertions,removals):
 	groups = grouper(new_lines, limit)
 	expected_length = len(new_lines)
 	
-	print(f'{expected_length = }\n')
-
 	diffs: list[list[str]] = []
 	saved_lines = []
-	myers = Myers()
 	myers = Myers(old_lines, saved_lines)
-	diffs.append(myers.get_vis_diff(str(-1)))
 	for iteration, group in enumerate(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
@@ -176,7 +172,7 @@ def test_find_earliest_keep(new_lines,insertions,removals):
 			if len(saved_lines) == expected_length:
 				break
 
-	Myers.print_groups(*diffs, group_size=4, distance=5)
+	# Myers.print_groups(*diffs, group_size=4, distance=5)
 
 	assert insertions == myers.inserts
 	assert removals == myers.removals
