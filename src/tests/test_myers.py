@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass
 import pytest
 from src.helpers.myers import Element, Myers, Operations
@@ -121,37 +122,41 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	assert b_result == b.expected
 
 	
-def test_find_earliest_keep():
+def random_input():
+	total = 20
+	lines = list(range(total))
+
+	deletions = random.randint(0,total)
+	for _ in range(deletions):
+		del lines[random.randint(0, len(lines)-1)]
+
+	insertions = random.randint(0,total)
+	start_int = total
+	for _ in range(insertions):
+		lines.append(start_int)
+		start_int += 1
+
+	return lines
+	
+
+
+@pytest.mark.parametrize('new_lines', [random_input() for _ in range(100)])
+def test_find_earliest_keep(new_lines):
 	""" testing algorithm for database update\n
 		only b_lines (playlist tracks on spotify side) can be changed\n
 		inserts can only be at the end and removals can be anywhere
 	"""
 
-	total_size = 20
-
-	old_lines = list(range(total_size))
-	new_lines = old_lines.copy()
-
-	del new_lines[-4:]
-	del new_lines[0:7]
-	# del new_lines[0]
-	# new_lines.append(20)
-	new_lines += list(range(20,27))
-
-
-def earliest_keep_helper(old_lines, new_lines):
 	limit = 5
 
+	old_lines = list(range(20))
+	groups = grouper(new_lines, limit)
 	expected_length = len(new_lines)
-	new_lines.reverse()
-	groups = [new_lines[n:n+limit] for n in range(0, expected_length, limit)]
-	[group.reverse() for group in groups]
+	
+	# print(f'{expected_length = }\n')
 
 	diffs: list[list[str]] = []
-	print(f'{expected_length = }\n')
-	
 	saved_lines = []
-	estimated_length = 0
 	for iteration, group in enumerate(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
@@ -163,15 +168,19 @@ def earliest_keep_helper(old_lines, new_lines):
 			# first_keep_index = old_lines.index(myers.keeps[0])
 			# estimated_length = first_keep_index + len(saved_lines)
 			# print(f'{first_keep_index} {len(saved_lines)} = {estimated_length}')
-			print(len(saved_lines))
 			# if estimated_length == expected_length:
+			# print(len(saved_lines))
 			if len(saved_lines) == expected_length:
 				break
 
-	# if estimated_length != expected_length:
-	# 	first_keep_index = 0
-	# 	estimated_length = first_keep_index + len(saved_lines)
 
-	Myers.print_groups(*diffs, group_size=4, distance=5)
+	# Myers.print_groups(*diffs, group_size=4, distance=5)
 
 	assert len(saved_lines) == expected_length
+
+
+def grouper(new_lines, limit):
+	new_lines.reverse()
+	groups = [new_lines[n:n+limit] for n in range(0, len(new_lines), limit)]
+	[group.reverse() for group in groups]
+	return groups
