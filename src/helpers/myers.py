@@ -139,6 +139,8 @@ class Myers:
 	def __init__(self, a_lines: list=[], b_lines: list=[]):
 		self.diff = myers_diff(a_lines, b_lines)
 		self._separate_operations()
+		# TODO: adjust vis_width depending on max length of lines
+		# also adjust ljust and rjust for the formatter
 	
 	def _separate_operations(self):
 		self.keeps: list = []
@@ -177,7 +179,7 @@ class Myers:
 	# 	return None
 
 
-	def get_vis_diff(self, title: str):
+	def get_vis_diff(self, title: str='Difference'):
 		arr: list[str] = []
 
 		formatter = lambda left, right: f'| {left.rjust(5)} | {right.ljust(4)} |'
