@@ -24,6 +24,7 @@
 # For more information, please refer to <http://unlicense.org/> 
 
 from enum import Enum
+from itertools import zip_longest
 from typing import Generic, NamedTuple, TypeVar
 
 # These define the structure of the history, and correspond to diff output with
@@ -134,6 +135,7 @@ class Myers:
 		that a_lines doesnt have these items, which means for the sake of
 		syncing, they should be removed from b_lines
 	"""
+	vis_width = 16
 	def __init__(self, a_lines: list=[], b_lines: list=[]):
 		self.diff = myers_diff(a_lines, b_lines)
 		self._separate_operations()
@@ -180,10 +182,9 @@ class Myers:
 
 		formatter = lambda left, right: f'| {left.rjust(5)} | {right.ljust(4)} |'
 
-		arr.append(16*'-')
-		arr.append(f'|{title.center(14)}|')
-		arr.append(16*'-')
-		# printer('old', 'new')
+		arr.append(self.vis_width*'-')
+		arr.append(f'|{title.center(self.vis_width-2)}|')
+		arr.append(self.vis_width*'-')
 		for line, operation in self.diff:
 			line = str(line)
 			line = operation.value + line
@@ -193,7 +194,7 @@ class Myers:
 				arr.append(formatter('', line))
 			elif operation == Operations.Remove:
 				arr.append(formatter(line, ''))
-		arr.append(16*'-')
+		arr.append(self.vis_width*'-')
 
 		return arr
 
@@ -203,19 +204,19 @@ class Myers:
 		self.print_groups(diff, print_fn=print_fn)
 
 
-	@staticmethod
-	def print_groups(*diffs: list[str], group_size=1, distance=2, print_fn=print):
-			for n in range(0, len(diffs), group_size):
-				group = diffs[n:n+group_size]
-				zipped = list(zip(*group))
+	@classmethod
+	def print_groups(cls, *diffs: list[str], group_size=1, distance=2, print_fn=print):
+		for n in range(0, len(diffs), group_size):
+			group = diffs[n:n+group_size]
+			zipped = list(zip_longest(*group, fillvalue=' '*cls.vis_width))
 
-				for long_line in zipped:
-					delimiter = ' ' * distance
-					print_fn(delimiter.join(long_line))
+			for long_line in zipped:
+				delimiter = ' ' * distance
+				print_fn(delimiter.join(long_line))
 
-				if distance > 2:
-					line_breaks = max(int(distance / 3) - 1, 0)
-					print_fn('\n' * line_breaks)
+			if distance > 2:
+				line_breaks = max(int(distance / 3) - 1, 0)
+				print_fn('\n' * line_breaks)
 		
 def main():
 	# try:

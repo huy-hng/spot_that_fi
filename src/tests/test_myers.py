@@ -104,9 +104,12 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	b_myers = Myers(b.lines, b_after)
 	ab_myers = Myers(a_after, b_after)
 
-	a_myers.print_diff('a_lines')
-	b_myers.print_diff('b_lines')
-	ab_myers.print_diff('a/b')
+	Myers.print_groups(
+		a_myers.get_vis_diff('a_lines'),
+		b_myers.get_vis_diff('b_lines'),
+		ab_myers.get_vis_diff('ab_lines'),
+		group_size=3
+	)
 
 	a_result = changer(a_after, b_myers.inserts, b_myers.removals)
 	b_result = a_result[-5:]
