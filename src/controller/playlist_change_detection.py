@@ -2,6 +2,7 @@ from typing import NamedTuple
 from src.helpers.myers import Myers, Operations
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, AbstractPlaylistType
 from src.api_handler import sp
+from src.helpers.logger import log
 
 from src import db
 
@@ -25,26 +26,29 @@ class Diff(NamedTuple):
 
 def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 	db_track_list = db.playlists.get_track_ids(playlist.id)
-	sp_track_list: dict[str, PlaylistTracksItem] = {}
 
-	myers = Myers()
+	saved_items: list[PlaylistTracksItem] = []
+	myers = Myers(db_track_list)
 	# TEST changes
 	for tracks in sp.get_playlist_tracks_generator(playlist.id):
-		sp_track_list.update({item.track.id: item for item in tracks.items_})
+		saved_items = tracks.items_ + saved_items
 
-		track_ids = tracks.track_ids
+		track_ids = [item.track.id for item in saved_items]
 		myers = Myers(db_track_list, track_ids)
 
-		if myers.keeps:
-			first_keep = myers.keeps[0]
-
-			index_in_db_list = db_track_list.index(first_keep)
-			total_tracks_after = index_in_db_list + len(track_ids)
-			if total_tracks_after == playlist.tracks.total:
-				myers.print_diff()
+		if myers.keeps: # check to save on iterations
+			if len(saved_items) == playlist.tracks.total:
 				break
 
-	inserts = [sp_track_list[line] for line in myers.inserts]
-	removals = [sp_track_list[line] for line in myers.removals]
+
+	if len(saved_items) != playlist.tracks.total:
+		log.error('Something is severly wrong here')
+		log.error(f'{db_track_list = }')
+		log.error(f'{saved_items = }')
+
+
+	lookup_table = {item.track.id: item for item in saved_items}
+	inserts = [lookup_table[line] for line in myers.inserts]
+	removals = [lookup_table[line] for line in myers.removals]
 
 	return Diff(inserts, removals)
