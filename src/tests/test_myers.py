@@ -126,22 +126,27 @@ def random_input():
 	total = 20
 	lines = list(range(total))
 
-	deletions = random.randint(0,total)
-	for _ in range(deletions):
-		del lines[random.randint(0, len(lines)-1)]
+	num_removals = random.randint(0,total)
+	removals = []
+	for _ in range(num_removals):
+		delete = random.randint(0, len(lines)-1)
+		removals.append(lines[delete])
+		del lines[delete]
+	removals.sort()
 
-	insertions = random.randint(0,total)
+	num_insertions = random.randint(0,total)
 	start_int = total
-	for _ in range(insertions):
+	insertions = [insertion for insertion in range(total, total+num_insertions)]
+	for _ in range(num_insertions):
 		lines.append(start_int)
 		start_int += 1
 
-	return lines
-	
+	return lines, insertions, removals
 
 
-@pytest.mark.parametrize('new_lines', [random_input() for _ in range(100)])
-def test_find_earliest_keep(new_lines):
+
+@pytest.mark.parametrize('new_lines,insertions,removals', [random_input() for _ in range(1)])
+def test_find_earliest_keep(new_lines,insertions,removals):
 	""" testing algorithm for database update\n
 		only b_lines (playlist tracks on spotify side) can be changed\n
 		inserts can only be at the end and removals can be anywhere
@@ -153,10 +158,13 @@ def test_find_earliest_keep(new_lines):
 	groups = grouper(new_lines, limit)
 	expected_length = len(new_lines)
 	
-	# print(f'{expected_length = }\n')
+	print(f'{expected_length = }\n')
 
 	diffs: list[list[str]] = []
 	saved_lines = []
+	myers = Myers()
+	myers = Myers(old_lines, saved_lines)
+	diffs.append(myers.get_vis_diff(str(-1)))
 	for iteration, group in enumerate(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
@@ -165,16 +173,13 @@ def test_find_earliest_keep(new_lines):
 		diffs.append(myers.get_vis_diff(str(iteration)))
 
 		if myers.keeps: # algorithm to save on iterations
-			# first_keep_index = old_lines.index(myers.keeps[0])
-			# estimated_length = first_keep_index + len(saved_lines)
-			# print(f'{first_keep_index} {len(saved_lines)} = {estimated_length}')
-			# if estimated_length == expected_length:
-			# print(len(saved_lines))
 			if len(saved_lines) == expected_length:
 				break
 
+	Myers.print_groups(*diffs, group_size=4, distance=5)
 
-	# Myers.print_groups(*diffs, group_size=4, distance=5)
+	assert insertions == myers.inserts
+	assert removals == myers.removals
 
 	assert len(saved_lines) == expected_length
 
