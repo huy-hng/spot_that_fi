@@ -118,3 +118,20 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	assert b_result == b.expected
 
 	
+def test_find_earliest_keep():
+
+	# b_lines = list(range(5, 20))
+	
+	size = 4
+	curr = 20
+
+	diffs: list[list[str]] = []
+	a_lines = list(range(curr))
+	while curr>0:
+		curr -= size
+		b_lines = list(range(curr, curr+size))
+
+		myers = Myers(a_lines, b_lines)
+		diffs.append(myers.get_vis_diff(str(curr)))
+
+	Myers.print_groups(*diffs, group_size=3, distance=2)

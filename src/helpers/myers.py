@@ -175,24 +175,47 @@ class Myers:
 	# 	return None
 
 
-	def print_diff(self, title='Difference', print_fn=print):
-		printer = lambda left, right: print_fn(f'| {left.rjust(5)} | {right.ljust(4)} |')
-		# printer = lambda left, right: print_fn(f'| {left} | {right.ljust(4)} |')
+	def get_vis_diff(self, title: str):
+		arr: list[str] = []
 
-		print_fn(16*'-')
-		print_fn(f'|{title.center(14)}|')
-		print_fn(16*'-')
+		formatter = lambda left, right: f'| {left.rjust(5)} | {right.ljust(4)} |'
+
+		arr.append(16*'-')
+		arr.append(f'|{title.center(14)}|')
+		arr.append(16*'-')
 		# printer('old', 'new')
 		for line, operation in self.diff:
 			line = str(line)
 			line = operation.value + line
 			if operation == Operations.Keep:
-				printer(line, line)
+				arr.append(formatter(line, line))
 			elif operation == Operations.Insert:
-				printer('', line)
+				arr.append(formatter('', line))
 			elif operation == Operations.Remove:
-				printer(line, '')
-		print_fn(16*'-')
+				arr.append(formatter(line, ''))
+		arr.append(16*'-')
+
+		return arr
+
+
+	def print_diff(self, title='Difference', print_fn=print):
+		diff = self.get_vis_diff(title)
+		self.print_groups(diff, print_fn=print_fn)
+
+
+	@staticmethod
+	def print_groups(*diffs: list[str], group_size=1, distance=2, print_fn=print):
+		if len(diffs) > 1:
+			grouped = [tuple(diffs[n:n+group_size]) for n in range(0, len(diffs), group_size)]
+			for group in grouped:
+				zipped = list(zip(*group))
+				for long_line in zipped:
+					# '	'.join(str(elem) for elem in long_line)
+					print_fn(f'{" "*distance}'.join(map(str, long_line)))
+		else:
+			for diff in diffs:
+				for line in diff:
+					print_fn(line)
 
 		
 def main():
