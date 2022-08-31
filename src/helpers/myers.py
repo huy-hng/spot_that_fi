@@ -205,18 +205,17 @@ class Myers:
 
 	@staticmethod
 	def print_groups(*diffs: list[str], group_size=1, distance=2, print_fn=print):
-		if len(diffs) > 1:
-			grouped = [tuple(diffs[n:n+group_size]) for n in range(0, len(diffs), group_size)]
-			for group in grouped:
+			for n in range(0, len(diffs), group_size):
+				group = diffs[n:n+group_size]
 				zipped = list(zip(*group))
-				for long_line in zipped:
-					# '	'.join(str(elem) for elem in long_line)
-					print_fn(f'{" "*distance}'.join(map(str, long_line)))
-		else:
-			for diff in diffs:
-				for line in diff:
-					print_fn(line)
 
+				for long_line in zipped:
+					delimiter = ' ' * distance
+					print_fn(delimiter.join(long_line))
+
+				if distance > 2:
+					line_breaks = max(int(distance / 3) - 1, 0)
+					print_fn('\n' * line_breaks)
 		
 def main():
 	# try:
