@@ -3,6 +3,7 @@ from typing import NamedTuple
 from src.api_handler import sp
 from src.types.playlists import AllPlaylists, PlaylistTracksItem
 from src.settings.user_data import get_playlist_user_data
+from src.controller import playlist_change_detection as pcd
 
 
 class SyncPairs(NamedTuple):
@@ -68,10 +69,15 @@ class Playlist:
 	on the playlists on spotify.
 	"""
 	def __init__(self, playlist: AllPlaylists):
+		self._playlist = playlist
 		self.id = playlist.id
 		self._snapshot_id = playlist.snapshot_id
 		self.name = playlist.name
 		self._total_tracks = playlist.tracks.total
+
+	# @property
+	# def has_playlist_changed(self):
+	# 	return pcd.has_playlist_changed(self._playlist)
 
 	@property
 	def total_tracks(self):
@@ -112,7 +118,7 @@ class Playlist:
 		sp.add_tracks_at_beginning(self.id, track_ids)
 
 	def add_tracks_at_end(self, tracks: list[PlaylistTracksItem],
-															add_duplicates: bool = False):
+								add_duplicates: bool = False):
 		""" this should behave like adding songs normally to a playlist.
 				each song should be appended at the end of the playlist.\n
 				That means, (tracks[-1]) should be the last song added.\n

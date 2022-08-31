@@ -91,6 +91,9 @@ class Spotipy:
 		"""
 		items = {'previous': True}
 
+		# FIX: below api call can be omitted by passing the playlist
+			# as AllPlaylists or SinglePlaylist class from types
+			# or pass total tracks as param
 		tracks_in_playlist: int = self.sp.playlist_items(playlist_id)['total']
 		offset = tracks_in_playlist - limit
 
@@ -157,6 +160,7 @@ class Spotipy:
 
 	#region delete
 	def remove_tracks(self, uri: str, track_ids: list[str]):
+		# TEST how does this behave if tracks arent in playlist
 		self.sp.playlist_remove_all_occurrences_of_items(uri, track_ids)
 	#endregion
 

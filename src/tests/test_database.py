@@ -9,7 +9,7 @@ from src import api_handler as api
 
 def test_get_track_diff():
 	snippet = sp.get_one_playlist(PlaylistIDs.snippet)
-	removals, inserts = pcd.get_track_diff(snippet)
+	inserts, removals = pcd.get_track_diff(snippet)
 	removals = api.playlists.Playlist.get_names(removals)
 	inserts = api.playlists.Playlist.get_names(inserts)
 	print(removals)

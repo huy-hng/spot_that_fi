@@ -16,7 +16,7 @@ def update_db_liked_tracks():
 		db.tracks.add_tracks(tracks, liked=True)
 
 
-def update_playlist_tracks_in_db(playlist: AllPlaylists):
+def update_playlist_tracks_in_db(playlist: AllPlaylists, diff: pcd.Diff | None=None):
 	""" playlist should be very up to date """
 	# TEST: check if this function works for an empty playlist that has just been added
 
@@ -25,9 +25,11 @@ def update_playlist_tracks_in_db(playlist: AllPlaylists):
 
 	db.playlists.update_playlists([playlist])
 
-	removals, inserts = pcd.get_track_diff(playlist)
-	db.playlists.remove_tracks_from_playlist(playlist.id, removals)
-	db.playlists.add_tracks_to_playlist(playlist.id, inserts)
+	if diff is None:
+		diff = pcd.get_track_diff(playlist)
+	db.playlists.remove_tracks_from_playlist(playlist.id, diff.removals)
+	db.playlists.add_tracks_to_playlist(playlist.id, diff.inserts)
+	return diff
 
 	
 def update_all_playlist_tracks_in_db():

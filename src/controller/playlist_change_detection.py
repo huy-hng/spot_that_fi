@@ -1,3 +1,4 @@
+from typing import NamedTuple
 from src.helpers.myers import Myers, Operations
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, AbstractPlaylistType
 from src.api_handler import sp
@@ -18,8 +19,11 @@ def get_changed_playlists(playlists: list[AllPlaylists]):
 	return [p for p in playlists if has_playlist_changed(p)]
 
 
-# def get_track_diff(playlist_id: str, num_tracks: int):
-def get_track_diff(playlist: AllPlaylists | SinglePlaylist):
+class Diff(NamedTuple):
+	inserts: list[PlaylistTracksItem] = []
+	removals: list[PlaylistTracksItem] = []
+
+def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 	""" returns a tuple where the first value is removals 
 			and second is inserts """
 	
@@ -47,19 +51,18 @@ def get_track_diff(playlist: AllPlaylists | SinglePlaylist):
 				myers.print_diff()
 				break
 
-	inserts: list[PlaylistTracksItem] = []
-	removals: list[PlaylistTracksItem] = []
+	diff = Diff()
 
 	if myers is None:
-		return removals, inserts
+		return diff
 
 	for line, operation in myers.diff[myers.index_of_first_keep:]:
 		track = sp_track_list.get(line)
 		if track is None:
 			continue
 		if operation == Operations.Insert:
-			inserts.append(track)
+			diff.inserts.append(track)
 		elif operation == Operations.Remove:
-			removals.append(track)
+			diff.removals.append(track)
 
-	return removals, inserts
+	return diff
