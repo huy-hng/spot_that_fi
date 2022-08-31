@@ -4,6 +4,7 @@ from src.api_handler import sp
 from src import db
 
 from src import api_handler as api
+from src.api_handler.playlists import Playlist
 from src.controller.update_db import update_all_playlist_tracks_in_db
 from src.controller import playlist_change_detection as pcd
 from src.helpers.myers import Myers
@@ -15,8 +16,10 @@ SNIPPET_SIZE = 50
 
 
 def sync_playlist_pair(main: AllPlaylists, snippet: AllPlaylists):
+	#################### this function needs to know about the changes
+	# that happened in the playlists. This means update_playlist_tracks_in_db
+	# cannot finish running before this function started
 	"""
-	TODO: sync playlists without knowing wether they have changed or not.
 	compare main and snippet playlists and see what has changed and
 	update both playlists approriately
 	"""
@@ -27,25 +30,26 @@ def sync_playlist_pair(main: AllPlaylists, snippet: AllPlaylists):
 	# 	get difference between both and update playlists
 	# update database
 
-	main_changed = pcd.has_playlist_changed(main)
 	snippet_changed = pcd.has_playlist_changed(snippet)
+	main_changed = pcd.has_playlist_changed(main)
+	if not main_changed and snippet_changed:
+		return
 
-	if main_changed and snippet_changed:
-		... # TODO
-	elif main_changed:
-		# copy last x tracks from main to snippet
-		main_playlist = api.playlists.Playlist(main)
-		tracks = main_playlist.get_latest_tracks(SNIPPET_SIZE)
+	snippet_playlist = api.playlists.Playlist(snippet)
+	main_playlist = api.playlists.Playlist(main)
 
-		snippet_playlist = api.playlists.Playlist(snippet)
-		snippet_playlist.replace_tracks(tracks)
-			
-	elif snippet_changed:
-		... # get diff between snippet and main
-		pcd.get_track_diff()
-	else:
-		... # nothing changed and can be skipped
+	if snippet_changed:
+		snippet_diff = pcd.get_track_diff(snippet)
+		main_playlist.add_tracks_at_end(snippet_diff.inserts)
+		main_playlist.remove_tracks(snippet_diff.removals)
 
+		# TEST: wait? In case it needs some time to propagate
+
+	copy_tracks_to_snippet(main_playlist, snippet_playlist)
+
+def copy_tracks_to_snippet(main: api.playlists.Playlist, snippet: api.playlists.Playlist):
+	main_latest_tracks = main.get_latest_tracks(SNIPPET_SIZE)
+	snippet.replace_tracks(main_latest_tracks)
 
 class SyncPairs(NamedTuple):
 	main: db.tables.Playlist
@@ -79,8 +83,11 @@ def sync_all_playlists():
 
 def sync_algorithm():
 	""" 
-	algorithm can be sseen in test_myers.test_diffing_changes_before()
+	algorithm can be seen in test_myers.test_diffing_changes_before()
 	basically: get changes in a_lines and b_lines and do all changes
 	on other playlist respectively
 	"""
-	...
+	# get changes in snippet playlist
+	# apply changes to main playlist
+	# copy latest tracks from main to snippet
+	
