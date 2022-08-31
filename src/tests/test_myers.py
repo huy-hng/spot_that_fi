@@ -122,19 +122,56 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 
 	
 def test_find_earliest_keep():
+	""" testing algorithm for database update\n
+		only b_lines (playlist tracks on spotify side) can be changed\n
+		inserts can only be at the end and removals can be anywhere
+	"""
 
-	# b_lines = list(range(5, 20))
-	
-	size = 4
-	curr = 20
+	total_size = 20
+
+	old_lines = list(range(total_size))
+	new_lines = old_lines.copy()
+
+	del new_lines[-4:]
+	del new_lines[0:7]
+	# del new_lines[0]
+	# new_lines.append(20)
+	new_lines += list(range(20,27))
+
+
+def earliest_keep_helper(old_lines, new_lines):
+	limit = 5
+
+	expected_length = len(new_lines)
+	new_lines.reverse()
+	groups = [new_lines[n:n+limit] for n in range(0, expected_length, limit)]
+	[group.reverse() for group in groups]
 
 	diffs: list[list[str]] = []
-	a_lines = list(range(curr))
-	while curr>0:
-		curr -= size
-		b_lines = list(range(curr, curr+size))
+	print(f'{expected_length = }\n')
+	
+	saved_lines = []
+	estimated_length = 0
+	for iteration, group in enumerate(groups):
+		""" actual logic """
+		saved_lines = group + saved_lines
 
-		myers = Myers(a_lines, b_lines)
-		diffs.append(myers.get_vis_diff(str(curr)))
+		myers = Myers(old_lines, saved_lines)
+		diffs.append(myers.get_vis_diff(str(iteration)))
 
-	Myers.print_groups(*diffs, group_size=3, distance=2)
+		if myers.keeps: # algorithm to save on iterations
+			# first_keep_index = old_lines.index(myers.keeps[0])
+			# estimated_length = first_keep_index + len(saved_lines)
+			# print(f'{first_keep_index} {len(saved_lines)} = {estimated_length}')
+			print(len(saved_lines))
+			# if estimated_length == expected_length:
+			if len(saved_lines) == expected_length:
+				break
+
+	# if estimated_length != expected_length:
+	# 	first_keep_index = 0
+	# 	estimated_length = first_keep_index + len(saved_lines)
+
+	Myers.print_groups(*diffs, group_size=4, distance=5)
+
+	assert len(saved_lines) == expected_length
