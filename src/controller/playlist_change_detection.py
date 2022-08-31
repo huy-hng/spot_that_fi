@@ -44,7 +44,7 @@ def get_track_diff(playlist: AllPlaylists | SinglePlaylist):
 			index_in_db_list = db_track_list.index(first_keep)
 			total_tracks_after = index_in_db_list + len(track_ids)
 			if total_tracks_after == playlist.tracks.total:
-				myers.print_diff(print)
+				myers.print_diff()
 				break
 
 	inserts: list[PlaylistTracksItem] = []

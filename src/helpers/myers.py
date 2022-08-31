@@ -136,6 +136,7 @@ class Myers:
 	"""
 	def __init__(self, a_lines: list[str], b_lines: list[str]):
 		self.diff = myers_diff(a_lines, b_lines)
+		self._separate_operations()
 	
 	@property
 	def get_num_elems_after(self):
@@ -159,20 +160,19 @@ class Myers:
 		return None
 
 
-	def separate_operations(self):
-		keeps: list[str] = []
-		inserts: list[str] = []
-		removals: list[str] = []
+	def _separate_operations(self):
+		self.keeps: list = []
+		self.inserts: list = []
+		self.removals: list = []
 
-		for line, operation in self.diff[self.index_of_first_keep:]:
-			if operation == Operations.Keep:
-				keeps.append(line)
-			elif operation == Operations.Insert:
-				inserts.append(line)
-			elif operation == Operations.Remove:
-				removals.append(line)
-
-		return keeps, inserts, removals
+		for line, operation in self.diff:
+			match operation:
+				case Operations.Keep:
+					self.keeps.append(line)
+				case Operations.Insert:
+					self.inserts.append(line)
+				case Operations.Remove:
+					self.removals.append(line)
 
 
 	def print_diff(self, title='Difference', print_fn=print):
