@@ -1,6 +1,7 @@
 import random
 from dataclasses import dataclass
 import pytest
+from src.controller.playlist_change_detection import Diff
 from src.helpers.myers import Element, Myers, Operations
 
 def changer(lines: list[int], inserts: list[int], removals: list[int]):
@@ -126,7 +127,7 @@ def random_input():
 	total = 20
 	lines = list(range(total))
 
-	num_removals = random.randint(0,total)
+	num_removals = random.randint(0,int(total/2))
 	removals = []
 	for _ in range(num_removals):
 		delete = random.randint(0, len(lines)-1)
@@ -134,26 +135,29 @@ def random_input():
 		del lines[delete]
 	removals.sort()
 
-	num_insertions = random.randint(0,total)
-	start_int = total
-	insertions = [insertion for insertion in range(total, total+num_insertions)]
-	for _ in range(num_insertions):
-		lines.append(start_int)
-		start_int += 1
+	# num_insertions = random.randint(0,int(total/2))
+	# start_int = total
+	# insertions = [insertion for insertion in range(total, total+num_insertions)]
+	# for _ in range(num_insertions):
+	# 	lines.append(start_int)
+	# 	start_int += 1
 
-	return lines, insertions, removals
+	return lines, [], removals
 
 
 def not_random_input():
 	total = 20
 	lines = list(range(total))
-	return lines, [], []
+	# removals = lines[15:]
+	removals = [lines[5]]
+	[lines.remove(r) for r in removals]
+	return lines, [], removals
 
 
-	# [random_input() for _ in range(1)])
-@pytest.mark.parametrize('new_lines,insertions,removals',
-	[not_random_input()])
-def test_find_earliest_keep(new_lines,insertions,removals):
+@pytest.mark.parametrize('new_lines,inserts,removals',
+	[random_input() for _ in range(1)])
+	# [not_random_input()])
+def test_find_earliest_keep(new_lines,inserts,removals):
 	""" testing algorithm for database update\n
 		only b_lines (playlist tracks on spotify side) can be changed\n
 		inserts can only be at the end and removals can be anywhere
@@ -168,23 +172,51 @@ def test_find_earliest_keep(new_lines,insertions,removals):
 	diffs: list[list[str]] = []
 	saved_lines = []
 	myers = Myers(old_lines, saved_lines)
-	for iteration, group in enumerate(groups):
+	# myers = Myers()
+	broke = False
+	for i, group in enumerate(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
 
 		myers = Myers(old_lines, saved_lines)
-		diffs.append(myers.get_vis_diff(str(iteration)))
+		diffs.append(myers.get_vis_diff(str(i)))
 
-		if myers.keeps: # algorithm to save on iterations
-			if len(saved_lines) == expected_length:
+		if myers.keeps:
+			first_keep_index = old_lines.index(myers.keeps[0])
+			estimated_total = first_keep_index + len(saved_lines)
+			if estimated_total == expected_length:
+				broke = True
 				break
 
+	if broke:
+		first_keep_index = old_lines.index(myers.keeps[0])
+	else:
+		first_keep_index = 0
+		estimated_total = len(saved_lines)
+	
+	
+	ins = []
+	rem = []
+	for line, operation in myers.diff[first_keep_index:]:
+		if operation == Operations.Insert:
+			ins.append(line)
+		elif operation == Operations.Remove:
+			rem.append(line)
+
 	Myers.print_groups(*diffs, group_size=4, distance=5)
+	# print(f'{estimated_total} | {expected_length} | {len(saved_lines)}')
+	print(f'{saved_lines=}')
+	# print(f'{inserts=}')
+	# print(f'{ins=}')
+	# print()
+	print(f'{removals=}')
+	# print(f'{rem=}')
 
-	assert insertions == myers.inserts
-	assert removals == myers.removals
+	assert estimated_total == expected_length
+	assert inserts == ins
+	assert removals == rem
 
-	assert len(saved_lines) == expected_length
+	# assert len(saved_lines) == expected_length
 
 
 def grouper(new_lines, limit):
