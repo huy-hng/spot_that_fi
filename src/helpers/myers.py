@@ -24,7 +24,7 @@
 # For more information, please refer to <http://unlicense.org/> 
 
 from enum import Enum
-from typing import NamedTuple
+from typing import Generic, NamedTuple, TypeVar
 
 # These define the structure of the history, and correspond to diff output with
 # lines that start with a space, a + and a - respectively.
@@ -126,7 +126,7 @@ def myers_diff(a_lines, b_lines) -> list[Element]:
 
 	assert False, 'Could not find edit script'
 
-
+# TODO: add generic typing for int and str
 class Myers:
 	"""
 		spotify playlist that are sorted by added_at can only have inserts
@@ -134,7 +134,7 @@ class Myers:
 		that a_lines doesnt have these items, which means for the sake of
 		syncing, they should be removed from b_lines
 	"""
-	def __init__(self, a_lines: list[str]=[], b_lines: list[str]=[]):
+	def __init__(self, a_lines: list=[], b_lines: list=[]):
 		self.diff = myers_diff(a_lines, b_lines)
 		self._separate_operations()
 	
@@ -184,6 +184,7 @@ class Myers:
 		print_fn(16*'-')
 		# printer('old', 'new')
 		for line, operation in self.diff:
+			line = str(line)
 			line = operation.value + line
 			if operation == Operations.Keep:
 				printer(line, line)
@@ -209,12 +210,12 @@ def main():
 
 	# a_lines = ['1', '2', '3']
 	# b_lines = ['a', '1', 'b', '2', '34']
-	a_lines = [str(num) for num in range(10)]
-	b_lines = [str(num) for num in range(5, 20)]
+	a_lines = list(range(10))
+	b_lines = list(range(5, 20))
 	# del a_lines[15:30]
 	# del b_lines[-1]
 	# a_lines.append('41')
-	b_lines.append('10')
+	b_lines.append(20)
 
 	myers = Myers(a_lines, b_lines)
 	# myers = Myers([], b_lines)

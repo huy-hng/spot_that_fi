@@ -2,6 +2,16 @@ from dataclasses import dataclass
 import pytest
 from src.helpers.myers import Element, Myers, Operations
 
+def changer(lines: list[int], inserts: list[int], removals: list[int]):
+	for insert in inserts:
+		lines.append(insert)
+	for remove in removals:
+		if remove in lines:
+			lines.remove(remove)
+		else:
+			print(f'skipping {remove}')
+	return lines
+
 
 @dataclass
 class Params:
@@ -14,8 +24,6 @@ class Params:
 		return changer(self.lines.copy(), self.inserts, self.removals)
 
 def parameters():
-	# should delete 5 in a_lines, but that cant be distinguished from the rest
-	# currently cant distinguish between appending something to a_lines and deleting last element from b_lines
 	a_lines = [0,1,2,3,4,5,6,7,8,9]
 	b_lines = [5,6,7,8,9]
 	return [
@@ -92,9 +100,9 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	a_after = a.change()
 	b_after = b.change()
 
-	a_myers = myers_wrapper(a.lines, a_after)
-	b_myers = myers_wrapper(b.lines, b_after)
-	ab_myers = myers_wrapper(a_after, b_after)
+	a_myers = Myers(a.lines, a_after)
+	b_myers = Myers(b.lines, b_after)
+	ab_myers = Myers(a_after, b_after)
 
 	a_myers.print_diff('a_lines')
 	b_myers.print_diff('b_lines')
@@ -110,22 +118,3 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	assert b_result == b.expected
 
 	
-def changer(lines: list[int], inserts: list[int], removals: list[int]):
-	for insert in inserts:
-		lines.append(insert)
-	for remove in removals:
-		if remove in lines:
-			lines.remove(remove)
-		else:
-			print(f'skipping {remove}')
-	return lines
-
-
-def myers_wrapper(a_lines: list[int], b_lines: list[int]):
-	convert_int_list = lambda arr: list(map(str, arr))
-	convert_str_list = lambda arr: list(map(int, arr))
-	myers = Myers(convert_int_list(a_lines), convert_int_list(b_lines))
-	myers.keeps = convert_str_list(myers.keeps)
-	myers.inserts = convert_str_list(myers.inserts)
-	myers.removals = convert_str_list(myers.removals)
-	return myers
