@@ -1,4 +1,5 @@
 from typing import NamedTuple
+from src.helpers.helpers import lookahead
 from src.helpers.myers import Myers, Operations
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, AbstractPlaylistType
 from src.api_handler import sp
@@ -25,42 +26,41 @@ class Diff(NamedTuple):
 	removals: list[PlaylistTracksItem] = []
 
 def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
+	""" requires playlist to exist in database\n
+		raises PlaylistNotFoundError if not found """
 	db_track_list = db.playlists.get_track_ids(playlist.id)
-	sp_track_list: dict[str, PlaylistTracksItem] = {}
+	saved_items: list[PlaylistTracksItem] = []
 
-	myers = Myers()
-	# TEST changes
-	for tracks in sp.get_playlist_tracks_generator(playlist.id):
-		sp_track_list.update({item.track.id: item for item in tracks.items_})
+	# define variables so theire not unbound
+	estimated_total = 0
+	fki = 0
 
-		track_ids = tracks.track_ids
+	myers = Myers(db_track_list)
+	gen = sp.get_playlist_tracks_generator(playlist.id)
+	for tracks, has_next in lookahead(gen):
+		saved_items = tracks.items_ + saved_items
+
+		track_ids = [item.track.id for item in saved_items]
 		myers = Myers(db_track_list, track_ids)
 
-		if myers.keeps:
-			first_keep = myers.keeps[0]
+		fki = myers.first_keep_index if has_next else 0
+		if fki is not None: # check to save on iterations
 
-			index_in_db_list = db_track_list.index(first_keep)
-			total_tracks_after = index_in_db_list + len(track_ids)
-			if total_tracks_after == playlist.tracks.total:
-				myers.print_diff()
+			estimated_total = fki + len(saved_items)
+			if estimated_total == playlist.tracks.total:
 				break
 
-	inserts = [sp_track_list[line] for line in myers.inserts]
-	removals = [sp_track_list[line] for line in myers.removals]
+	if estimated_total != playlist.tracks.total:
+		log.error('Something is severly wrong here')
+		log.error(f'{db_track_list = }')
+		log.error(f'{saved_items = }')
+	
+	if fki is None:
+		fki = 0
+	myers.separate_operations(fki)
 
-	diff = Diff()
-
-	for line, operation in myers.diff[myers.first_keep_index:]:
-		track = sp_track_list.get(line)
-		if track is None:
-			continue
-		if operation == Operations.Insert:
-			diff.inserts.append(track)
-		elif operation == Operations.Remove:
-			diff.removals.append(track)
-
-	return diff
-
+	lookup_table = {item.track.id: item for item in saved_items}
+	inserts = [lookup_table[line] for line in myers.inserts]
+	removals = [lookup_table[line] for line in myers.removals]
 
 	return Diff(inserts, removals)
-

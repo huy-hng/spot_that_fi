@@ -174,7 +174,6 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 	saved_lines = []
 	myers = Myers(old_lines, saved_lines)
 	fki = 0
-	estimated_total = 0
 	for group, has_next in lookahead(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
@@ -188,15 +187,10 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 				fki = 0
 
 			estimated_total = fki + len(saved_lines)
-			# print(f'{estimated_total = }')
 			if estimated_total == expected_length:
 				break
 
 	
-	if fki is None: fki = 0
-	myers.separate_operations(fki)
-	ins = myers.inserts
-	rem = myers.removals
 
 	# Myers.print_groups(*diffs, group_size=4, distance=5)
 	# print(f'{estimated_total=} | {expected_length=}')
@@ -207,9 +201,10 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 	# print(f'{removals=}')
 	# print(f'{rem=}')
 
+	myers.separate_operations(fki)
 	assert estimated_total == expected_length
-	assert ins == inserts
-	assert rem == removals
+	assert ins == myers.inserts
+	assert rem == myers.removals
 
 	# assert len(saved_lines) == expected_length
 
