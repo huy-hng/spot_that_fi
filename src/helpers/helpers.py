@@ -1,4 +1,5 @@
 import json
+from typing import Iterable, TypeVar
 
 def write_dict_to_file(name: str, data):
 	with open(f'./data/{name}.json', 'w') as f:
@@ -22,7 +23,8 @@ def create_data_class(data: dict):
 			create_data_class(v)
 
 
-def lookahead(iterable):
+T = TypeVar('T')
+def lookahead(iterable: Iterable[T]):
     it = iter(iterable)
     last = next(it)
     for val in it:

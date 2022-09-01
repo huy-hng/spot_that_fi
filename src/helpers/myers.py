@@ -31,13 +31,15 @@ from typing import Generic, NamedTuple, TypeVar
 # These define the structure of the history, and correspond to diff output with
 # lines that start with a space, a + and a - respectively.
 
+T = TypeVar('T')
+
 class Operations(Enum):
 	Keep = ' '
 	Insert = '+'
 	Remove = '-'
 
-class Element(NamedTuple):
-	line: str
+class Element(NamedTuple, Generic[T]):
+	line: T
 	operation: Operations
 
 
@@ -55,7 +57,7 @@ def one(idx):
 
 # TODO: add generic typing for int and str
 @dataclass
-class Myers:
+class Myers(Generic[T]):
 	"""
 		spotify playlist that are sorted by added_at can only have inserts
 		at the bottom (most recently added). All inserts before that mean
@@ -63,7 +65,7 @@ class Myers:
 		syncing, they should be removed from b_lines
 	"""
 	vis_width = 16
-	def __init__(self, a_lines: list=[], b_lines: list=[]):
+	def __init__(self, a_lines: list[T]=[], b_lines: list[T]=[]):
 		self._a_lines = a_lines
 		self._b_lines = b_lines
 		self.diff = self.myers_diff(a_lines, b_lines)
@@ -73,9 +75,9 @@ class Myers:
 	
 
 	def separate_operations(self, after_index: int=0):
-		self.keeps: list = []
-		self.inserts: list = []
-		self.removals: list = []
+		self.keeps: list[T] = []
+		self.inserts: list[T] = []
+		self.removals: list[T] = []
 
 		for line, operation in self.diff[after_index:]:
 			match operation:
@@ -154,7 +156,7 @@ class Myers:
 	
 
 	@staticmethod
-	def myers_diff(a_lines, b_lines) -> list[Element]:
+	def myers_diff(a_lines: list[T], b_lines: list[T]) -> list[Element[T]]:
 		"""
 		An implementation of the Myers diff algorithm.
 
