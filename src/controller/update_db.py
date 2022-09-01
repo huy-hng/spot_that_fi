@@ -26,7 +26,7 @@ def update_playlist_tracks_in_db(playlist: AllPlaylists, diff: pcd.Diff | None=N
 	db.playlists.update_playlists([playlist])
 
 	if diff is None:
-		diff = pcd.get_track_diff(playlist)
+		diff = pcd.get_playlist_diff(playlist)
 	db.playlists.remove_tracks_from_playlist(playlist.id, diff.removals)
 	db.playlists.add_tracks_to_playlist(playlist.id, diff.inserts)
 	return diff

@@ -25,9 +25,13 @@ class Diff(NamedTuple):
 	inserts: list[PlaylistTracksItem] = []
 	removals: list[PlaylistTracksItem] = []
 
-def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
-	""" requires playlist to exist in database\n
-		raises PlaylistNotFoundError if not found """
+def get_playlist_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
+	""" returns the difference between tracks in db and on spotify
+
+	requires playlist to exist in database,
+	raises PlaylistNotFoundError if not found
+	"""
+
 	db_track_list = db.playlists.get_track_ids(playlist.id)
 	saved_items: list[PlaylistTracksItem] = []
 

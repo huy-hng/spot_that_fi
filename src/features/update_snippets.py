@@ -39,7 +39,7 @@ def sync_playlist_pair(main: AllPlaylists, snippet: AllPlaylists):
 	main_playlist = api.playlists.Playlist(main)
 
 	if snippet_changed:
-		snippet_diff = pcd.get_track_diff(snippet)
+		snippet_diff = pcd.get_playlist_diff(snippet)
 		main_playlist.add_tracks_at_end(snippet_diff.inserts)
 		main_playlist.remove_tracks(snippet_diff.removals)
 
