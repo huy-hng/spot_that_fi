@@ -65,14 +65,13 @@ class Myers(Generic[T]):
 		syncing, they should be removed from b_lines
 	"""
 	vis_width = 16
+	# TODO: adjust vis_width depending on max length of lines
+	# also adjust ljust and rjust for the formatter
 	def __init__(self, a_lines: list[T]=[], b_lines: list[T]=[]):
 		self._a_lines = a_lines
 		self._b_lines = b_lines
 		self.diff = self.myers_diff(a_lines, b_lines)
-		self.separate_operations()
-		# TODO: adjust vis_width depending on max length of lines
-		# also adjust ljust and rjust for the formatter
-	
+
 
 	def separate_operations(self, after_index: int=0):
 		self.keeps: list[T] = []
@@ -105,11 +104,9 @@ class Myers(Generic[T]):
 
 	@property
 	def first_keep_index(self):
-		# for i, elem in enumerate(self.diff):
-		# 	if elem.operation == Operations.Keep:
-		# 		return i
-		if self.keeps:
-			return self._a_lines.index(self.keeps[0])
+		for i, elem in enumerate(self.diff):
+			if elem.operation == Operations.Keep:
+				return i
 		return None
 
 

@@ -173,7 +173,6 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 	diffs: list[list[str]] = []
 	saved_lines = []
 	myers = Myers(old_lines, saved_lines)
-	fki = 0
 	for group, has_next in lookahead(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
@@ -181,32 +180,24 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 		myers = Myers(old_lines, saved_lines)
 		diffs.append(myers.get_vis_diff(str(0)))
 
-		fki = myers.first_keep_index 
+		fki = myers.first_keep_index if has_next else 0
 		if fki is not None:
-			if not has_next:
-				fki = 0
 
 			estimated_total = fki + len(saved_lines)
 			if estimated_total == expected_length:
+				myers.separate_operations(fki)
 				break
-
+			elif not has_next:
+				pass
 	
-
 	# Myers.print_groups(*diffs, group_size=4, distance=5)
 	# print(f'{estimated_total=} | {expected_length=}')
 	# print(f'{len(saved_lines)=} | {saved_lines=}')
-	# print(f'{inserts=}')
-	# print(f'{ins=}')
-	# print()
-	# print(f'{removals=}')
-	# print(f'{rem=}')
-
-	myers.separate_operations(fki)
 	assert estimated_total == expected_length
-	assert ins == myers.inserts
-	assert rem == myers.removals
+	assert myers.inserts == inserts
+	assert myers.removals == removals
 
-	# assert len(saved_lines) == expected_length
+
 
 def grouper(new_lines, limit):
 	new_lines.reverse()

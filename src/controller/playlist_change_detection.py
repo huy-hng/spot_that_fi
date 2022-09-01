@@ -31,10 +31,6 @@ def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 	db_track_list = db.playlists.get_track_ids(playlist.id)
 	saved_items: list[PlaylistTracksItem] = []
 
-	# define variables so theire not unbound
-	estimated_total = 0
-	fki = 0
-
 	myers = Myers(db_track_list)
 	gen = sp.get_playlist_tracks_generator(playlist.id)
 	for tracks, has_next in lookahead(gen):
@@ -48,16 +44,13 @@ def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 
 			estimated_total = fki + len(saved_items)
 			if estimated_total == playlist.tracks.total:
+				myers.separate_operations(fki)
 				break
 
-	if estimated_total != playlist.tracks.total:
-		log.error('Something is severly wrong here')
-		log.error(f'{db_track_list = }')
-		log.error(f'{saved_items = }')
-	
-	if fki is None:
-		fki = 0
-	myers.separate_operations(fki)
+			elif not has_next:
+				log.error('Something is severly wrong here')
+				log.error(f'{db_track_list = }')
+				log.error(f'{saved_items = }')
 
 	lookup_table = {item.track.id: item for item in saved_items}
 	inserts = [lookup_table[line] for line in myers.inserts]
