@@ -1,13 +1,15 @@
 import json
 from typing import TypedDict
 
-class SnippetPlaylistType(TypedDict):
+from src.types import DotDict
+
+class SnippetPlaylistType(DotDict):
 	name: str
-	main_uri: str	
-	snippet_uri: str	
+	main_id: str	
+	snippet_id: str	
 
 
-class PlaylistType(TypedDict):
+class PlaylistType(DotDict):
 	snippet_playlist: list[SnippetPlaylistType]
 	liked_tracks_without_playlists: str
 

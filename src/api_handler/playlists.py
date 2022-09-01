@@ -44,18 +44,16 @@ class Playlists:
 		# read pairs from some file
 		pairs: list[SyncPairs] = []
 		playlist_data = get_playlist_user_data()
-		snippet_data = playlist_data['snippet_playlist']
 
-		for data in snippet_data:
+		for data in playlist_data.snippet_playlist:
 			"""
 			TODO: data['main_uri'] needs some type checking, wether its a uri
 			or id. Also think about if I want to have it checked before hand
 			so its garantueed.
 			"""
-			main_playlist = self.get_playlist_by_id(data['main_uri'])
-			snippet_playlist = self.get_playlist_by_id(data['snippet_uri'])
-			pair = SyncPairs(main_playlist, snippet_playlist)
-			pairs.append(pair)
+			main = self.get_playlist_by_id(data.main_id)
+			snippet = self.get_playlist_by_id(data.snippet_id)
+			pairs.append(SyncPairs(main, snippet))
 
 		return pairs
 
