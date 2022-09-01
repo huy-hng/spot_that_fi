@@ -50,7 +50,7 @@ def get_track_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 
 	diff = Diff()
 
-	for line, operation in myers.diff[myers.index_of_first_keep:]:
+	for line, operation in myers.diff[myers.first_keep_index:]:
 		track = sp_track_list.get(line)
 		if track is None:
 			continue

@@ -21,6 +21,16 @@ def create_data_class(data: dict):
 			print('=============')
 			create_data_class(v)
 
+
+def lookahead(iterable):
+    it = iter(iterable)
+    last = next(it)
+    for val in it:
+        yield last, True
+        last = val
+    yield last, False
+
+
 if __name__ == '__main__':
 	with open('../data/playlists.json') as f:
 		playlists = f.read()

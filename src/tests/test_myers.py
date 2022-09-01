@@ -2,6 +2,7 @@ import random
 from dataclasses import dataclass
 import pytest
 from src.controller.playlist_change_detection import Diff
+from src.helpers.helpers import lookahead
 from src.helpers.myers import Element, Myers, Operations
 
 def changer(lines: list[int], inserts: list[int], removals: list[int]):
@@ -155,7 +156,7 @@ def not_random_input():
 
 
 @pytest.mark.parametrize('new_lines,inserts,removals',
-	[random_input() for _ in range(1)])
+	[random_input() for _ in range(1000)])
 	# [not_random_input()])
 def test_find_earliest_keep(new_lines,inserts,removals):
 	""" testing algorithm for database update\n
@@ -172,52 +173,45 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 	diffs: list[list[str]] = []
 	saved_lines = []
 	myers = Myers(old_lines, saved_lines)
-	# myers = Myers()
-	broke = False
-	for i, group in enumerate(groups):
+	fki = 0
+	estimated_total = 0
+	for group, has_next in lookahead(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
 
 		myers = Myers(old_lines, saved_lines)
-		diffs.append(myers.get_vis_diff(str(i)))
+		diffs.append(myers.get_vis_diff(str(0)))
 
-		if myers.keeps:
-			first_keep_index = old_lines.index(myers.keeps[0])
-			estimated_total = first_keep_index + len(saved_lines)
+		fki = myers.first_keep_index 
+		if fki is not None:
+			if not has_next:
+				fki = 0
+
+			estimated_total = fki + len(saved_lines)
+			# print(f'{estimated_total = }')
 			if estimated_total == expected_length:
-				broke = True
 				break
 
-	if broke:
-		first_keep_index = old_lines.index(myers.keeps[0])
-	else:
-		first_keep_index = 0
-		estimated_total = len(saved_lines)
 	
-	
-	ins = []
-	rem = []
-	for line, operation in myers.diff[first_keep_index:]:
-		if operation == Operations.Insert:
-			ins.append(line)
-		elif operation == Operations.Remove:
-			rem.append(line)
+	if fki is None: fki = 0
+	myers.separate_operations(fki)
+	ins = myers.inserts
+	rem = myers.removals
 
-	Myers.print_groups(*diffs, group_size=4, distance=5)
-	# print(f'{estimated_total} | {expected_length} | {len(saved_lines)}')
-	print(f'{saved_lines=}')
+	# Myers.print_groups(*diffs, group_size=4, distance=5)
+	# print(f'{estimated_total=} | {expected_length=}')
+	# print(f'{len(saved_lines)=} | {saved_lines=}')
 	# print(f'{inserts=}')
 	# print(f'{ins=}')
 	# print()
-	print(f'{removals=}')
+	# print(f'{removals=}')
 	# print(f'{rem=}')
 
 	assert estimated_total == expected_length
-	assert inserts == ins
-	assert removals == rem
+	assert ins == inserts
+	assert rem == removals
 
 	# assert len(saved_lines) == expected_length
-
 
 def grouper(new_lines, limit):
 	new_lines.reverse()
