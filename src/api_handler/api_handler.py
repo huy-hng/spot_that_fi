@@ -5,9 +5,9 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 from src import types
+from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.logger import log
 from src.helpers.helpers import write_dict_to_file
-
 
 from dotenv import load_dotenv
 
@@ -73,8 +73,14 @@ class Spotipy:
 
 		return parsed_playlists
 
+	def _get_playlist_items(self, playlist_id: str, *, limit=100, offset=0):
+		items = self.sp.playlist_items(playlist_id, limit=limit, offset=offset)
+		if items is None:
+			raise PlaylistNotFoundError(
+				f'Playlist with ID {playlist_id} could not be found on Spotify')
+		return items
 
-	def get_playlist_tracks_generator(self, playlist_id: str, limit=100):
+	def get_playlist_tracks_generator(self, playlist_id: str, total_tracks: int=0, *, limit=100):
 		""" get latest tracks until num_tracks has been reached or
 			no tracks are left 
 			
@@ -94,8 +100,9 @@ class Spotipy:
 		# FIX: below api call can be omitted by passing the playlist
 			# as AllPlaylists or SinglePlaylist class from types
 			# or pass total tracks as param
-		tracks_in_playlist: int = self.sp.playlist_items(playlist_id)['total']
-		offset = tracks_in_playlist - limit
+		if total_tracks == 0:
+			total_tracks = self._get_playlist_items(playlist_id)['total']
+		offset = total_tracks - limit
 
 		while items['previous']:
 			if offset < 0:
@@ -103,19 +110,22 @@ class Spotipy:
 				offset = 0
 				limit = max(1, min(100, limit))
 
-			items: dict = self.sp.playlist_items(
+			items: dict = self._get_playlist_items(
 				playlist_id, limit=limit, offset=offset)
+
+			if items is None: continue
 
 			offset -= limit
 			yield types.playlists.SinglePlaylistTracks(items)
 
 
 	def get_liked_tracks_generator(self, limit=50):
-		items: types.tracks.LikedTracksListDict
+		items: types.tracks.LikedTracksListDict | None
 		offset = 0
 
 		while True:
 			items = self.sp.current_user_saved_tracks(limit, offset)
+			if items is None: continue
 			items = types.tracks.LikedTracksListDict(items)
 			write_dict_to_file('liked_tracks', items)
 			offset += limit
