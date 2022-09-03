@@ -76,6 +76,9 @@ class SinglePlaylistTracks(DotDict):
 	def track_ids(self):
 		return [item.track.id for item in self.items_]
 
+	def __getitem__(self, idx: slice):
+		return self.items_[idx]
+
 
 class PlaylistTracksItem(DotDict):
 	"""
