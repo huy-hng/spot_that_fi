@@ -67,26 +67,23 @@ class Playlist:
 	on the playlists on spotify.
 	"""
 	def __init__(self, playlist: AllPlaylists | SinglePlaylist):
+		self.playlist_data = playlist
 		self.id = playlist.id
-		self._snapshot_id = playlist.snapshot_id
+		self.snapshot_id = playlist.snapshot_id
 		self.name = playlist.name
-		self._total_tracks = playlist.tracks.total
+		self.total_tracks = playlist.tracks.total
 
 
-	@property
-	def total_tracks(self):
-		# self._update_data()
-		return self._total_tracks
+	def _update_data(self):
+		data = sp.get_one_playlist(self.id)
+		self.total_tracks = data.tracks.total
+		self.snapshot_id = data.snapshot_id
 
-	@property
-	def snapshot_id(self):
-		# self._update_data()
-		return self._snapshot_id
 
-	# def _update_data(self):
-	# 	data = sp.get_one_playlist(self.id)
-	# 	self._total_tracks = data.tracks.total
-	# 	self._snapshot_id = data.snapshot_id
+	def get_track_generator(self, *, limit=100):
+		for items in sp.get_playlist_tracks_generator(self.id, limit=limit):
+			yield items.items_
+
 
 	def get_latest_tracks(self, num_tracks: int=0) -> list[PlaylistTracksItem]:
 		""" returns the latest n songs in playlist in added order.
@@ -94,26 +91,21 @@ class Playlist:
 		if num_songs == 0: return all songs in playlist """
 		# TODO: put limit somewhere else
 		LIMIT = 100
-		# if num_tracks > LIMIT:
-		# 	num_tracks = LIMIT
 
-		if num_tracks == 0 or num_tracks > self._total_tracks:
+		if num_tracks == 0 or num_tracks > self.total_tracks:
+			self._update_data()
 			num_tracks = self.total_tracks
 
-		tracks: list[PlaylistTracksItem]  = []
-		for playlist_tracks in sp.get_playlist_tracks_generator(self.id):
-			items = playlist_tracks.items_
-			if len(tracks) + len(items) > num_tracks:
+		saved: list[PlaylistTracksItem]  = []
+		for tracks in self.get_track_generator(limit=LIMIT):
+			if len(saved) + len(tracks) > num_tracks:
 				rest = num_tracks % LIMIT
-				tracks = items[-rest:] + tracks
+				saved = tracks[-rest:] + saved
 				break
-			tracks = playlist_tracks.items_ + tracks
+			saved = tracks + saved
 
-		return tracks
+		return saved
 
-	def add_tracks_at_beginning(self, tracks: list[PlaylistTracksItem]):
-		track_ids = self.get_ids(tracks)
-		sp.add_tracks_at_beginning(self.id, track_ids)
 
 	def add_tracks_at_end(self, tracks: list[PlaylistTracksItem],
 								add_duplicates: bool = False):
@@ -126,7 +118,8 @@ class Playlist:
 		# TODO: use add_duplicates to control if duplicates should be added
 
 		track_ids = self.get_ids(tracks)
-		sp.add_tracks_at_end(self.id, track_ids, self.total_tracks)
+		self._update_data()
+		sp.add_tracks_to_playlist(self.id, track_ids, self.total_tracks)
 
 	def remove_tracks(self, tracks: list[PlaylistTracksItem]):
 		track_ids = self.get_ids(tracks)
@@ -136,12 +129,14 @@ class Playlist:
 		track_ids = self.get_ids(tracks)
 		sp.replace_playlist_tracks(self.id, track_ids)
 
+
 	@staticmethod
 	def get_ids(tracks: list[PlaylistTracksItem]) -> list[str]:
 		if len(tracks) == 0:
 			return []
 
 		return [item.track.id for item in tracks]
+
 
 	@staticmethod
 	def get_names(tracks: list[PlaylistTracksItem]) -> list[str]:
