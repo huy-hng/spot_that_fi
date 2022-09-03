@@ -38,6 +38,19 @@ def lookahead(iterable: Iterable[T]):
 		yield last, False
 
 
+def grouper(x: list[T], /, group_size) -> list[list[T]]:
+	""" 
+	Args:
+		x: the list to be grouped. Can only be passed positionally only
+		group_size: size to be grouped
+	"""
+	group_size = min(group_size, len(x))
+
+	if group_size == 0:
+		group_size = len(x)
+
+	return [x[n:n+group_size] for n in range(0, len(x), group_size)]
+
 if __name__ == '__main__':
 	with open('../data/playlists.json') as f:
 		playlists = f.read()

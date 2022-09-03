@@ -7,7 +7,7 @@ from spotipy.oauth2 import SpotifyOAuth
 from src import types
 from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.logger import log
-from src.helpers.helpers import write_dict_to_file
+from src.helpers.helpers import grouper, write_dict_to_file
 
 from dotenv import load_dotenv
 
@@ -174,30 +174,34 @@ class Spotipy:
 		self.sp.playlist_replace_items(playlist_id, track_ids)
 
 
-	def add_tracks_at_beginning(self, uri: str, track_ids: list[str]):
-		position = 0
-		# TEST: how bulk adding behaves, especially if the location is correct
-		""" in case isnt, tracks may need to be added one at a time, which 
-				could eat at rate limiting """
-		self.sp.playlist_add_items(uri, track_ids, position)
+	def add_tracks_to_playlist(self,
+			playlist_id: str, track_ids: list[str], position: int, group_size=1):
+		""" Adds tracks to playlist. 
 
+			Args:
+				playlist_id:
+					the id or uri of the playlist to add tracks to
+				track_ids:
+					a list of track ids to add to the playlist
+				position:
+					the position to add the tracks to
+				group_size:
+					optional argument for batching tracks (to save on rate limiting)
+					if group_size <= 0: add all tracks at once
+					if group_size == 1: add one track at a time
+					if group_size > 1: add {group_size} tracks at once
+		"""
 
-	def add_tracks_at_end(self,
-			uri: str, track_ids: list[str], last_position: int):
+		# TEST grouper changes
+		group_size = max(0, group_size)
 
-		position = last_position
+		curr_position = position
 
-		for track_id in track_ids:
-			self.sp.playlist_add_items(uri, [track_id], position)
-			position += 1
+		groups = grouper(track_ids, group_size)
+		for group in groups:
+			self.sp.playlist_add_items(playlist_id, group, curr_position)
+			curr_position += group_size
 			time.sleep(0.5)
-
-
-	def add_tracks_at_end_as_bulk(self,
-		uri: str,
-		track_ids: list[str],
-		last_position: int):
-		self.sp.playlist_add_items(uri, track_ids, last_position)
 	#endregion
 
 
