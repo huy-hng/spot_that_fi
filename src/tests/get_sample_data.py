@@ -12,7 +12,7 @@ def get_one_playlist():
 def get_latest_tracks():
 	gen = sp.get_playlist_tracks_generator(PlaylistIDs.main, 20)
 	for tracks in gen:
-		names = api.playlists.Playlist.get_names(tracks.items_)
+		names = api.playlists.PlaylistHandler.get_names(tracks.items_)
 		for name in names:
 			print(name)
 		break

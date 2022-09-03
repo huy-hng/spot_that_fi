@@ -31,8 +31,8 @@ def sync_playlist_pair(
 	if not main_changed and snippet_changed:
 		return
 
-	snippet_playlist = api.playlists.Playlist(snippet)
-	main_playlist = api.playlists.Playlist(main)
+	snippet_playlist = api.playlists.PlaylistHandler(snippet)
+	main_playlist = api.playlists.PlaylistHandler(main)
 
 	if snippet_changed:
 		snippet_diff = pcd.get_playlist_diff(snippet)
@@ -57,7 +57,7 @@ def sync_all_playlists():
 	"""
 
 	all_sp_playlists = sp.get_all_playlists()
-	playlists = api.Playlists(all_sp_playlists)
+	playlists = api.PlaylistsHandler(all_sp_playlists)
 
 	for pair in playlists.get_sync_pairs():
 		sync_playlist_pair(pair.main, pair.snippet)

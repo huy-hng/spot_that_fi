@@ -5,21 +5,24 @@ from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
 from src.settings.user_data import get_playlist_user_data
 from src.controller import playlist_change_detection as pcd
 
+from src.helpers.exceptions import PlaylistNotFoundError
+from src.helpers.logger import log
+
 
 class SyncPairs(NamedTuple):
 	main: AllPlaylists
 	snippet: AllPlaylists
 
 
-class Playlists:
+class PlaylistsHandler:
 	def __init__(self, playlists: list[AllPlaylists]):
-		self.playlists = playlists
+		self.playlists = [PlaylistHandler(playlist) for playlist in playlists]
 
 		# for easier lookup
 		self.names: dict[str, int] = {}
 		self.ids: dict[str, int] = {}
 
-		for index, playlist in enumerate(playlists):
+		for index, playlist in enumerate(self.playlists):
 			self.names[playlist.name] = index
 			self.ids[playlist.id] = index
 
@@ -27,7 +30,7 @@ class Playlists:
 	def get_playlist_by_id(self, playlist_id: str):
 		index = self.ids.get(playlist_id)
 		if index is None:
-			raise ValueError('Playlist id does not exist.')
+			raise PlaylistNotFoundError('Playlist id does not exist.')
 
 		return self.playlists[index]
 
@@ -35,7 +38,7 @@ class Playlists:
 	def get_by_name(self, name: str):
 		index = self.names.get(name)
 		if index is None:
-			raise Exception('Playlist Name does not exist.')
+			raise PlaylistNotFoundError('Playlist Name does not exist.')
 
 		return self.playlists[index]
 
@@ -46,19 +49,20 @@ class Playlists:
 		playlist_data = get_playlist_user_data()
 
 		for data in playlist_data.snippet_playlist:
-			"""
-			TODO: data['main_uri'] needs some type checking, wether its a uri
-			or id. Also think about if I want to have it checked before hand
-			so its garantueed.
-			"""
-			main = self.get_playlist_by_id(data.main_id)
-			snippet = self.get_playlist_by_id(data.snippet_id)
-			pairs.append(SyncPairs(main, snippet))
+			main_id = convert_playlist_uri_to_id(data.main_id)
+			snippet_id = convert_playlist_uri_to_id(data.snippet_id)
+
+			main = self.get_playlist_by_id(main_id)
+			snippet = self.get_playlist_by_id(snippet_id)
+			pairs.append(SyncPairs(main.playlist_data, snippet.playlist_data))
 
 		return pairs
 
 
-class Playlist:
+
+
+
+class PlaylistHandler:
 	""" handles crud operations of a live playlist
 	the methods shouldnt be complicated
 	the bulk logic should be done by the api_handler \n
@@ -69,8 +73,9 @@ class Playlist:
 	def __init__(self, playlist: AllPlaylists | SinglePlaylist):
 		self.playlist_data = playlist
 		self.id = playlist.id
-		self.snapshot_id = playlist.snapshot_id
 		self.name = playlist.name
+
+		self.snapshot_id = playlist.snapshot_id
 		self.total_tracks = playlist.tracks.total
 
 
@@ -82,6 +87,7 @@ class Playlist:
 
 	def get_track_generator(self, *, limit=100):
 		for items in sp.get_playlist_tracks_generator(self.id, limit=limit):
+			self.total_tracks = items.total
 			yield items.items_
 
 
@@ -149,3 +155,30 @@ class Playlist:
 			return []
 
 		return [item.track.name for item in tracks]
+
+
+@staticmethod
+def convert_playlist_uri_to_id(id: str):
+	""" converts uris and urls to ids and returns it """
+	type_ = 'playlist'
+
+	error = False
+	itype = None
+
+	fields = id.split(":")
+	if len(fields) >= 3:
+		itype = fields[-2]
+		if type_ != itype:
+			error = True
+		return fields[-1]
+
+	fields = id.split("/")
+	if len(fields) >= 3:
+		itype = fields[-2]
+		if type_ != itype:
+			error = True
+		return fields[-1].split("?")[0]
+
+	if error:
+		log.warning(f'Expected id of type {type_} but found type {itype}, {id}')
+	return id
