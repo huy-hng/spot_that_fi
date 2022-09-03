@@ -25,5 +25,5 @@ def backup_all_playlists(playlistsCls):
 	create_backup_file(str(date.today()), backups)
 
 def create_backup_file(name: str, data):
-	with open(f'./backup/{name}.json', 'w') as f:
+	with open(f'../../backup/{name}.json', 'w') as f:
 		f.write(json.dumps(data, indent=2))
