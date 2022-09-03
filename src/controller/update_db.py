@@ -9,11 +9,13 @@ from src.types.playlists import AllPlaylists, SinglePlaylist, AbstractPlaylistTy
 def update_db_liked_tracks():
 	""" careful! This iterates though all liked tracks
 			and is therefore very expensive rate limiting wise """
+	# TODO: finish
+	liked_db_tracks = db.tracks.get_liked_tracks()
 	gen = sp.get_liked_tracks_generator()
-	for batch in gen:
-		tracks = batch.tracks
+	# for batch in gen:
+	# 	tracks = batch.tracks
 		
-		db.tracks.add_tracks(tracks, liked=True)
+	# 	db.tracks.add_tracks(tracks, liked=True)
 
 
 def update_playlist_tracks_in_db(playlist: AllPlaylists | SinglePlaylist, diff: pcd.Diff | None=None):

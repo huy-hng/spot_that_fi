@@ -13,7 +13,7 @@ class _CurrentUserPlaylists(DotDict):
 	total: int
 
 
-# TODO: turn this into an ABC or protocoll
+# TODO: turn this into an ABC or protocol
 class AbstractPlaylistType(DotDict):
 	collaborative: bool
 	description: str
