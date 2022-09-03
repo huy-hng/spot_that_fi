@@ -139,7 +139,12 @@ class Spotipy:
 
 
 	def get_liked_tracks_generator(self, limit=50):
-		items: types.tracks.LikedTracksListDict | None
+		""" returns a generator that loops over liked tracks
+			in reverse chronological order.
+			
+			First item in first iteration
+			is the most recently liked track. """
+		# items: types.tracks.LikedTracksListDict | None
 		offset = 0
 
 		while True:
@@ -150,8 +155,8 @@ class Spotipy:
 			offset += limit
 
 			yield items
+
 			if not items.next:
-				# TEST: check if this logic works
 				break
 	#endregion
 

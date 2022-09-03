@@ -55,10 +55,21 @@ def does_track_exist(track_id: str):
 		return True
 
 
+def get_liked_tracks() -> list[str]:
+	with SessionMaker.begin() as session:
+		q: list[Track] = session.query(Track).filter(Track.liked == True).all()
+		return [track.id for track in q]
+
+
 def get_liked_tracks_not_in_playlists() -> list[str]:
 	with SessionMaker.begin() as session:
-		""" returns a list of track ids that are liked but not in any playlist"""
-		q = session.query(Track).filter(~Track.playlist_track_association.any()).all()
+		""" returns a list of track ids that are liked but not in any playlist. """
+
+		# TODO: Track.liked == True filter is not necessary if all 
+		# unliked tracks arent in the db
+		q: list[Track] = session.query(Track).filter(
+			Track.liked == True and ~Track.playlist_track_association.any()
+		).all()
 		ids = [track.id for track in q]
 		return ids
 
@@ -66,7 +77,9 @@ def get_liked_tracks_not_in_playlists() -> list[str]:
 def get_not_liked_tracks_in_playlists() -> list[str]:
 	with SessionMaker.begin() as session:
 		""" returns a list of track ids that are in playlists but not liked """
-		q = session.query(Track).filter(Track.liked == False).all()
+		q: list[Track] = session.query(Track).filter(
+			Track.liked == False and Track.playlist_track_association.any()
+		).all()
 		ids = [track.name for track in q]
 		return ids
 #endregion read
