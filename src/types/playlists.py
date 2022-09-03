@@ -1,6 +1,6 @@
 from __future__ import annotations
 from src.types import DotDict
-from src.types.tracks import TrackDict
+from src.types.tracks import PlaylistTrackDict
 
 class _CurrentUserPlaylists(DotDict):
 	""" for reference when calling sp.current_user_playlists """
@@ -87,12 +87,6 @@ class PlaylistTracksItem(DotDict):
 	def __init__(self, item: dict):
 		super().__init__(item)
 		self.track = PlaylistTrackDict(self.track)
-
-
-# REFACTOR: move back to types.tracks
-class PlaylistTrackDict(TrackDict):
-	episode: bool
-	track: bool
 
 
 # region Sub Dicts

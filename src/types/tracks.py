@@ -23,6 +23,10 @@ class TrackDict(DotDict):
 	uri: str
 
 
+class PlaylistTrackDict(TrackDict):
+	episode: bool
+	track: bool
+
 
 class LikedItemDict(DotDict):
 
