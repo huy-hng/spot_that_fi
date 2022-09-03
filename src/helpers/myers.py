@@ -38,7 +38,8 @@ class Operations(Enum):
 	Insert = '+'
 	Remove = '-'
 
-class Element(NamedTuple, Generic[T]):
+# class Element(NamedTuple, Generic[T]):
+class Element(NamedTuple):
 	line: T
 	operation: Operations
 
