@@ -14,6 +14,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Spotipy:
+	""" This is a wrapper around the spotipy module
+		to give it more convenience features """
 	def __init__(self):
 		self.api_calls = 0 # FIX: debug why it doesnt increment
 
