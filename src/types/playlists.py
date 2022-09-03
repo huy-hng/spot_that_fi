@@ -2,53 +2,14 @@ from __future__ import annotations
 from src.types import DotDict
 from src.types.tracks import TrackDict
 
-
-
-# REFACTOR: move back to types.tracks
-class PlaylistTrackDict(TrackDict):
-	episode: bool
-	track: bool
-
-
-class PlaylistTracksItem(DotDict):
-	"""
-		api_handler.get_one_playlist.tracks.items_[0] \n
-		when getting a single playlist: playlist.tracks.items[0]
-	"""
-	added_at: str
-	added_by: dict
-	is_local: bool
-	primary_color: None
-	track: PlaylistTrackDict
-	video_thumbnail: dict
-
-	def __init__(self, item: dict):
-		super().__init__(item)
-		self.track = PlaylistTrackDict(self.track)
-
-
-class SinglePlaylistTracks(DotDict):
-	""" api_handler.get_one_playlist.tracks """	
+class _CurrentUserPlaylists(DotDict):
+	""" for reference when calling sp.current_user_playlists """
 	href: str
-	items_: list[PlaylistTracksItem]
+	items: list[AbstractPlaylistType]
 	limit: int
-	next: str
+	next: str | None
 	offset: int
-	previous: str
-	total: int
-
-	def __init__(self, playlist: dict):
-		super().__init__(playlist)
-		# TODO check if this works
-		self.items_ = [PlaylistTracksItem(item) for item in playlist['items']]
-
-	@property
-	def track_ids(self):
-		return [item.track.id for item in self.items_]
-
-
-class AllPlaylistsTracks(DotDict):
-	href: str
+	previous: str | None
 	total: int
 
 
@@ -72,10 +33,7 @@ class AbstractPlaylistType(DotDict):
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
 		self.owner = PlaylistOwner(self.owner)
-		# if self.tracks.get('items') is None:
-		# 	self.tracks = SpotifyPlaylistsTracksType(self.tracks)
-		# else:
-		# 	self.tracks = SpotifySinglePlaylistTracksType(self.tracks)
+
 
 class AllPlaylists(AbstractPlaylistType):
 	""" sp.current_user_playlists """
@@ -84,6 +42,12 @@ class AllPlaylists(AbstractPlaylistType):
 		super().__init__(playlist)
 		self.tracks = AllPlaylistsTracks(self.tracks)
 	
+
+class AllPlaylistsTracks(DotDict):
+	href: str
+	total: int
+
+
 class SinglePlaylist(AbstractPlaylistType):
 	""" api_handler.get_one_playlist """
 	followers: dict
@@ -93,15 +57,47 @@ class SinglePlaylist(AbstractPlaylistType):
 		self.tracks = SinglePlaylistTracks(self.tracks)
 
 
-class _CurrentUserPlaylists(DotDict):
-	""" for reference when calling sp.current_user_playlists """
+class SinglePlaylistTracks(DotDict):
+	""" api_handler.get_one_playlist.tracks """	
 	href: str
-	items: list[AbstractPlaylistType]
+	items_: list[PlaylistTracksItem]
 	limit: int
-	next: str | None
+	next: str
 	offset: int
-	previous: str | None
+	previous: str
 	total: int
+
+	def __init__(self, playlist: dict):
+		super().__init__(playlist)
+		# TODO check if this works
+		self.items_ = [PlaylistTracksItem(item) for item in playlist['items']]
+
+	@property
+	def track_ids(self):
+		return [item.track.id for item in self.items_]
+
+
+class PlaylistTracksItem(DotDict):
+	"""
+		api_handler.get_one_playlist.tracks.items_[0] \n
+		when getting a single playlist: playlist.tracks.items[0]
+	"""
+	added_at: str
+	added_by: dict
+	is_local: bool
+	primary_color: None
+	track: PlaylistTrackDict
+	video_thumbnail: dict
+
+	def __init__(self, item: dict):
+		super().__init__(item)
+		self.track = PlaylistTrackDict(self.track)
+
+
+# REFACTOR: move back to types.tracks
+class PlaylistTrackDict(TrackDict):
+	episode: bool
+	track: bool
 
 
 # region Sub Dicts
