@@ -74,6 +74,7 @@ class SinglePlaylistTracks(DotDict):
 
 	@property
 	def track_ids(self):
+		# TODO: refactor this to api.playlist
 		return [item.track.id for item in self.items_]
 
 	def __getitem__(self, idx: slice):

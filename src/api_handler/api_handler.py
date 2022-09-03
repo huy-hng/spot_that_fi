@@ -43,7 +43,6 @@ class Spotipy:
 	def get_one_playlist(self, playlist_id: str):
 		""" should accept argument as uri, url and id """
 		playlist: dict = self.sp.playlist(playlist_id)
-		# write_dict_to_file('get_one_playlist', playlist)
 		return types.playlists.SinglePlaylist(playlist)
 
 
