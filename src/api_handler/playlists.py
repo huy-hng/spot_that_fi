@@ -107,13 +107,16 @@ class Playlist:
 		return saved
 
 
-	def add_tracks_at_end(self, tracks: list[PlaylistTracksItem],
-								add_duplicates: bool = False):
+	def add_tracks_at_end(self,
+		tracks: list[PlaylistTracksItem], add_duplicates: bool=False):
 		""" this should behave like adding songs normally to a playlist.
-				each song should be appended at the end of the playlist.\n
-				That means, (tracks[-1]) should be the last song added.\n
-				Or in other words the first song, that is in sorted
-				by recently added."""
+			each song should be appended at the end of the playlist.
+
+			That means, (tracks[-1]) should be the last song added.
+
+			Or in other words the first song, that is in sorted
+			by recently added.
+		"""
 
 		# TODO: use add_duplicates to control if duplicates should be added
 
