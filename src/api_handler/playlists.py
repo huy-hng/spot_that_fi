@@ -105,9 +105,6 @@ class Playlist:
 			items = playlist_tracks.items_
 			if len(tracks) + len(items) > num_tracks:
 				rest = num_tracks % LIMIT
-				# len_p = len(playlist_tracks)
-				# if num_tracks > len_p:
-				# 	index = 
 				tracks = items[-rest:] + tracks
 				break
 			tracks = playlist_tracks.items_ + tracks
