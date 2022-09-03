@@ -1,7 +1,6 @@
 import random
 from dataclasses import dataclass
 import pytest
-from src.controller.playlist_change_detection import Diff
 from src.helpers.helpers import lookahead
 from src.helpers.myers import Element, Myers, Operations
 
@@ -152,12 +151,12 @@ def not_random_input():
 	# removals = lines[15:]
 	removals = [lines[5]]
 	[lines.remove(r) for r in removals]
-	return lines, [], removals
+	return [], [], [] # important case to test
 
 
 @pytest.mark.parametrize('new_lines,inserts,removals',
-	[random_input() for _ in range(1000)])
-	# [not_random_input()])
+	# [random_input() for _ in range(1000)])
+	[not_random_input()])
 def test_find_earliest_keep(new_lines,inserts,removals):
 	""" testing algorithm for database update\n
 		only b_lines (playlist tracks on spotify side) can be changed\n
@@ -173,6 +172,7 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 	diffs: list[list[str]] = []
 	saved_lines = []
 	myers = Myers(old_lines, saved_lines)
+	estimated_total = 0
 	for group, has_next in lookahead(groups):
 		""" actual logic """
 		saved_lines = group + saved_lines
