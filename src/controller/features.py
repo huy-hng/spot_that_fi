@@ -33,7 +33,3 @@ def like_tracks_in_playlists():
 	log.debug(track_ids)
 	# sp.like_tracks(track_ids)
 
-
-def update_snippet_and_archive():
-	pass
-	
