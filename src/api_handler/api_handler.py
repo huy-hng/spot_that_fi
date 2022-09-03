@@ -42,8 +42,10 @@ class Spotipy:
 	#region read
 	def get_one_playlist(self, playlist_id: str):
 		""" should accept argument as uri, url and id """
-		playlist: dict = self.sp.playlist(playlist_id)
-		return types.playlists.SinglePlaylist(playlist)
+		res = self.sp.playlist(playlist_id)
+		if res is None:
+			raise PlaylistNotFoundError(f'Cannot find playlist with ID {playlist_id}')
+		return types.playlists.SinglePlaylist(res)
 
 
 	def get_all_playlists(self):
@@ -213,7 +215,7 @@ class Spotipy:
 
 
 	@staticmethod
-	def _get_id(id: str):
+	def convert_playlist_uri_to_id(id: str):
 		""" converts uris and urls to ids and returns it """
 		type_ = 'playlist'
 
