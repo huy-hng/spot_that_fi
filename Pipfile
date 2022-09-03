@@ -8,6 +8,7 @@ spotipy = "*"
 python-dotenv = "*"
 pytest = "*"
 sqlalchemy = "*"
+pydantic = "*"
 
 [dev-packages]
 rope = "*"
