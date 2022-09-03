@@ -69,16 +69,7 @@ class SinglePlaylistTracks(DotDict):
 
 	def __init__(self, playlist: dict):
 		super().__init__(playlist)
-		# TODO check if this works
 		self.items_ = [PlaylistTracksItem(item) for item in playlist['items']]
-
-	@property
-	def track_ids(self):
-		# TODO: refactor this to api.playlist
-		return [item.track.id for item in self.items_]
-
-	def __getitem__(self, idx: slice):
-		return self.items_[idx]
 
 
 class PlaylistTracksItem(DotDict):

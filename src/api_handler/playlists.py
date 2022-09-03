@@ -57,7 +57,7 @@ class Playlists:
 
 		return pairs
 
-# REFACTOR: I might be able to put this in types.playlists somewhere
+
 class Playlist:
 	""" handles crud operations of a live playlist
 	the methods shouldnt be complicated
@@ -121,9 +121,11 @@ class Playlist:
 		self._update_data()
 		sp.add_tracks_to_playlist(self.id, track_ids, self.total_tracks)
 
+
 	def remove_tracks(self, tracks: list[PlaylistTracksItem]):
 		track_ids = self.get_ids(tracks)
 		sp.remove_tracks(self.id, track_ids)
+
 
 	def replace_tracks(self, tracks: list[PlaylistTracksItem]):
 		track_ids = self.get_ids(tracks)
