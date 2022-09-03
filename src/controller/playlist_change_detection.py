@@ -23,7 +23,7 @@ def get_changed_playlists(playlists: list[AllPlaylists]):
 
 class Diff(NamedTuple):
 	inserts: list[PlaylistTracksItem] = []
-	removals: list[PlaylistTracksItem] = []
+	removals: list[str] = []
 
 def get_playlist_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 	""" returns the difference between tracks in db and on spotify
@@ -56,8 +56,7 @@ def get_playlist_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 				log.error(f'{db_track_list = }')
 				log.error(f'{saved_items = }')
 
-	lookup_table = {item.track.id: item for item in saved_items}
+	lookup_table = {item.track.id: item for item in saved_items if item}
 	inserts = [lookup_table[line] for line in myers.inserts]
-	removals = [lookup_table[line] for line in myers.removals]
 
-	return Diff(inserts, removals)
+	return Diff(inserts, myers.removals)

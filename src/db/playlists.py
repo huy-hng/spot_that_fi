@@ -32,7 +32,7 @@ def _update_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
 	db_playlist.update(playlist) # TODO: check if this actually updates
 
 
-def update_playlists(playlists: list[AllPlaylists]):
+def update_playlists(playlists: list[AllPlaylists | SinglePlaylist]):
 	""" adds or updates spotify playlist in db """
 	with Session(engine) as session:
 		for playlist in playlists:
@@ -162,12 +162,12 @@ def get_PlaylistTracksAssociation(
 
 
 # deletes
-def remove_tracks_from_playlist(playlist_id: str, items: list[PlaylistTracksItem]):
+def remove_tracks_from_playlist(playlist_id: str, items: list[str]):
 	with Session(engine) as session:
 		# TODO: if track has no assocation with any playlists anymore 
 		# and also isnt liked, delete
 		for item in items:
-			q = get_PlaylistTracksAssociation(session, playlist_id, item.track.id)
+			q = get_PlaylistTracksAssociation(session, playlist_id, item)
 			q.delete()
 #endregion tracks functions
 
