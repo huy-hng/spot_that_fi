@@ -81,11 +81,11 @@ class Spotipy:
 		return items
 
 	def get_playlist_tracks_generator(self, playlist_id: str, total_tracks: int=0, *, limit=100):
-		""" get latest tracks until num_tracks has been reached or
-			no tracks are left 
-			
-			the order returned is chronologicaly sorted, where the first item
-			has been added furthest in the past.
+		""" get latest tracks until total_tracks has been reached
+			or no tracks are left 
+
+			The order is the same as in spotify without any sorting.
+			The first returned item is the most recently added tracks
 			
 			the section that is returned first are the items that have been
 			added last
@@ -94,8 +94,13 @@ class Spotipy:
 			that has been added and my limit is 2, then the first yield is
 			[3,4], then comes [1,2] and at last [0],
 			where the generator terminates
+
+			### Note
+			Since on spotify new tracks are by default added to 'the bottom'
+			of the playlist it appears that playlists are chronologically
+			sorted from first added to last added
 		"""
-		items = {'previous': True}
+		# items = {'previous': True}
 
 		# FIX: below api call can be omitted by passing the playlist
 			# as AllPlaylists or SinglePlaylist class from types
@@ -104,19 +109,24 @@ class Spotipy:
 			total_tracks = self._get_playlist_items(playlist_id)['total']
 		offset = total_tracks - limit
 
-		while items['previous']:
+		while True:
 			if offset < 0:
 				limit += offset
 				offset = 0
 				limit = max(1, min(100, limit))
 
-			items: dict = self._get_playlist_items(
+			items: dict | None = self.sp.playlist_items(
 				playlist_id, limit=limit, offset=offset)
 
 			if items is None: continue
+			parsed = types.playlists.SinglePlaylistTracks(items)
 
 			offset -= limit
-			yield types.playlists.SinglePlaylistTracks(items)
+			yield parsed
+
+			if not parsed.previous:
+				# TEST: test logic
+				break
 
 
 	def get_liked_tracks_generator(self, limit=50):
@@ -138,6 +148,14 @@ class Spotipy:
 
 	#region update
 	def replace_playlist_tracks(self, playlist_id: str, track_ids: list[str]):
+		""" Replaces all tracks in playlist.
+
+			Adding multiple tracks that aren't already in the playlist
+			results in wonky order.
+			Not sorting the playlist in spotify shows
+			the correct order, but when sorted by date added, it is scrambled.
+			The reason for that is probably date_added attribute is all the same.
+		"""
 		self.sp.playlist_replace_items(playlist_id, track_ids)
 
 
