@@ -1,4 +1,4 @@
-from typing import NamedTuple
+from typing import NamedTuple, Type, TypeGuard, TypeVar
 
 from src.api_handler import sp
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
@@ -35,7 +35,7 @@ class PlaylistsHandler:
 		return self.playlists[index]
 
 
-	def get_by_name(self, name: str):
+	def get_playlist_by_name(self, name: str):
 		index = self.names.get(name)
 		if index is None:
 			raise PlaylistNotFoundError('Playlist Name does not exist.')
@@ -57,7 +57,6 @@ class PlaylistsHandler:
 			pairs.append(SyncPairs(main.playlist_data, snippet.playlist_data))
 
 		return pairs
-
 
 
 
@@ -114,7 +113,7 @@ class PlaylistHandler:
 
 
 	def add_tracks_at_end(self,
-		tracks: list[PlaylistTracksItem], add_duplicates: bool=False):
+		tracks: list[str | PlaylistTracksItem], add_duplicates: bool=False):
 		""" this should behave like adding songs normally to a playlist.
 			each song should be appended at the end of the playlist.
 
@@ -123,28 +122,37 @@ class PlaylistHandler:
 			Or in other words the first song, that is in sorted
 			by recently added.
 		"""
-
 		# TODO: use add_duplicates to control if duplicates should be added
 
-		track_ids = self.get_ids(tracks)
+		track_ids = self.handle_non_ids(tracks)
 		self._update_data()
 		sp.add_tracks_to_playlist(self.id, track_ids, self.total_tracks)
 
 
-	def remove_tracks(self, tracks: list[PlaylistTracksItem]):
-		track_ids = self.get_ids(tracks)
+	def remove_tracks(self, tracks: list[str | PlaylistTracksItem]):
+		track_ids = self.handle_non_ids(tracks)
 		sp.remove_tracks(self.id, track_ids)
+		self._update_data()
 
 
-	def replace_tracks(self, tracks: list[PlaylistTracksItem]):
-		track_ids = self.get_ids(tracks)
+	def replace_tracks(self, tracks: list[str | PlaylistTracksItem]):
+		track_ids = self.handle_non_ids(tracks)
 		sp.replace_playlist_tracks(self.id, track_ids)
+		self._update_data()
+
+
+	def handle_non_ids(self, tracks: list[str | PlaylistTracksItem]) -> list[str]:
+		if is_set_of(tracks, str):
+			return tracks
+		elif is_set_of(tracks, PlaylistTracksItem):
+			return self.get_ids(tracks)
+		else:
+			raise
 
 
 	@staticmethod
 	def get_ids(tracks: list[PlaylistTracksItem]) -> list[str]:
-		if len(tracks) == 0:
-			return []
+		if not tracks: return []
 
 		return [item.track.id for item in tracks]
 
@@ -182,3 +190,9 @@ def convert_playlist_uri_to_id(id: str):
 	if error:
 		log.warning(f'Expected id of type {type_} but found type {itype}, {id}')
 	return id
+
+
+T = TypeVar('T')
+
+def is_set_of(val: list[str | PlaylistTracksItem], type: Type[T]) -> TypeGuard[list[T]]:
+    return all(isinstance(x, type) for x in val)
