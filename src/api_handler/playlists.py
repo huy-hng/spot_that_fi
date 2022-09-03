@@ -1,7 +1,7 @@
 from typing import NamedTuple
 
 from src.api_handler import sp
-from src.types.playlists import AllPlaylists, PlaylistTracksItem
+from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
 from src.settings.user_data import get_playlist_user_data
 from src.controller import playlist_change_detection as pcd
 
@@ -66,16 +66,12 @@ class Playlist:
 	This class doesn't save state, it just performs actions
 	on the playlists on spotify.
 	"""
-	def __init__(self, playlist: AllPlaylists):
-		self._playlist = playlist
+	def __init__(self, playlist: AllPlaylists | SinglePlaylist):
 		self.id = playlist.id
 		self._snapshot_id = playlist.snapshot_id
 		self.name = playlist.name
 		self._total_tracks = playlist.tracks.total
 
-	# @property
-	# def has_playlist_changed(self):
-	# 	return pcd.has_playlist_changed(self._playlist)
 
 	@property
 	def total_tracks(self):
@@ -96,16 +92,23 @@ class Playlist:
 		""" returns the latest n songs in playlist in added order.
 		That means the latest added song is at the end of the list\n
 		if num_songs == 0: return all songs in playlist """
+		# TODO: put limit somewhere else
+		LIMIT = 100
+		# if num_tracks > LIMIT:
+		# 	num_tracks = LIMIT
 
 		if num_tracks == 0 or num_tracks > self._total_tracks:
 			num_tracks = self.total_tracks
 
 		tracks: list[PlaylistTracksItem]  = []
 		for playlist_tracks in sp.get_playlist_tracks_generator(self.id):
-			if len(tracks) + len(playlist_tracks.items_) > num_tracks:
-				# TODO: remove hardcoded 100 below
-				rest = num_tracks % 100
-				tracks = playlist_tracks[rest:] + tracks
+			items = playlist_tracks.items_
+			if len(tracks) + len(items) > num_tracks:
+				rest = num_tracks % LIMIT
+				# len_p = len(playlist_tracks)
+				# if num_tracks > len_p:
+				# 	index = 
+				tracks = items[-rest:] + tracks
 				break
 			tracks = playlist_tracks.items_ + tracks
 

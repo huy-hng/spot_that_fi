@@ -25,12 +25,17 @@ def create_data_class(data: dict):
 
 T = TypeVar('T')
 def lookahead(iterable: Iterable[T]):
-    it = iter(iterable)
-    last = next(it)
-    for val in it:
-        yield last, True
-        last = val
-    yield last, False
+	it = iter(iterable)
+	try:
+		last = next(it)
+	except StopIteration:
+		return
+
+	else:
+		for val in it:
+			yield last, True
+			last = val
+		yield last, False
 
 
 if __name__ == '__main__':

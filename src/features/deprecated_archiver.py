@@ -40,8 +40,8 @@ class Archiver:
 		archive.add_tracks_at_end(archive_tracks)
 		current.remove_tracks(archive_tracks)
 
-	# TEST: check if order is correct
-	# TODO: no duplicates should be added
+	# : check if order is correct
+	# : no duplicates should be added
 
 	def tracks_to_archive_by_amount(self, tracks: list):
 		if len(tracks) > self.TRACKS_AMOUNT:

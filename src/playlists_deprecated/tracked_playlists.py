@@ -72,18 +72,17 @@ class TrackedPlaylists:
 
 
 	def update_snapshot(self, playlist_name: str, snapshot_id: str):
-		# TEST: if this behaves correctly
+		# : if this behaves correctly
 		playlist = self.playlists[playlist_name]
 		playlist.snapshot_id = snapshot_id
 
 		self._write_file()
 		self.load_data()
-		# TODO check if this behaves correctly
-		# FIX this might be a race condition
+		#  this might be a race condition
 
 
 	def _write_file(self):
-		# FIX could cause race condition
+		#  could cause race condition
 		data = self.convert_playlists_to_json()
 		with open(self.FILE_LOCATION, 'w') as f:
 			f.write(data)

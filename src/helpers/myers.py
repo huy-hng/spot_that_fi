@@ -73,11 +73,12 @@ class Myers(Generic[T]):
 		self._b_lines = b_lines
 		self.diff = self.myers_diff(a_lines, b_lines)
 
-
-	def separate_operations(self, after_index: int=0):
 		self.keeps: list[T] = []
 		self.inserts: list[T] = []
 		self.removals: list[T] = []
+
+
+	def separate_operations(self, after_index: int=0):
 
 		for line, operation in self.diff[after_index:]:
 			match operation:

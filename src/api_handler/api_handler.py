@@ -56,14 +56,17 @@ class Spotipy:
 		offset = 0
 
 		while True:
-			playlists: dict = self.sp.current_user_playlists(offset=offset)
-			# write_dict_to_file('current_user_playlists2', playlists)
-			# break
+			playlists: dict | None = self.sp.current_user_playlists(offset=offset)
+
+			if playlists is None:
+				return []
+
 			all_playlists += playlists['items']
 			if playlists['next'] is None:
 				break
 
 			offset += 50
+			# write_dict_to_file('current_user_playlists2', playlists)
 
 
 		parsed_playlists = [
@@ -80,7 +83,8 @@ class Spotipy:
 				f'Playlist with ID {playlist_id} could not be found on Spotify')
 		return items
 
-	def get_playlist_tracks_generator(self, playlist_id: str, total_tracks: int=0, *, limit=100):
+	def get_playlist_tracks_generator(
+		self, playlist_id: str, total_tracks: int=0, *, limit=100):
 		""" get latest tracks until total_tracks has been reached
 			or no tracks are left 
 
@@ -106,7 +110,13 @@ class Spotipy:
 			# as AllPlaylists or SinglePlaylist class from types
 			# or pass total tracks as param
 		if total_tracks == 0:
-			total_tracks = self._get_playlist_items(playlist_id)['total']
+			items = self.sp.playlist_items(playlist_id)
+			if items is None:
+				raise PlaylistNotFoundError(
+					f'Playlist with ID {playlist_id} could not be found on Spotify')
+			total_tracks = items['total']
+
+
 		offset = total_tracks - limit
 
 		while True:
@@ -125,7 +135,6 @@ class Spotipy:
 			yield parsed
 
 			if not parsed.previous:
-				# TEST: test logic
 				break
 
 
