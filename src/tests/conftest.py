@@ -1,6 +1,5 @@
 import pytest
 
-from src.api import sp
 from src.api.tracks import Tracks
 from src.api.playlists import PlaylistsHandler
 
@@ -9,8 +8,8 @@ track_ids_55 = ['13KLstO6ywva9h94FOqpeW', '2xeW5CIB5XHkaDLYEFOSjs', '5PF2WtSZV4E
 
 @pytest.fixture(scope='session')
 def playlists_handler():
-	playlists = sp.get_all_playlists()
-	return PlaylistsHandler(playlists)
+	playlists = PlaylistsHandler()
+	return playlists
 
 
 # def replace_tracks(playlist_name: str, track_ids: list[str]):

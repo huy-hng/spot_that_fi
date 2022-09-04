@@ -1,12 +1,5 @@
-
-from src.api import sp
-from src import db
-
 from src import api
-from src.controller.update_db import update_all_playlist_tracks_in_db
 from src.controller import playlist_change_detection as pcd
-from src.helpers.myers import Myers
-from src.settings.user_data import get_playlist_user_data
 from src.types.playlists import AllPlaylists, SinglePlaylist
 
 # TODO move this to settings.json or .env
@@ -37,7 +30,7 @@ def sync_playlist_pair(
 	if snippet_changed:
 		snippet_diff = pcd.get_playlist_diff(snippet_playlist)
 		main_playlist.add_tracks_at_end(snippet_diff.inserts)
-		sp.remove_tracks(main_playlist.id, snippet_diff.removals)
+		main_playlist.remove_tracks(snippet_diff.removals)
 
 		# TEST: wait? In case it needs some time to propagate
 
@@ -56,8 +49,7 @@ def sync_all_playlists():
 	bulk logic is in sync_playlists
 	"""
 
-	all_sp_playlists = sp.get_all_playlists()
-	playlists = api.PlaylistsHandler(all_sp_playlists)
+	playlists = api.PlaylistsHandler()
 
 	for pair in playlists.get_sync_pairs():
 		sync_playlist_pair(pair.main, pair.snippet)

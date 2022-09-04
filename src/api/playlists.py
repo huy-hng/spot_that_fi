@@ -14,8 +14,9 @@ class SyncPairs(NamedTuple):
 
 
 class PlaylistsHandler:
-	def __init__(self, playlists: list[AllPlaylists]):
-		self.playlists = [PlaylistHandler(playlist) for playlist in playlists]
+	def __init__(self):
+		self.playlists: list[PlaylistHandler]
+		self.fetch_playlists()
 
 		# for easier lookup
 		self.names: dict[str, int] = {}
@@ -24,6 +25,11 @@ class PlaylistsHandler:
 		for index, playlist in enumerate(self.playlists):
 			self.names[playlist.name] = index
 			self.ids[playlist.id] = index
+
+
+	def fetch_playlists(self):
+		playlists = sp.get_all_playlists()
+		self.playlists = [PlaylistHandler(playlist) for playlist in playlists]
 
 
 	def get_by_id(self, playlist_id: str):
@@ -56,8 +62,6 @@ class PlaylistsHandler:
 			# pairs.append(SyncPairs(main.playlist_data, snippet.playlist_data))
 
 		return pairs
-
-
 
 
 class PlaylistHandler:

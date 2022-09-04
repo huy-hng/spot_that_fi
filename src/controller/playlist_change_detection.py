@@ -1,8 +1,7 @@
 from typing import NamedTuple
 from src.helpers.helpers import lookahead
-from src.helpers.myers import Myers, Operations
-from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, AbstractPlaylistType
-from src.api import sp
+from src.helpers.myers import Myers
+from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
 from src.api.playlists import PlaylistHandler
 
 from src.helpers.logger import log
@@ -37,9 +36,9 @@ def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
 	saved_items: list[PlaylistTracksItem] = []
 
 	myers = Myers(db_track_list)
-	gen = sp.get_playlist_tracks_generator(playlist.id)
+	gen = playlist.get_track_generator()
 	for tracks, has_next in lookahead(gen):
-		saved_items = tracks.items_ + saved_items
+		saved_items = tracks + saved_items
 
 		track_ids = [item.track.id for item in saved_items]
 		myers = Myers(db_track_list, track_ids)
