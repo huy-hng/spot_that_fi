@@ -27,9 +27,9 @@ def _add_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
 
 def _update_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
 	""" this function updates a playlist in the db
-			it updates the playlist length, snapshot, etc """
+		it updates the playlist length, snapshot, etc """
 	db_playlist = _get_playlist(session, playlist.id)
-	db_playlist.update(playlist) # TODO: check if this actually updates
+	db_playlist.update(playlist)
 
 
 def update_playlists(playlists: list[AllPlaylists | SinglePlaylist]):
