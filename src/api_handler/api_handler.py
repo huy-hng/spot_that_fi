@@ -186,15 +186,17 @@ class Spotipy:
 					a list of track ids to add to the playlist
 				position:
 					the position to add the tracks to
+					if position == -1: add at the end
 				group_size:
 					optional argument for batching tracks (to save on rate limiting)
 					if group_size <= 0: add all tracks at once
 					if group_size == 1: add one track at a time
 					if group_size > 1: add {group_size} tracks at once
 		"""
-
-		# TEST grouper changes
 		group_size = max(0, group_size)
+
+		if position == -1:
+			position = self.get_one_playlist(playlist_id).tracks.total
 
 		curr_position = position
 
