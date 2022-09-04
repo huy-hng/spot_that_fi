@@ -3,7 +3,7 @@ from src.playlists_deprecated.live_playlists import LivePlaylists
 from src.playlists_deprecated.tracked_playlists import TrackedPlaylists
 from src.features.deprecated_archiver import Archiver
 
-from src.tests.fixtures import track_ids, replace_tracks
+from src.tests.conftest import track_ids, replace_tracks
 
 def test_archive():
 	""" 

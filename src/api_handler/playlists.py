@@ -27,7 +27,7 @@ class PlaylistsHandler:
 			self.ids[playlist.id] = index
 
 
-	def get_playlist_by_id(self, playlist_id: str):
+	def get_by_id(self, playlist_id: str):
 		index = self.ids.get(playlist_id)
 		if index is None:
 			raise PlaylistNotFoundError('Playlist id does not exist.')
@@ -35,7 +35,7 @@ class PlaylistsHandler:
 		return self.playlists[index]
 
 
-	def get_playlist_by_name(self, name: str):
+	def get_by_name(self, name: str):
 		index = self.names.get(name)
 		if index is None:
 			raise PlaylistNotFoundError('Playlist Name does not exist.')
@@ -52,9 +52,9 @@ class PlaylistsHandler:
 			main_id = convert_playlist_uri_to_id(data.main_id)
 			snippet_id = convert_playlist_uri_to_id(data.snippet_id)
 
-			main = self.get_playlist_by_id(main_id)
-			snippet = self.get_playlist_by_id(snippet_id)
-			pairs.append(SyncPairs(main.playlist_data, snippet.playlist_data))
+			main = self.get_by_id(main_id)
+			snippet = self.get_by_id(snippet_id)
+			# pairs.append(SyncPairs(main.playlist_data, snippet.playlist_data))
 
 		return pairs
 
