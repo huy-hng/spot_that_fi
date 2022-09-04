@@ -1,9 +1,8 @@
 import pytest
 
-from src.api_handler import sp
-from src.api_handler.playlists import PlaylistHandler
+from src.api import sp
+from src.api.playlists import PlaylistHandler
 from src.controller import update_db
-from src import api_handler as api
 from src.features import update_snippets
 from src.tests import PlaylistIDs, TrackIDs
 

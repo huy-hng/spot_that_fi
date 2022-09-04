@@ -1,8 +1,8 @@
 
-from src.api_handler import sp
+from src.api import sp
 from src import db
 
-from src import api_handler as api
+from src import api
 from src.controller.update_db import update_all_playlist_tracks_in_db
 from src.controller import playlist_change_detection as pcd
 from src.helpers.myers import Myers
@@ -31,11 +31,11 @@ def sync_playlist_pair(
 	if not main_changed and snippet_changed:
 		return
 
-	snippet_playlist = api.playlists.PlaylistHandler(snippet)
-	main_playlist = api.playlists.PlaylistHandler(main)
+	snippet_playlist = api.PlaylistHandler(snippet)
+	main_playlist = api.PlaylistHandler(main)
 
 	if snippet_changed:
-		snippet_diff = pcd.get_playlist_diff(snippet)
+		snippet_diff = pcd.get_playlist_diff(snippet_playlist)
 		main_playlist.add_tracks_at_end(snippet_diff.inserts)
 		sp.remove_tracks(main_playlist.id, snippet_diff.removals)
 

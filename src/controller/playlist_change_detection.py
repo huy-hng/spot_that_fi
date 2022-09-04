@@ -2,8 +2,8 @@ from typing import NamedTuple
 from src.helpers.helpers import lookahead
 from src.helpers.myers import Myers, Operations
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, AbstractPlaylistType
-from src.api_handler import sp
-from src.api_handler.playlists import PlaylistHandler
+from src.api import sp
+from src.api.playlists import PlaylistHandler
 
 from src.helpers.logger import log
 from src import db

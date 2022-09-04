@@ -1,7 +1,7 @@
 import json
 
 from src.helpers.helpers import read_dict_from_file, write_dict_to_file
-from src.api_handler import sp
+from src.api import sp
 from src.helpers.logger import log
 
 def write_liked_tracks():

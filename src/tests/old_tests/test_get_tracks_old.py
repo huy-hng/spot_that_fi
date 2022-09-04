@@ -1,8 +1,8 @@
 import pytest
 
-from src.api_handler import sp
+from src.api import sp
 from src.playlists_deprecated.live_playlists import LivePlaylists
-from src.api_handler.tracks import Tracks
+from src.api.tracks import Tracks
 from src.tests.conftest import reset_playlists, track_ids_55
 
 live_playlists = LivePlaylists()
