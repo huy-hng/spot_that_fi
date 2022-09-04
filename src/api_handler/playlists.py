@@ -84,7 +84,7 @@ class PlaylistHandler:
 
 
 	def get_track_generator(self, *, limit=100):
-		for items in sp.get_playlist_tracks_generator(self.id, limit=limit):
+		for items in sp.get_playlist_tracks_generator(self.id, self.total_tracks, limit=limit):
 			self.total_tracks = items.total
 			yield items.items_
 
