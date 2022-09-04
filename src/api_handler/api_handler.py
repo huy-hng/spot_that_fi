@@ -114,9 +114,11 @@ class Spotipy:
 			sorted from first added to last added
 		"""
 
+		clamp_limit = lambda limit: max(1, min(100, limit))
+		limit = clamp_limit(limit)
 
 		offset = max(0, total_tracks - limit)
-		while items := self.sp.playlist_items(playlist_id, limit=limit, offset=offset):
+		while items := self.sp.playlist_items(playlist_id, limit=clamp_limit(limit), offset=offset):
 			if items is None: break
 
 			parsed = types.playlists.SinglePlaylistTracks(items)
@@ -131,7 +133,6 @@ class Spotipy:
 			if offset < 0:
 				limit += offset
 				offset = 0
-				limit = max(1, min(100, limit))
 
 			yield parsed
 
