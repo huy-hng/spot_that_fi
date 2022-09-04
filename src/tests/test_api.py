@@ -14,13 +14,20 @@ def test_get_one_playlist():
 	playlist = sp.get_one_playlist(PlaylistIDs.unchanged)
 	# playlist.
 
-def test_add_tracks_to_playlist():
-	playlists = sp.get_all_playlists()
-	playlists_handler = PlaylistsHandler(playlists)
-	# for items in sp.get_playlist_tracks_generator('6BDxVpN7v1HFSRGgt8LYC8'):
-	# 	print(items)
-	# 	break
+def test_add_tracks_to_playlist(playlists_handler: PlaylistsHandler):
 	unchanged = playlists_handler.get_by_id(PlaylistIDs.unchanged)
+	main = playlists_handler.get_by_id(PlaylistIDs.main)
+
+	main.replace_tracks([])
+
+	num = 10
+
+	tracks_to_add = unchanged.get_latest_tracks(num)
+	main.add_tracks_at_end(tracks_to_add, 2)
+
+	expected = PlaylistHandler.get_ids(tracks_to_add)
+	result = PlaylistHandler.get_ids(main.get_latest_tracks(num))
+	assert result == expected
 
 
 @pytest.mark.parametrize(
