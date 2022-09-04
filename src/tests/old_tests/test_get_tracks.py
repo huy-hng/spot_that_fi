@@ -1,4 +1,4 @@
-from src.api import api
+from src import api
 from src.helpers.logger import log
 from src.helpers.helpers import write_dict_to_file, read_dict_from_file
 

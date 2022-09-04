@@ -1,6 +1,6 @@
 from src.tests import PlaylistIDs
 from src import api
-from src.api import api
+from src import api
 from src.controller import playlist_change_detection as pcd
 
 def get_all_playlists():

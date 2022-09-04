@@ -1,6 +1,6 @@
 import json
 from src import db
-from src.api.playlists import PlaylistsHandler
+from src.api import PlaylistsHandler
 
 from src.db import SessionMaker
 from src.tests import PlaylistIDs

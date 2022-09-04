@@ -1,5 +1,5 @@
 from src.playlists_deprecated.live_playlists import LivePlaylists
-from src.api.tracks import Tracks, DurationScale
+from src.api import Tracks, DurationScale
 from src.playlists_deprecated.tracked_playlists import TrackedPlaylists, TrackedPlaylist
 
 class Archiver:

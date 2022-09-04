@@ -1,6 +1,6 @@
 from typing import NamedTuple, Type, TypeGuard, TypeVar
 
-from src.api import api
+from src import api
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
 from src.settings.user_data import get_playlist_user_data
 

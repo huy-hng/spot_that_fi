@@ -1,7 +1,7 @@
 import pytest
 
-from src.api import api
-from src.api.playlists import PlaylistsHandler, PlaylistHandler
+from src import api
+from src.api import PlaylistsHandler, PlaylistHandler
 from src.helpers.helpers import print_dict
 from src.tests import PlaylistIDs
 
