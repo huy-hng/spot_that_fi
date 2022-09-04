@@ -13,203 +13,199 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class Spotipy:
-	""" This is a wrapper around the spotipy module
-		to give it more convenience features """
-	def __init__(self):
-		self.api_calls = 0 # FIX: debug why it doesnt increment
+""" This is a wrapper around the spotipy module
+	to give it more convenience features """
 
-		redirect_uri = 'http://localhost:8080/'
-		# redirect_uri = 'http://localhost/'
-		scope = ''
-		scope += 'playlist-read-private '
-		scope += 'playlist-modify-private '
-		scope += 'playlist-modify-public '
-		scope += 'playlist-read-collaborative'
+redirect_uri = 'http://localhost:8080/'
+# redirect_uri = 'http://localhost/'
+scope = ''
+scope += 'playlist-read-private '
+scope += 'playlist-modify-private '
+scope += 'playlist-modify-public '
+scope += 'playlist-read-collaborative'
 
-		self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-				client_id=os.getenv('SPOTIPY_CLIENT_ID'),
-				client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
-				redirect_uri=redirect_uri, scope=scope))
+spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(
+		client_id=os.getenv('SPOTIPY_CLIENT_ID'),
+		client_secret=os.getenv('SPOTIPY_CLIENT_SECRET'),
+		redirect_uri=redirect_uri, scope=scope))
+
+
+#region create
+def like_tracks(track_ids: list[str]):
+	spotify.current_user_saved_tracks_add(track_ids)
+#endregion
+
+
+#region read
+def get_one_playlist(playlist_id: str):
+	""" should accept argument as uri, url and id """
+	res = spotify.playlist(playlist_id)
+	if res is None:
+		raise PlaylistNotFoundError(f'Cannot find playlist with ID {playlist_id}')
+	return types.playlists.SinglePlaylist(res)
+
+
+def get_all_playlists():
+	""" api call expense: 50 playlists = 1 call \n
+			if one has 60 playlists in their spotify,
+			this functions would do 2 api calls """
+
+
+	all_playlists: list[dict] = []
+	offset = 0
+
+	while True:
+		playlists: dict | None = spotify.current_user_playlists(offset=offset)
+
+		if playlists is None:
+			return []
+
+		all_playlists += playlists['items']
+		if playlists['next'] is None:
+			break
+
+		offset += 50
+		# write_dict_to_file('current_user_playlists2', playlists)
+
+
+	parsed_playlists = [
+		types.playlists.AllPlaylists(playlist)
+		for playlist in all_playlists
+	]
+
+	return parsed_playlists
+
+def _get_playlist_items(playlist_id: str, *, limit=100, offset=0):
+	items = spotify.playlist_items(playlist_id, limit=limit, offset=offset)
+	if items is None:
+		raise PlaylistNotFoundError(
+			f'Playlist with ID {playlist_id} could not be found on Spotify')
+	return items
+
+
+def get_playlist_tracks_generator(
+	playlist_id: str, total_tracks: int=0, *, limit=100):
+	""" Get latest tracks until total_tracks has been reached
+		or no tracks are left.
+
+		Args:
+			playlist_id: id of playlist to get tracks from
+			total_tracks: total_tracks in playlist. Use this to save an api call
+			limit: amount of tracks to get at once
+
+		The order is the same as in spotify without any sorting.
+		The first returned item is the most recently added tracks
 		
+		the section that is returned first are the items that have been
+		added last
+		
+		so if my playlist is [0,1,2,3,4] and 0 is the first track 
+		that has been added and my limit is 2, then the first yield is
+		[3,4], then comes [1,2] and at last [0],
+		where the generator terminates
 
-	#region create
-	def like_tracks(self, track_ids: list[str]):
-		self.sp.current_user_saved_tracks_add(track_ids)
-	#endregion
+		### Note
+		Since on spotify new tracks are by default added to 'the bottom'
+		of the playlist it appears that playlists are chronologically
+		sorted from first added to last added
+	"""
 
+	clamp_limit = lambda limit: max(1, min(100, limit))
+	limit = clamp_limit(limit)
 
-	#region read
-	def get_one_playlist(self, playlist_id: str):
-		""" should accept argument as uri, url and id """
-		res = self.sp.playlist(playlist_id)
-		if res is None:
-			raise PlaylistNotFoundError(f'Cannot find playlist with ID {playlist_id}')
-		return types.playlists.SinglePlaylist(res)
+	offset = max(0, total_tracks - limit)
+	while items := spotify.playlist_items(playlist_id, limit=clamp_limit(limit), offset=offset):
+		if items is None: break
 
+		parsed = types.playlists.SinglePlaylistTracks(items)
+		if total_tracks != parsed.total: # fixes wrong total_tracks input
+			total_tracks = parsed.total
+			offset = max(0, total_tracks - limit)
+			continue
 
-	def get_all_playlists(self):
-		""" api call expense: 50 playlists = 1 call \n
-				if one has 60 playlists in their spotify,
-				this functions would do 2 api calls """
+		offset = parsed.offset
+		offset -= limit
 
-		self.api_calls += 1
+		if offset < 0:
+			limit += offset
+			offset = 0
 
-		all_playlists: list[dict] = []
-		offset = 0
+		yield parsed
 
-		while True:
-			playlists: dict | None = self.sp.current_user_playlists(offset=offset)
-
-			if playlists is None:
-				return []
-
-			all_playlists += playlists['items']
-			if playlists['next'] is None:
-				break
-
-			offset += 50
-			# write_dict_to_file('current_user_playlists2', playlists)
-
-
-		parsed_playlists = [
-			types.playlists.AllPlaylists(playlist)
-			for playlist in all_playlists
-		]
-
-		return parsed_playlists
-
-	def _get_playlist_items(self, playlist_id: str, *, limit=100, offset=0):
-		items = self.sp.playlist_items(playlist_id, limit=limit, offset=offset)
-		if items is None:
-			raise PlaylistNotFoundError(
-				f'Playlist with ID {playlist_id} could not be found on Spotify')
-		return items
+		if not parsed.previous:
+			break
 
 
-	def get_playlist_tracks_generator(
-		self, playlist_id: str, total_tracks: int=0, *, limit=100):
-		""" Get latest tracks until total_tracks has been reached
-			or no tracks are left.
+def get_liked_tracks_generator(limit=50):
+	""" returns a generator that loops over liked tracks
+		in reverse chronological order.
+		
+		First item in first iteration
+		is the most recently liked track. """
+	# items: types.tracks.LikedTracksListDict | None
+	offset = 0
 
-			Args:
-				playlist_id: id of playlist to get tracks from
-				total_tracks: total_tracks in playlist. Use this to save an api call
-				limit: amount of tracks to get at once
+	while True:
+		items = spotify.current_user_saved_tracks(limit, offset)
+		if items is None: continue
+		items = types.tracks.LikedTracksListDict(items)
+		write_dict_to_file('liked_tracks', items)
+		offset += limit
 
-			The order is the same as in spotify without any sorting.
-			The first returned item is the most recently added tracks
-			
-			the section that is returned first are the items that have been
-			added last
-			
-			so if my playlist is [0,1,2,3,4] and 0 is the first track 
-			that has been added and my limit is 2, then the first yield is
-			[3,4], then comes [1,2] and at last [0],
-			where the generator terminates
+		yield items
 
-			### Note
-			Since on spotify new tracks are by default added to 'the bottom'
-			of the playlist it appears that playlists are chronologically
-			sorted from first added to last added
-		"""
+		if not items.next:
+			break
+#endregion
 
-		clamp_limit = lambda limit: max(1, min(100, limit))
-		limit = clamp_limit(limit)
+#region update
+def replace_playlist_tracks(playlist_id: str, track_ids: list[str]):
+	""" Replaces all tracks in playlist.
 
-		offset = max(0, total_tracks - limit)
-		while items := self.sp.playlist_items(playlist_id, limit=clamp_limit(limit), offset=offset):
-			if items is None: break
-
-			parsed = types.playlists.SinglePlaylistTracks(items)
-			if total_tracks != parsed.total: # fixes wrong total_tracks input
-				total_tracks = parsed.total
-				offset = max(0, total_tracks - limit)
-				continue
-
-			offset = parsed.offset
-			offset -= limit
-
-			if offset < 0:
-				limit += offset
-				offset = 0
-
-			yield parsed
-
-			if not parsed.previous:
-				break
+		Adding multiple tracks that aren't already in the playlist
+		results in wonky order.
+		Not sorting the playlist in spotify shows
+		the correct order, but when sorted by date added, it is scrambled.
+		The reason for that is probably date_added attribute is all the same.
+	"""
+	spotify.playlist_replace_items(playlist_id, track_ids)
 
 
-	def get_liked_tracks_generator(self, limit=50):
-		""" returns a generator that loops over liked tracks
-			in reverse chronological order.
-			
-			First item in first iteration
-			is the most recently liked track. """
-		# items: types.tracks.LikedTracksListDict | None
-		offset = 0
+def add_tracks_to_playlist(
+	playlist_id: str, track_ids: list[str], position: int, group_size=1):
+	""" Adds tracks to playlist. 
 
-		while True:
-			items = self.sp.current_user_saved_tracks(limit, offset)
-			if items is None: continue
-			items = types.tracks.LikedTracksListDict(items)
-			write_dict_to_file('liked_tracks', items)
-			offset += limit
+		Args:
+			playlist_id:
+				the id or uri of the playlist to add tracks to
+			track_ids:
+				a list of track ids to add to the playlist
+			position:
+				the position to add the tracks to
+				if position == -1: add at the end
+			group_size:
+				optional argument for batching tracks (to save on rate limiting)
+				if group_size <= 0: add all tracks at once
+				if group_size == 1: add one track at a time
+				if group_size > 1: add {group_size} tracks at once
+	"""
+	group_size = max(0, group_size)
 
-			yield items
+	if position == -1:
+		position = get_one_playlist(playlist_id).tracks.total
 
-			if not items.next:
-				break
-	#endregion
+	curr_position = position
 
-	#region update
-	def replace_playlist_tracks(self, playlist_id: str, track_ids: list[str]):
-		""" Replaces all tracks in playlist.
-
-			Adding multiple tracks that aren't already in the playlist
-			results in wonky order.
-			Not sorting the playlist in spotify shows
-			the correct order, but when sorted by date added, it is scrambled.
-			The reason for that is probably date_added attribute is all the same.
-		"""
-		self.sp.playlist_replace_items(playlist_id, track_ids)
+	groups = grouper(track_ids, group_size)
+	for group in groups:
+		spotify.playlist_add_items(playlist_id, group, curr_position)
+		curr_position += group_size
+		time.sleep(0.5)
+#endregion
 
 
-	def add_tracks_to_playlist(self,
-			playlist_id: str, track_ids: list[str], position: int, group_size=1):
-		""" Adds tracks to playlist. 
-
-			Args:
-				playlist_id:
-					the id or uri of the playlist to add tracks to
-				track_ids:
-					a list of track ids to add to the playlist
-				position:
-					the position to add the tracks to
-					if position == -1: add at the end
-				group_size:
-					optional argument for batching tracks (to save on rate limiting)
-					if group_size <= 0: add all tracks at once
-					if group_size == 1: add one track at a time
-					if group_size > 1: add {group_size} tracks at once
-		"""
-		group_size = max(0, group_size)
-
-		if position == -1:
-			position = self.get_one_playlist(playlist_id).tracks.total
-
-		curr_position = position
-
-		groups = grouper(track_ids, group_size)
-		for group in groups:
-			self.sp.playlist_add_items(playlist_id, group, curr_position)
-			curr_position += group_size
-			time.sleep(0.5)
-	#endregion
-
-
-	#region delete
-	def remove_tracks(self, uri: str, track_ids: list[str]):
-		# TEST how does this behave if tracks arent in playlist
-		self.sp.playlist_remove_all_occurrences_of_items(uri, track_ids)
-	#endregion
+#region delete
+def remove_tracks(uri: str, track_ids: list[str]):
+	# TEST how does this behave if tracks arent in playlist
+	spotify.playlist_remove_all_occurrences_of_items(uri, track_ids)
+#endregion
