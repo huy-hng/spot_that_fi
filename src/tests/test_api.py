@@ -14,16 +14,22 @@ def test_get_one_playlist():
 	playlist = api.get_one_playlist(PlaylistIDs.unchanged)
 	# playlist.
 
-def test_add_tracks_to_playlist(playlists_handler: PlaylistsHandler):
+
+@pytest.mark.parametrize(
+	'group_size', [
+		0, 1, 3, 5, 10
+	]
+)
+def test_add_tracks_to_playlist(playlists_handler: PlaylistsHandler, group_size: int):
 	unchanged = playlists_handler.get_by_id(PlaylistIDs.unchanged)
 	main = playlists_handler.get_by_id(PlaylistIDs.main)
 
 	main.replace_tracks([])
 
-	num = 10
+	num = 5
 
 	tracks_to_add = unchanged.get_latest_tracks(num)
-	main.add_tracks_at_end(tracks_to_add, 2)
+	main.add_tracks_at_end(tracks_to_add, group_size)
 
 	expected = PlaylistHandler.get_ids(tracks_to_add)
 	result = PlaylistHandler.get_ids(main.get_latest_tracks(num))
