@@ -88,8 +88,13 @@ class Spotipy:
 
 	def get_playlist_tracks_generator(
 		self, playlist_id: str, total_tracks: int=0, *, limit=100):
-		""" get latest tracks until total_tracks has been reached
-			or no tracks are left 
+		""" Get latest tracks until total_tracks has been reached
+			or no tracks are left.
+
+			Args:
+				playlist_id: id of playlist to get tracks from
+				total_tracks: total_tracks in playlist. Use this to save an api call
+				limit: amount of tracks to get at once
 
 			The order is the same as in spotify without any sorting.
 			The first returned item is the most recently added tracks
@@ -107,34 +112,24 @@ class Spotipy:
 			of the playlist it appears that playlists are chronologically
 			sorted from first added to last added
 		"""
-		# items = {'previous': True}
 
-		# FIX: below api call can be omitted by passing the playlist
-			# as AllPlaylists or SinglePlaylist class from types
-			# or pass total tracks as param
 		if total_tracks == 0:
-			items = self.sp.playlist_items(playlist_id)
-			if items is None:
-				raise PlaylistNotFoundError(
-					f'Playlist with ID {playlist_id} could not be found on Spotify')
-			total_tracks = items['total']
-
+			total_tracks = 10000
 
 		offset = total_tracks - limit
+		while items := self.sp.playlist_items(playlist_id, limit=limit, offset=offset):
+			if items is None: break
 
-		while True:
+			parsed = types.playlists.SinglePlaylistTracks(items)
+			offset = parsed.offset
+			offset -= limit
+
 			if offset < 0:
 				limit += offset
 				offset = 0
 				limit = max(1, min(100, limit))
 
-			items: dict | None = self.sp.playlist_items(
-				playlist_id, limit=limit, offset=offset)
 
-			if items is None: continue
-			parsed = types.playlists.SinglePlaylistTracks(items)
-
-			offset -= limit
 			yield parsed
 
 			if not parsed.previous:
