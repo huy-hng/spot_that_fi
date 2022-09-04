@@ -1,5 +1,23 @@
 import json
-from typing import Iterable, TypeVar
+from typing import Iterable, TypeVar, NamedTuple
+
+
+def allow_generic_namedtuples(x=True):
+	def _namedtuple_mro_entries(bases):
+		from typing import _GenericAlias, _NamedTuple
+		assert bases[0] is NamedTuple
+
+		if len(bases) > 1:
+			generic_only = all([isinstance(base, _GenericAlias) for base in bases[1:]])
+			if not generic_only:
+				raise TypeError("Multiple inheritance with NamedTuple is not supported")
+
+		return (_NamedTuple,)
+
+	NamedTuple.__mro_entries__ = _namedtuple_mro_entries
+
+allow_generic_namedtuples()
+
 
 def write_dict_to_file(name: str, data):
 	with open(f'./data/{name}.json', 'w') as f:
@@ -53,6 +71,7 @@ def grouper(x: list[T], /, group_size: int) -> list[list[T]]:
 		group_size = len(x)
 
 	return [x[n:n+group_size] for n in range(0, len(x), group_size)]
+
 
 def print_dict(d: dict, print_fn=print):
 	for k, v in d.items():
