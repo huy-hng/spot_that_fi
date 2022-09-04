@@ -1,7 +1,7 @@
 from functools import wraps
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session as session_type
+from sqlalchemy.orm import Session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -11,11 +11,15 @@ engine = create_engine('sqlite:///src/db/SpotifyData.db')
 SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base(bind=engine)
 
+
+def create_session():
+	return Session(engine)
+
 def get_session(fn):
 	@wraps(fn)
 	def wrapper(*args, **kwargs):
 		with SessionMaker.begin() as session:
-			session: session_type
+			session: Session
 			return fn(session, *args, **kwargs)
 	return wrapper
 
