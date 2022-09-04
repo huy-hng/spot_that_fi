@@ -12,8 +12,8 @@ SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base(bind=engine)
 
 
-def create_session():
-	return Session(engine)
+def create_session() -> Session:
+	return SessionMaker.begin()
 
 def get_session(fn):
 	@wraps(fn)
