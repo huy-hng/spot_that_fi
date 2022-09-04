@@ -1,12 +1,18 @@
 import json
-from src import db
-from src.api import PlaylistsHandler
 
-from src.db import SessionMaker
+import pytest
+
+from src import db
+from src.db import create_session
+
+from src import api
+from src.api import PlaylistHandler, PlaylistsHandler
 from src.tests import PlaylistIDs
 from src.controller import playlist_change_detection as pcd
-from src import api
+from src.types.playlists import AllPlaylists
 
+
+@pytest.mark.skip
 def test_get_track_diff(playlists_handler: PlaylistsHandler):
 	# snippet = sp.get_one_playlist(PlaylistIDs.snippet)
 	snippet = playlists_handler.get_by_id(PlaylistIDs.snippet)
@@ -15,6 +21,30 @@ def test_get_track_diff(playlists_handler: PlaylistsHandler):
 	inserts = api.PlaylistHandler.get_names(diff.inserts)
 	print(diff.removals)
 	print(inserts)
+
+
+def test_playlist_update(main: PlaylistHandler):
+	with create_session() as session:
+		# setup (change snapshot id)
+		cp = AllPlaylists(main.playlist_data.copy())
+		cp.snapshot_id = 'asdfsdf'
+		db.playlists._update_playlist(session, cp)
+
+		# actual test
+		db_playlist = db.playlists._get_playlist(session, main.id)
+		old_snapshot = db_playlist.snapshot_id
+
+		db.playlists._update_playlist(session, main.playlist_data)
+
+		db_playlist = db.playlists._get_playlist(session, main.id)
+		new_snapshot = db_playlist.snapshot_id
+
+		# print(f'{old_snapshot=}')
+		# print(f'{new_snapshot=}')
+		# print(f'{old_snapshot == new_snapshot=}')
+		# print(f'{main.snapshot_id=}')
+
+		assert not old_snapshot == new_snapshot
 
 
 def get_tracks_in_db_playlist():
@@ -60,14 +90,14 @@ def add_tracks_to_all_playlists():
 def liked_tracks_not_in_playlists():
 	track_ids = db.tracks.get_liked_tracks_not_in_playlists()
 
-	with SessionMaker.begin() as session:
+	with create_session() as session:
 		for track_id in track_ids:
 			row = db.tracks.get_track(session, track_id)
 			print(row.name)
 
 
 def get_playlist_tracks(playlist_name: str):
-	with SessionMaker.begin() as session:
+	with create_session() as session:
 		playlist_id = db.playlists.get_id_from_name(playlist_name)
 		playlist = db.playlists._get_playlist(session, playlist_id)
 		associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
