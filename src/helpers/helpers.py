@@ -51,6 +51,16 @@ def grouper(x: list[T], /, group_size) -> list[list[T]]:
 
 	return [x[n:n+group_size] for n in range(0, len(x), group_size)]
 
+def print_dict(d: dict, print_fn=print):
+	for k, v in d.items():
+		print_fn(f'{k}: {v}')
+	print_fn()
+
+def print_list(l: list, print_fn=print):
+	for v in l:
+		print_fn(v)
+	print_fn()
+
 if __name__ == '__main__':
 	with open('../data/playlists.json') as f:
 		playlists = f.read()
