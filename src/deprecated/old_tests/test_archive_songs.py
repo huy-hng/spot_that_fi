@@ -1,7 +1,6 @@
-from src.api import Tracks
-from src.playlists_deprecated.live_playlists import LivePlaylists
-from src.playlists_deprecated.tracked_playlists import TrackedPlaylists
-from src.features.deprecated_archiver import Archiver
+from src.deprecated.live_playlists import LivePlaylists
+from src.deprecated.tracked_playlists import TrackedPlaylists
+from src.deprecated.deprecated_archiver import Archiver
 
 from src.tests.conftest import track_ids, replace_tracks
 
