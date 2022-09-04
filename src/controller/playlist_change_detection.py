@@ -3,8 +3,9 @@ from src.helpers.helpers import lookahead
 from src.helpers.myers import Myers, Operations
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, AbstractPlaylistType
 from src.api_handler import sp
-from src.helpers.logger import log
+from src.api_handler.playlists import PlaylistHandler
 
+from src.helpers.logger import log
 from src import db
 
 
@@ -25,7 +26,7 @@ class Diff(NamedTuple):
 	inserts: list[PlaylistTracksItem] = []
 	removals: list[str] = []
 
-def get_playlist_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
+def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
 	""" returns the difference between tracks in db and on spotify
 
 	requires playlist to exist in database,
@@ -47,7 +48,7 @@ def get_playlist_diff(playlist: AllPlaylists | SinglePlaylist) -> Diff:
 		if fki is not None: # check to save on iterations
 
 			estimated_total = fki + len(saved_items)
-			if estimated_total == playlist.tracks.total:
+			if estimated_total == playlist.total_tracks:
 				myers.separate_operations(fki)
 				break
 

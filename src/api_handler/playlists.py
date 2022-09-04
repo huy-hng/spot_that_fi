@@ -3,7 +3,6 @@ from typing import NamedTuple, Type, TypeGuard, TypeVar
 from src.api_handler import sp
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
 from src.settings.user_data import get_playlist_user_data
-from src.controller import playlist_change_detection as pcd
 
 from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.logger import log
