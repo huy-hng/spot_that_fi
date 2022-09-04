@@ -86,6 +86,7 @@ class Spotipy:
 				f'Playlist with ID {playlist_id} could not be found on Spotify')
 		return items
 
+
 	def get_playlist_tracks_generator(
 		self, playlist_id: str, total_tracks: int=0, *, limit=100):
 		""" Get latest tracks until total_tracks has been reached
@@ -113,14 +114,17 @@ class Spotipy:
 			sorted from first added to last added
 		"""
 
-		if total_tracks == 0:
-			total_tracks = 10000
 
-		offset = total_tracks - limit
+		offset = max(0, total_tracks - limit)
 		while items := self.sp.playlist_items(playlist_id, limit=limit, offset=offset):
 			if items is None: break
 
 			parsed = types.playlists.SinglePlaylistTracks(items)
+			if total_tracks != parsed.total: # fixes wrong total_tracks input
+				total_tracks = parsed.total
+				offset = max(0, total_tracks - limit)
+				continue
+
 			offset = parsed.offset
 			offset -= limit
 
@@ -128,7 +132,6 @@ class Spotipy:
 				limit += offset
 				offset = 0
 				limit = max(1, min(100, limit))
-
 
 			yield parsed
 
