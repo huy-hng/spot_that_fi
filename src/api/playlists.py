@@ -156,6 +156,7 @@ class PlaylistHandler:
 			raise
 
 
+	# REFACTOR: move the two functions below somewhere else
 	@staticmethod
 	def get_ids(tracks: list[PlaylistTracksItem]) -> list[str]:
 		if not tracks: return []
