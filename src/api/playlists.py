@@ -1,6 +1,6 @@
 from typing import NamedTuple, Type, TypeGuard, TypeVar
 
-from src.api import sp
+from src.api import api
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
 from src.settings.user_data import get_playlist_user_data
 
@@ -28,7 +28,7 @@ class PlaylistsHandler:
 
 
 	def fetch_playlists(self):
-		playlists = sp.get_all_playlists()
+		playlists = api.get_all_playlists()
 		self.playlists = [PlaylistHandler(playlist) for playlist in playlists]
 
 
@@ -82,13 +82,13 @@ class PlaylistHandler:
 
 
 	def _update_data(self):
-		data = sp.get_one_playlist(self.id)
+		data = api.get_one_playlist(self.id)
 		self.total_tracks = data.tracks.total
 		self.snapshot_id = data.snapshot_id
 
 
 	def get_track_generator(self, *, limit=100):
-		for items in sp.get_playlist_tracks_generator(self.id, self.total_tracks, limit=limit):
+		for items in api.get_playlist_tracks_generator(self.id, self.total_tracks, limit=limit):
 			self.total_tracks = items.total
 			yield items.items_
 
@@ -132,18 +132,18 @@ class PlaylistHandler:
 
 		track_ids = self.handle_non_ids(tracks)
 		self._update_data()
-		sp.add_tracks_to_playlist(self.id, track_ids, self.total_tracks, group_size)
+		api.add_tracks_to_playlist(self.id, track_ids, self.total_tracks, group_size)
 
 
 	def remove_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
 		track_ids = self.handle_non_ids(tracks)
-		sp.remove_tracks(self.id, track_ids)
+		api.remove_tracks(self.id, track_ids)
 		self._update_data()
 
 
 	def replace_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
 		track_ids = self.handle_non_ids(tracks)
-		sp.replace_playlist_tracks(self.id, track_ids)
+		api.replace_playlist_tracks(self.id, track_ids)
 		self._update_data()
 
 

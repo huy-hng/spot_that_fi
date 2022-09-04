@@ -1,11 +1,11 @@
 import json
 
 from src.helpers.helpers import read_dict_from_file, write_dict_to_file
-from src.api import sp
+from src.api import api
 from src.helpers.logger import log
 
 def write_liked_tracks():
-	gen = sp.get_liked_tracks_generator()
+	gen = api.get_liked_tracks_generator()
 	tracks = []
 	for i, batch in enumerate(gen):
 		log.info(f'Batch {i} for adding liked tracks')

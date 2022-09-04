@@ -1,5 +1,5 @@
 from src import db
-from src.api import sp
+from src.api import api
 from src.helpers.logger import log
 from src.controller import playlist_change_detection as pcd
 from src.types.playlists import AllPlaylists, SinglePlaylist, AbstractPlaylistType
@@ -11,7 +11,7 @@ def update_db_liked_tracks():
 			and is therefore very expensive rate limiting wise """
 	# TODO: finish
 	liked_db_tracks = db.tracks.get_liked_tracks()
-	gen = sp.get_liked_tracks_generator()
+	gen = api.get_liked_tracks_generator()
 	# for batch in gen:
 	# 	tracks = batch.tracks
 		
@@ -35,7 +35,7 @@ def update_playlist_tracks_in_db(playlist: AllPlaylists | SinglePlaylist, diff: 
 
 	
 def update_all_playlist_tracks_in_db():
-	playlists = sp.get_all_playlists()
+	playlists = api.get_all_playlists()
 	# changed = pcd.get_changed_playlists(playlists)
 	for playlist in playlists:
 		update_playlist_tracks_in_db(playlist)

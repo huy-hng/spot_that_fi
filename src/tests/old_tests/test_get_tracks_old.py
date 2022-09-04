@@ -1,6 +1,6 @@
 import pytest
 
-from src.api import sp
+from src.api import api
 from src.playlists_deprecated.live_playlists import LivePlaylists
 from src.api.tracks import Tracks
 from src.tests.conftest import reset_playlists, track_ids_55
@@ -9,7 +9,7 @@ live_playlists = LivePlaylists()
 big_playlist = live_playlists.get_by_name('Strong All')
 
 def get_tracks_via_generator():
-	generator = sp.get_playlist_tracks_generator(
+	generator = api.get_playlist_tracks_generator(
 			big_playlist.uri, big_playlist.total_tracks)
 
 	tracks = []

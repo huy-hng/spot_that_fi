@@ -1,7 +1,7 @@
 import time
 import pytest
 
-from src.api import sp
+from src.api import api
 from src.playlists_deprecated.live_playlists import LivePlaylists
 from src.playlists_deprecated.tracked_playlists import TrackedPlaylists
 from src.api.tracks import Tracks

@@ -1,17 +1,17 @@
 import pytest
 
-from src.api import sp
+from src.api import api
 from src.api.playlists import PlaylistsHandler, PlaylistHandler
 from src.helpers.helpers import print_dict
 from src.tests import PlaylistIDs
 
 def test_get_liked_tracks():
-	for items in sp.get_liked_tracks_generator():
+	for items in api.get_liked_tracks_generator():
 		# print(items)
 		break
 
 def test_get_one_playlist():
-	playlist = sp.get_one_playlist(PlaylistIDs.unchanged)
+	playlist = api.get_one_playlist(PlaylistIDs.unchanged)
 	# playlist.
 
 def test_add_tracks_to_playlist(playlists_handler: PlaylistsHandler):
@@ -47,7 +47,7 @@ def test_get_playlist_tracks_generator(
 	playlists_handler: PlaylistsHandler, total: int, limit: int, expected: tuple[int]):
 
 	unchanged = playlists_handler.get_by_id(PlaylistIDs.unchanged)
-	gen = sp.get_playlist_tracks_generator(unchanged.id, total,limit=limit)
+	gen = api.get_playlist_tracks_generator(unchanged.id, total,limit=limit)
 	for i, items in enumerate(gen):
 		assert len(items.items_) == expected[i]
 		if i == 3:
