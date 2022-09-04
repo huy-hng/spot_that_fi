@@ -97,8 +97,6 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	""" tests two playlists that are independently
 		of each other able to change """
 
-	snippet_size = 5
-
 	a_after = a.change()
 	b_after = b.change()
 
@@ -106,18 +104,25 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	b_myers = Myers(b.lines, b_after)
 	ab_myers = Myers(a_after, b_after)
 
-	Myers.print_groups(
-		a_myers.get_vis_diff('a_lines'),
-		b_myers.get_vis_diff('b_lines'),
-		ab_myers.get_vis_diff('ab_lines'),
-		group_size=3
-	)
+	a_myers.separate_operations()
+	b_myers.separate_operations()
+	ab_myers.separate_operations()
+
+	# Myers.print_groups(
+	# 	a_myers.get_vis_diff('a_lines'),
+	# 	b_myers.get_vis_diff('b_lines'),
+	# 	ab_myers.get_vis_diff('ab_lines'),
+	# 	group_size=3
+	# )
 
 	a_result = changer(a_after, b_myers.inserts, b_myers.removals)
 	b_result = a_result[-5:]
 	# b_result = changer(b_after, a_myers.inserts, a_myers.removals)
 	print(a.inserts, a.removals)
 	print(b.inserts, b.removals)
+
+	print(a_result, a.expected)
+	print(b_myers.removals)
 
 	assert a_result == a.expected
 	assert b_result == b.expected
@@ -155,8 +160,8 @@ def not_random_input():
 
 
 @pytest.mark.parametrize('new_lines,inserts,removals',
-	# [random_input() for _ in range(1000)])
-	[not_random_input()])
+	[random_input() for _ in range(100)])
+	# [not_random_input()])
 def test_find_earliest_keep(new_lines,inserts,removals):
 	""" testing algorithm for database update\n
 		only b_lines (playlist tracks on spotify side) can be changed\n
