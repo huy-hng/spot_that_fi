@@ -38,11 +38,14 @@ def lookahead(iterable: Iterable[T]):
 		yield last, False
 
 
-def grouper(x: list[T], /, group_size) -> list[list[T]]:
+def grouper(x: list[T], /, group_size: int) -> list[list[T]]:
 	""" 
 	Args:
-		x: the list to be grouped. Can only be passed positionally only
-		group_size: size to be grouped
+		x:
+			the list to be grouped. Can only be passed positionally only
+		group_size:
+			size to be grouped
+			if group_size == 0: return one group with all items
 	"""
 	group_size = min(group_size, len(x))
 

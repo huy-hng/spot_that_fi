@@ -112,7 +112,10 @@ class PlaylistHandler:
 
 
 	def add_tracks_at_end(self,
-		tracks: list[str | PlaylistTracksItem], add_duplicates: bool=False):
+		tracks: list[PlaylistTracksItem] | list[str],
+		group_size: int=1,
+		add_duplicates: bool=False
+	):
 		""" this should behave like adding songs normally to a playlist.
 			each song should be appended at the end of the playlist.
 
@@ -125,22 +128,22 @@ class PlaylistHandler:
 
 		track_ids = self.handle_non_ids(tracks)
 		self._update_data()
-		sp.add_tracks_to_playlist(self.id, track_ids, self.total_tracks)
+		sp.add_tracks_to_playlist(self.id, track_ids, self.total_tracks, group_size)
 
 
-	def remove_tracks(self, tracks: list[str | PlaylistTracksItem]):
+	def remove_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
 		track_ids = self.handle_non_ids(tracks)
 		sp.remove_tracks(self.id, track_ids)
 		self._update_data()
 
 
-	def replace_tracks(self, tracks: list[str | PlaylistTracksItem]):
+	def replace_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
 		track_ids = self.handle_non_ids(tracks)
 		sp.replace_playlist_tracks(self.id, track_ids)
 		self._update_data()
 
 
-	def handle_non_ids(self, tracks: list[str | PlaylistTracksItem]) -> list[str]:
+	def handle_non_ids(self, tracks: list[PlaylistTracksItem] | list[str]) -> list[str]:
 		if is_set_of(tracks, str):
 			return tracks
 		elif is_set_of(tracks, PlaylistTracksItem):
@@ -193,5 +196,5 @@ def convert_playlist_uri_to_id(id: str):
 
 T = TypeVar('T')
 
-def is_set_of(val: list[str | PlaylistTracksItem], type: Type[T]) -> TypeGuard[list[T]]:
+def is_set_of(val: list[object], type: Type[T]) -> TypeGuard[list[T]]:
     return all(isinstance(x, type) for x in val)
