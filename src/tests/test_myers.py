@@ -4,6 +4,7 @@ import pytest
 from src.helpers.helpers import lookahead
 from src.helpers.myers import Element, Myers, Operations
 
+
 def changer(lines: list[int], inserts: list[int], removals: list[int]):
 	for insert in inserts:
 		lines.append(insert)
@@ -25,68 +26,69 @@ class Params:
 	def change(self):
 		return changer(self.lines.copy(), self.inserts, self.removals)
 
+
 def parameters():
-	a_lines = [0,1,2,3,4,5,6,7,8,9]
-	b_lines = [5,6,7,8,9]
+	a_lines = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+	b_lines = [5, 6, 7, 8, 9]
 	return [
 		(
 			Params(
 				a_lines,
 				[], [],
-				[0,1,2,3,4,6,7,8,9],
+				[0, 1, 2, 3, 4, 6, 7, 8, 9],
 			),
 			Params(
 				b_lines,
 				[], [5],
-				[4,6,7,8,9]
+				[4, 6, 7, 8, 9]
 			)
 		),
 		(
 			Params(
 				a_lines,
 				[10], [],
-				[0,1,2,3,4,5,6,7,8,10]
+				[0, 1, 2, 3, 4, 5, 6, 7, 8, 10]
 			),
 			Params(
 				b_lines,
 				[], [9],
-				[5,6,7,8,10]
+				[5, 6, 7, 8, 10]
 			)
 		),
 		(
 			Params(
 				a_lines,
-				[10], [0,1],
-				[2,3,4,5,6,7,8,9,10],
+				[10], [0, 1],
+				[2, 3, 4, 5, 6, 7, 8, 9, 10],
 			),
 			Params(
 				b_lines,
 				[], [],
-				[6,7,8,9,10]
+				[6, 7, 8, 9, 10]
 			)
 		),
 		(
 			Params(
 				a_lines,
 				[], [],
-				[0,1,2,3,4,5,6,7,8,9,10],
+				[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 			),
 			Params(
 				b_lines,
 				[10], [],
-				[6,7,8,9,10]
+				[6, 7, 8, 9, 10]
 			)
 		),
 		(
 			Params(
 				a_lines,
 				[], [9],
-				[0,1,2,3,4,5,6,7,8],
+				[0, 1, 2, 3, 4, 5, 6, 7, 8],
 			),
 			Params(
 				b_lines,
 				[], [9],
-				[4,5,6,7,8]
+				[4, 5, 6, 7, 8]
 			)
 		),
 	]
@@ -127,15 +129,15 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	assert a_result == a.expected
 	assert b_result == b.expected
 
-	
+
 def random_input():
 	total = 20
 	lines = list(range(total))
 
-	num_removals = random.randint(0,int(total/2))
+	num_removals = random.randint(0, int(total / 2))
 	removals = []
 	for _ in range(num_removals):
-		delete = random.randint(0, len(lines)-1)
+		delete = random.randint(0, len(lines) - 1)
 		removals.append(lines[delete])
 		del lines[delete]
 	removals.sort()
@@ -156,13 +158,13 @@ def not_random_input():
 	# removals = lines[15:]
 	removals = [lines[5]]
 	[lines.remove(r) for r in removals]
-	return [], [], [] # important case to test
+	return [], [], []  # important case to test
 
 
 @pytest.mark.parametrize('new_lines,inserts,removals',
 	[random_input() for _ in range(100)])
 	# [not_random_input()])
-def test_find_earliest_keep(new_lines,inserts,removals):
+def test_find_earliest_keep(new_lines, inserts, removals):
 	""" testing algorithm for database update\n
 		only b_lines (playlist tracks on spotify side) can be changed\n
 		inserts can only be at the end and removals can be anywhere
@@ -173,7 +175,7 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 	old_lines = list(range(20))
 	groups = grouper(new_lines, limit)
 	expected_length = len(new_lines)
-	
+
 	diffs: list[list[str]] = []
 	saved_lines = []
 	myers = Myers(old_lines, saved_lines)
@@ -194,7 +196,7 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 				break
 			elif not has_next:
 				pass
-	
+
 	# Myers.print_groups(*diffs, group_size=4, distance=5)
 	# print(f'{estimated_total=} | {expected_length=}')
 	# print(f'{len(saved_lines)=} | {saved_lines=}')
@@ -203,9 +205,8 @@ def test_find_earliest_keep(new_lines,inserts,removals):
 	assert myers.removals == removals
 
 
-
 def grouper(new_lines, limit):
 	new_lines.reverse()
-	groups = [new_lines[n:n+limit] for n in range(0, len(new_lines), limit)]
+	groups = [new_lines[n:n + limit] for n in range(0, len(new_lines), limit)]
 	[group.reverse() for group in groups]
 	return groups
