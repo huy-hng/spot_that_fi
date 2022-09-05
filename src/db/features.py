@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta
+
 from sqlalchemy.orm import Session as sess
-
-from . import SessionMaker 
 from src.db.tables import Playlist
-# from .db_playlists
-
 from src.helpers.logger import log
 
-#region create
+from . import SessionMaker
+
+# from .db_playlists
+
+
+# region create
 def get_latest_tracks_added_to_playlists(days_old=14) -> list[str]:
 	""" returns a list with track_ids
 			that have been recently added to playlists """
@@ -16,7 +18,7 @@ def get_latest_tracks_added_to_playlists(days_old=14) -> list[str]:
 		session: sess = session
 		playlists = session.query(Playlist).all()
 
-		latest_tracks = [] # list with track_ids
+		latest_tracks = []  # list with track_ids
 		oldest_time = datetime.now() - timedelta(days=days_old)
 		for playlist in playlists:
 			tracks = playlist.playlist_track_association
@@ -25,4 +27,3 @@ def get_latest_tracks_added_to_playlists(days_old=14) -> list[str]:
 					latest_tracks.append(track.track.id)
 
 		return latest_tracks
-

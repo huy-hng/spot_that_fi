@@ -10,20 +10,21 @@ from src.types.tracks import TrackDict
 
 from src.db import Base as TableBase
 
+
 class PlaylistTracksAssociation(TableBase):
 	__tablename__ = 'playlist_tracks_association'
 
 	playlist_id: str = Column(
-		ForeignKey('playlist.id'), primary_key=True) # type: ignore
+		ForeignKey('playlist.id'), primary_key=True)  # type: ignore
 	track_id: str = Column(
-		ForeignKey('track.id'), primary_key=True) # type: ignore
+		ForeignKey('track.id'), primary_key=True)  # type: ignore
 	track: Track = relationship('Track',
 			back_populates='playlist_track_association')
 	playlist: Playlist = relationship('Playlist',
 			back_populates='playlist_track_association')
 
-	added_by: str = Column(String, nullable=False) # type: ignore
-	added_at: datetime = Column(DateTime, nullable=False) # type: ignore
+	added_by: str = Column(String, nullable=False)  # type: ignore
+	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
 
 	def __init__(self, track: PlaylistTracksItem):
 		self.added_at = datetime.strptime(track.added_at, '%Y-%m-%dT%H:%M:%SZ')
@@ -33,12 +34,12 @@ class PlaylistTracksAssociation(TableBase):
 class Playlist(TableBase):
 	__tablename__ = 'playlist'
 
-	id: str = Column(String, primary_key=True) # type: ignore
+	id: str = Column(String, primary_key=True)  # type: ignore
 	name: str = Column(String, nullable=False)  # type: ignore
-	total_tracks: int = Column(Integer, nullable=False) # type: ignore
-	public: bool = Column(Boolean, nullable=False) # type: ignore
-	snapshot_id: str = Column(String, nullable=False) # type: ignore
-	owner_id: str = Column(String, nullable=False) # type: ignore
+	total_tracks: int = Column(Integer, nullable=False)  # type: ignore
+	public: bool = Column(Boolean, nullable=False)  # type: ignore
+	snapshot_id: str = Column(String, nullable=False)  # type: ignore
+	owner_id: str = Column(String, nullable=False)  # type: ignore
 
 	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
 			'PlaylistTracksAssociation', back_populates='playlist')
@@ -58,11 +59,11 @@ class Playlist(TableBase):
 class Track(TableBase):
 	__tablename__ = 'track'
 
-	id: str = Column(String, primary_key=True) # type: ignore
-	name: str = Column(String, nullable=False) # type: ignore
-	duration_ms: int = Column(Integer, nullable=False) # type: ignore
-	popularity: int = Column(Integer, nullable=False) # type: ignore
-	liked: bool = Column(Boolean, default=False) # type: ignore
+	id: str = Column(String, primary_key=True)  # type: ignore
+	name: str = Column(String, nullable=False)  # type: ignore
+	duration_ms: int = Column(Integer, nullable=False)  # type: ignore
+	popularity: int = Column(Integer, nullable=False)  # type: ignore
+	liked: bool = Column(Boolean, default=False)  # type: ignore
 
 	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
 			'PlaylistTracksAssociation', back_populates='track')

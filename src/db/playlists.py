@@ -6,24 +6,28 @@ from .helpers import does_exist
 from .tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
 from src.db import tables, create_session
-# from . import Session 
+# from . import Session
 
 from src.helpers.logger import log
 
-#region playlist functions
+# region playlist functions
 
 # creates
+
+
 def _get_playlist(session: Session, playlist_id: str):
 	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
-	
+
 	if playlist is None:
 		raise PlaylistNotFoundError(playlist_id)
 
 	return playlist
 
+
 def _add_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
 	row = tables.Playlist(playlist)
 	session.add(row)
+
 
 def _update_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
 	""" this function updates a playlist in the db
@@ -49,12 +53,11 @@ def update_playlists(playlists: list[AllPlaylists | SinglePlaylist]):
 
 
 # reads
-def get_all_playlists() -> list[str]: 
+def get_all_playlists() -> list[str]:
 	""" returns a list with playlist ids """
 	with create_session() as session:
 		q = session.query(tables.Playlist).all()
 		return [playlist.id for playlist in q]
-
 
 
 def get_id_from_name(playlist_name: str) -> str:
@@ -83,18 +86,17 @@ def does_playlist_exist(playlist_id: str):
 		return True
 
 
-
 """ def update_playlist_snapshot(playlist_id: str, snapshot_id: str):
 	with Session.begin() as session:
 		playlist = get_playlist(session, playlist_id)
 		playlist.snapshot_id = snapshot_id """
-#endregion playlist functions
+# endregion playlist functions
 
 
-#region tracks functions
+# region tracks functions
 
 # creates
-def	add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
+def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
 	with create_session() as session:
 		playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
@@ -109,7 +111,7 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
 					log.debug(f'{row.name} is already in {playlist.name}')
 					continue
 			except Exception as e:
-				log.exception(e) # TODO find out what this error is
+				log.exception(e)  # TODO find out what this error is
 				log.error(f'Not sure what this error is.')
 				continue
 
@@ -123,6 +125,8 @@ def	add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
 			log.debug(f'Adding {row.name} to {playlist.name}')
 
 # reads
+
+
 def get_track_ids(playlist_id: str):
 	""" returns a list with track_ids sorted by added_at (time) """
 	with create_session() as session:
@@ -151,6 +155,7 @@ def is_track_in_playlist(session: Session, playlist_id: str, track_id: str):
 	q = get_PlaylistTracksAssociation(session, playlist_id, track_id)
 	return does_exist(q)
 
+
 def get_PlaylistTracksAssociation(
 		session: Session,
 		playlist_id: str,
@@ -164,10 +169,9 @@ def get_PlaylistTracksAssociation(
 # deletes
 def remove_tracks_from_playlist(playlist_id: str, items: list[str]):
 	with create_session() as session:
-		# TODO: if track has no assocation with any playlists anymore 
+		# TODO: if track has no assocation with any playlists anymore
 		# and also isnt liked, delete
 		for item in items:
 			q = get_PlaylistTracksAssociation(session, playlist_id, item)
 			q.delete()
-#endregion tracks functions
-
+# endregion tracks functions
