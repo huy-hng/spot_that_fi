@@ -3,6 +3,7 @@ from datetime import date
 
 # from src.playlists_deprecated.live_playlists import LivePlaylists
 
+
 def backup_all_playlists(playlistsCls):
 
 	backups = []
@@ -13,7 +14,8 @@ def backup_all_playlists(playlistsCls):
 			print(f'skipping {playlist.name} because too many songs')
 			continue
 
-		print(f'Backing {playlist.name} up with {playlist.tracks_in_playlist} tracks.')
+		print(
+			f'Backing {playlist.name} up with {playlist.tracks_in_playlist} tracks.')
 		tracks = playlist.get_latest_tracks(None)
 		backups.append({
 			'tracks': tracks.ids,
@@ -23,6 +25,7 @@ def backup_all_playlists(playlistsCls):
 		})
 
 	create_backup_file(str(date.today()), backups)
+
 
 def create_backup_file(name: str, data):
 	with open(f'../../backup/{name}.json', 'w') as f:

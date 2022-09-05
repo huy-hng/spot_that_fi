@@ -2,7 +2,7 @@ import json
 from typing import Iterable, TypeVar, NamedTuple
 
 
-def allow_generic_namedtuples(x=True):
+def allow_generic_namedtuples():
 	def _namedtuple_mro_entries(bases):
 		from typing import _GenericAlias, _NamedTuple
 		assert bases[0] is NamedTuple
@@ -10,11 +10,13 @@ def allow_generic_namedtuples(x=True):
 		if len(bases) > 1:
 			generic_only = all([isinstance(base, _GenericAlias) for base in bases[1:]])
 			if not generic_only:
-				raise TypeError("Multiple inheritance with NamedTuple is not supported")
+				raise TypeError(
+					"Multiple inheritance with NamedTuple is not supported")
 
 		return (_NamedTuple,)
 
 	NamedTuple.__mro_entries__ = _namedtuple_mro_entries
+
 
 allow_generic_namedtuples()
 
@@ -23,14 +25,14 @@ def write_dict_to_file(name: str, data):
 	with open(f'./data/{name}.json', 'w') as f:
 		f.write(json.dumps(data, indent=2))
 
+
 def read_dict_from_file(name: str):
 	with open(f'./data/{name}.json') as f:
 		return json.load(f)
 
 
-
 def create_data_class(data: dict):
-	for k,v in data.items():
+	for k, v in data.items():
 		print(f'{k}: {type(v).__name__}')
 		type_ = type(v).__name__
 		if type_ == 'list':
@@ -42,6 +44,8 @@ def create_data_class(data: dict):
 
 
 T = TypeVar('T')
+
+
 def lookahead(iterable: Iterable[T]):
 	it = iter(iterable)
 	try:
@@ -70,7 +74,7 @@ def grouper(x: list[T], /, group_size: int) -> list[list[T]]:
 	if group_size == 0:
 		group_size = len(x)
 
-	return [x[n:n+group_size] for n in range(0, len(x), group_size)]
+	return [x[n:n + group_size] for n in range(0, len(x), group_size)]
 
 
 def print_dict(d: dict, print_fn=print):
@@ -78,14 +82,15 @@ def print_dict(d: dict, print_fn=print):
 		print_fn(f'{k}: {v}')
 	print_fn()
 
+
 def print_list(l: list, print_fn=print):
 	for v in l:
 		print_fn(v)
 	print_fn()
+
 
 if __name__ == '__main__':
 	with open('../data/playlists.json') as f:
 		playlists = f.read()
 	playlists = json.loads(playlists)
 	create_data_class(playlists)
-	

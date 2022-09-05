@@ -49,7 +49,6 @@ def get_tracks_in_db_playlist():
 	for name in names:
 		print(name)
 
-	
 
 def check_track_in_playlist():
 	playlist_id = '0oWDXsY9BhT9NKimKwNY9d'
@@ -76,7 +75,7 @@ def add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 
 
 def add_tracks_to_all_playlists():
-	playlist_ids = db.playlists.get_all_playlists()	
+	playlist_ids = db.playlists.get_all_playlists()
 
 	for playlist_id in playlist_ids:
 		with open(f'./data/playlists/{playlist_id}.json') as f:

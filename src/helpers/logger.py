@@ -17,17 +17,19 @@ formatter = logging.Formatter(
 
 console_formatter = logging.Formatter('%(message)3s')
 
+
 def file_handler(folder, log_level):
 	if not os.path.isdir(f'{folder_path}/{folder}'):
 		os.mkdir(f'{folder_path}/{folder}')
 
 	handler = logging.FileHandler(
-							f'{folder_path}/{folder}/' 
-							+ datetime.datetime.now().strftime("%Y-%m-%d") 
-							+ '.log')
+			f'{folder_path}/{folder}/'
+			+ datetime.datetime.now().strftime("%Y-%m-%d")
+			+ '.log')
 	handler.setLevel(log_level)
 	handler.setFormatter(formatter)
 	log.addHandler(handler)
+
 
 file_handler('debug', logging.DEBUG)
 file_handler('info', logging.INFO)
