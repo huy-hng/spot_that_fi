@@ -1,8 +1,9 @@
 import random
 from dataclasses import dataclass
+
 import pytest
 from src.helpers.helpers import lookahead
-from src.helpers.myers import Element, Myers, Operations
+from src.helpers.myers import Myers
 
 
 def changer(lines: list[int], inserts: list[int], removals: list[int]):

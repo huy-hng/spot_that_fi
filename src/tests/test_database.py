@@ -1,14 +1,11 @@
 import json
 
 import pytest
-
-from src import db
-from src.db import create_session
-
-from src import api
+from src import api, db
 from src.api import PlaylistHandler, PlaylistsHandler
-from src.tests import PlaylistIDs
 from src.controller import playlist_change_detection as pcd
+from src.db import create_session
+from src.tests import PlaylistIDs
 from src.types.playlists import AllPlaylists
 
 
