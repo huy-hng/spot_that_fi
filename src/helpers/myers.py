@@ -1,59 +1,23 @@
-# This is free and unencumbered software released into the public domain.
-# 
-# Anyone is free to copy, modify, publish, use, compile, sell, or
-# distribute this software, either in source code form or as a compiled
-# binary, for any purpose, commercial or non-commercial, and by any
-# means.
-# 
-# In jurisdictions that recognize copyright laws, the author or authors
-# of this software dedicate any and all copyright interest in the
-# software to the public domain. We make this dedication for the benefit
-# of the public at large and to the detriment of our heirs and
-# successors. We intend this dedication to be an overt act of
-# relinquishment in perpetuity of all present and future rights to this
-# software under copyright law.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-# OTHER DEALINGS IN THE SOFTWARE.
-# 
-# For more information, please refer to <http://unlicense.org/> 
-
 from enum import Enum
 from itertools import zip_longest
 from typing import Generic, NamedTuple, TypeVar
-from helpers import allow_generic_namedtuples
 
-# These define the structure of the history, and correspond to diff output with
-# lines that start with a space, a + and a - respectively.
+from src.helpers.helpers import allow_generic_namedtuples
 
+
+allow_generic_namedtuples()
 T = TypeVar('T')
+
 
 class Operations(Enum):
 	Keep = ' '
 	Insert = '+'
 	Remove = '-'
 
+
 class Element(NamedTuple, Generic[T]):
 	line: T
 	operation: Operations
-
-
-# See frontier in myers_diff
-class Frontier(NamedTuple):
-	x: int
-	history: list[Element]
-
-def one(idx):
-	"""
-	The algorithm Myers presents is 1-indexed; since Python isn't, we
-	need a conversion.
-	"""
-	return idx - 1
 
 
 class Myers(Generic[T]):
@@ -152,6 +116,45 @@ class Myers(Generic[T]):
 				print_fn('\n' * line_breaks)
 	
 
+# This is free and unencumbered software released into the public domain.
+# 
+# Anyone is free to copy, modify, publish, use, compile, sell, or
+# distribute this software, either in source code form or as a compiled
+# binary, for any purpose, commercial or non-commercial, and by any
+# means.
+# 
+# In jurisdictions that recognize copyright laws, the author or authors
+# of this software dedicate any and all copyright interest in the
+# software to the public domain. We make this dedication for the benefit
+# of the public at large and to the detriment of our heirs and
+# successors. We intend this dedication to be an overt act of
+# relinquishment in perpetuity of all present and future rights to this
+# software under copyright law.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+# 
+# For more information, please refer to <http://unlicense.org/> 
+
+# See frontier in myers_diff
+class Frontier(NamedTuple):
+	x: int
+	history: list[Element]
+
+
+def one(idx):
+	"""
+	The algorithm Myers presents is 1-indexed; since Python isn't, we
+	need a conversion.
+	"""
+	return idx - 1
+
+
 def myers_algorithm(a_lines: list[T], b_lines: list[T]) -> list[Element[T]]:
 	"""
 	An implementation of the Myers diff algorithm.
@@ -161,8 +164,6 @@ def myers_algorithm(a_lines: list[T], b_lines: list[T]) -> list[Element[T]]:
 	# This marks the farthest-right point along each diagonal in the edit
 	# graph, along with the history that got it there
 	frontier = {1: Frontier(0, [])}
-
-
 
 	a_max = len(a_lines)
 	b_max = len(b_lines)
@@ -223,7 +224,6 @@ def myers_algorithm(a_lines: list[T], b_lines: list[T]) -> list[Element[T]]:
 				frontier[k] = Frontier(x, history)
 
 	assert False, 'Could not find edit script'
-
 	
 
 def main():

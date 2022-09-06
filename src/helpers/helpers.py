@@ -18,9 +18,6 @@ def allow_generic_namedtuples():
 	NamedTuple.__mro_entries__ = _namedtuple_mro_entries
 
 
-allow_generic_namedtuples()
-
-
 def write_dict_to_file(name: str, data):
 	with open(f'./data/{name}.json', 'w') as f:
 		f.write(json.dumps(data, indent=2))
