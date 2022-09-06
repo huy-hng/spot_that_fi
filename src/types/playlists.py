@@ -49,13 +49,12 @@ class SinglePlaylistTracks:
 	total: int
 
 	def __init__(self, playlist: dict) -> None:
-		# items = [PlaylistTracksItem(item) for item in playlist['items']]
 		init(self, playlist)
 
 
 # TODO: merge with allplaylists and singleplaylist since theyre too similar
 @dataclass(slots=True, frozen=True)
-class AbstractPlaylistType:
+class PlaylistType:
 	collaborative: bool
 	description: str
 	external_urls: dict
@@ -77,7 +76,7 @@ class AbstractPlaylistType:
 
 
 @dataclass(slots=True, frozen=True)
-class AllPlaylists(AbstractPlaylistType):
+class AllPlaylists(PlaylistType):
 	""" sp.current_user_playlists """
 	tracks: AllPlaylistsTracks
 	
@@ -86,7 +85,7 @@ class AllPlaylists(AbstractPlaylistType):
 	
 
 @dataclass(slots=True, frozen=True)
-class SinglePlaylist(AbstractPlaylistType):
+class SinglePlaylist(PlaylistType):
 	""" api_handler.get_one_playlist """
 	tracks: SinglePlaylistTracks
 
@@ -98,7 +97,7 @@ class SinglePlaylist(AbstractPlaylistType):
 class _CurrentUserPlaylists:
 	""" for reference when calling sp.current_user_playlists """
 	href: str
-	items: list[AbstractPlaylistType]
+	items: list[PlaylistType]
 	limit: int
 	next: str | None
 	offset: int

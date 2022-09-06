@@ -2,13 +2,13 @@ from os import read
 from src import api
 from src.helpers.logger import log
 from src.helpers.helpers import write_dict_to_file, read_dict_from_file
-from src.types.playlists import AbstractPlaylistType
+from src.types.playlists import PlaylistType
 
 
 def test_get_playlists():
 	# playlists = sp.get_all_playlists()
 	playlists = read_dict_from_file('playlists')
-	playlists = [AbstractPlaylistType(playlist) for playlist in playlists]
+	playlists = [PlaylistType(playlist) for playlist in playlists]
 
 	for playlist in playlists:
 		if playlist.owner.id == 'slaybesh':

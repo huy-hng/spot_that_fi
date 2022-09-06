@@ -2,7 +2,7 @@ from src import db
 from src import api
 from src.helpers.logger import log
 from src.controller import playlist_change_detection as pcd
-from src.types.playlists import AllPlaylists, SinglePlaylist, AbstractPlaylistType
+from src.types.playlists import AllPlaylists, SinglePlaylist
 
 
 

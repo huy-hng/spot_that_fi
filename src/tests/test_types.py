@@ -35,5 +35,5 @@ def test_parse_all_playlists():
 def test_parse_one_playlist():
 	data = get_file('api_data/get_one_playlist.json')
 	parsed = playlists.SinglePlaylist(data)
-	# print(parsed.tracks.total)
-	# print(parsed.tracks.items[0])
+	print(parsed.tracks.total)
+	print(parsed.tracks.items[0].track.name)
