@@ -50,6 +50,6 @@ def recursively_set_fields(self, kwargs):
 		value = kwargs.get(f.name)
 		if value is None:
 			continue
-
+		
 		value = parse_values([f.type], value)
 		object.__setattr__(self, f.name, value)

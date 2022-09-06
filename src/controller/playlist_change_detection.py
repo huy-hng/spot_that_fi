@@ -8,7 +8,7 @@ from src.helpers.logger import log
 from src import db
 
 
-def has_playlist_changed(playlist: PlaylistType | PlaylistType):
+def has_playlist_changed(playlist: PlaylistType):
 	""" check if current snapshot_id and db snapshot_id are different """
 	current_snapshot = playlist.snapshot_id
 	previous_snapshot = db.playlists.get_playlist_snapshot_id(playlist.id)

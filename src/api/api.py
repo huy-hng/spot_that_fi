@@ -3,7 +3,8 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-from src import types
+from src.types.playlists import PlaylistType
+from src.types.tracks import LikedTrackList
 from src.helpers.exceptions import PlaylistNotFoundError
 
 from dotenv import load_dotenv
@@ -42,7 +43,7 @@ def get_liked_tracks_generator(limit=50):
 	while True:
 		items = spotify.current_user_saved_tracks(limit, offset)
 		if items is None: continue
-		items = types.tracks.LikedTracksListDict(items)
+		items = LikedTrackList(items)
 		# write_dict_to_file('liked_tracks', items)
 		offset += limit
 
@@ -57,7 +58,7 @@ def get_one_playlist(playlist_id: str):
 	res = spotify.playlist(playlist_id)
 	if res is None:
 		raise PlaylistNotFoundError(f'Cannot find playlist with ID {playlist_id}')
-	return types.playlists.PlaylistType(res)
+	return PlaylistType(res)
 
 
 def get_all_playlists():
@@ -84,7 +85,7 @@ def get_all_playlists():
 
 
 	parsed_playlists = [
-		types.playlists.PlaylistType(playlist)
+		PlaylistType(playlist)
 		for playlist in all_playlists
 	]
 

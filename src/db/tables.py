@@ -44,11 +44,11 @@ class Playlist(TableBase):
 	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
 			'PlaylistTracksAssociation', back_populates='playlist')
 
-	def __init__(self, playlist: PlaylistType | PlaylistType) -> None:
+	def __init__(self, playlist: PlaylistType) -> None:
 		self.id = playlist.id
 		self.update(playlist)
 
-	def update(self, playlist: PlaylistType | PlaylistType) -> None:
+	def update(self, playlist: PlaylistType) -> None:
 		self.name = playlist.name
 		self.total_tracks = playlist.tracks.total
 		self.public = playlist.public

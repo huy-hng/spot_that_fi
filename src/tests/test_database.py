@@ -1,3 +1,4 @@
+import dataclasses
 import json
 
 import pytest
@@ -23,8 +24,9 @@ def test_get_track_diff(playlists_handler: PlaylistsHandler):
 def test_playlist_update(main: PlaylistHandler):
 	with create_session() as session:
 		# setup (change snapshot id)
-		cp = PlaylistType(main.playlist_data.copy())
-		cp.snapshot_id = 'asdfsdf'
+		cp = dataclasses.asdict(main.playlist_data)
+		cp['snapshot_id'] = 'asdfasdf'
+		cp = PlaylistType(cp)
 		db.playlists._update_playlist(session, cp)
 
 		# actual test

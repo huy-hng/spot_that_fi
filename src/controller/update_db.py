@@ -18,7 +18,7 @@ def update_db_liked_tracks():
 	# 	db.tracks.add_tracks(tracks, liked=True)
 
 
-def update_playlist_tracks_in_db(playlist: PlaylistType | PlaylistType, diff: pcd.Diff | None=None):
+def update_playlist_tracks_in_db(playlist: PlaylistType, diff: pcd.Diff | None=None):
 	""" playlist should be very up to date """
 	# TEST: check if this function works for an empty playlist that has just been added
 

@@ -5,6 +5,16 @@ from src.types.tracks import TrackDict
 
 
 @dataclass(slots=True, frozen=True)
+class PlaylistOwner:
+	id: str = field(repr=False)
+	display_name: str = field(repr=False)
+	external_urls: str = field(repr=False)
+	href: str = field(repr=False)
+	type: str = field(repr=False)
+	uri: str = field(repr=False)
+
+
+@dataclass(slots=True, frozen=True)
 class PlaylistTrackItem:
 	"""
 		api_handler.get_one_playlist.tracks.items_[0] \n
@@ -19,14 +29,6 @@ class PlaylistTrackItem:
 
 	def __init__(self, d: dict) -> None:
 		init(self, d)
-
-class PlaylistOwner:
-	id: str = field(repr=False)
-	display_name: str = field(repr=False)
-	external_urls: str = field(repr=False)
-	href: str = field(repr=False)
-	type: str = field(repr=False)
-	uri: str = field(repr=False)
 
 
 @dataclass(slots=True, frozen=True)
@@ -65,24 +67,6 @@ class PlaylistType:
 	followers: dict | None = field(default=None)  # belongs to SinglePlaylist
 
 	def __init__(self, playlist: dict):
-		init(self, playlist)
-
-
-@dataclass(slots=True, frozen=True)
-class AllPlaylists(PlaylistType):
-	""" sp.current_user_playlists """
-	tracks: AllPlaylistsTracks
-
-	def __init__(self, playlist: dict) -> None:
-		init(self, playlist)
-
-
-@dataclass(slots=True, frozen=True)
-class SinglePlaylist(PlaylistType):
-	""" api_handler.get_one_playlist """
-	tracks: SinglePlaylistTracks
-
-	def __init__(self, playlist: dict) -> None:
 		init(self, playlist)
 
 

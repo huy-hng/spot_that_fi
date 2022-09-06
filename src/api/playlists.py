@@ -75,7 +75,7 @@ class PlaylistHandler:
 	This class doesn't save state, it just performs actions
 	on the playlists on spotify.
 	"""
-	def __init__(self, playlist: PlaylistType | PlaylistType):
+	def __init__(self, playlist: PlaylistType):
 		self.playlist_data = playlist
 		self.id = playlist.id
 		self.name = playlist.name

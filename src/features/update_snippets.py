@@ -8,8 +8,8 @@ SNIPPET_SIZE = 50
 
 # TODO: possibility to put in playlist_id instead of instace of a playlist class
 def sync_playlist_pair(
-	main: PlaylistType | PlaylistType,
-	snippet: PlaylistType | PlaylistType,
+	main: PlaylistType,
+	snippet: PlaylistType,
 	*, snippet_size=SNIPPET_SIZE):
 	"""
 	compare main and snippet playlists and see what has changed and

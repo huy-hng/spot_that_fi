@@ -24,19 +24,19 @@ def _get_playlist(session: Session, playlist_id: str):
 	return playlist
 
 
-def _add_playlist(session: Session, playlist: PlaylistType | PlaylistType):
+def _add_playlist(session: Session, playlist: PlaylistType):
 	row = tables.Playlist(playlist)
 	session.add(row)
 
 
-def _update_playlist(session: Session, playlist: PlaylistType | PlaylistType):
+def _update_playlist(session: Session, playlist: PlaylistType):
 	""" this function updates a playlist in the db
 		it updates the playlist length, snapshot, etc """
 	db_playlist = _get_playlist(session, playlist.id)
 	db_playlist.update(playlist)
 
 
-def update_playlists(playlists: list[PlaylistType | PlaylistType]):
+def update_playlists(playlists: list[PlaylistType]):
 	""" adds or updates spotify playlist in db """
 	with create_session() as session:
 		for playlist in playlists:
