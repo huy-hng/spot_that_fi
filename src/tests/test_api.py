@@ -54,8 +54,8 @@ def test_get_playlist_tracks_generator(
 	playlists_handler: PlaylistsHandler, total: int, limit: int, expected: tuple[int]):
 
 	unchanged = playlists_handler.get_by_id(PlaylistIDs.unchanged)
-	gen = api.get_playlist_tracks_generator(unchanged.id, total, limit=limit)
+	gen = unchanged.get_track_generator(total_tracks=total, limit=limit)
 	for i, items in enumerate(gen):
-		assert len(items.items_) == expected[i]
+		assert len(items) == expected[i]
 		if i == 3:
 			break

@@ -1,6 +1,9 @@
-from src.types import DotDict
+from dataclasses import InitVar, dataclass, field
+from src.types import init
 
-class TrackDict(DotDict):
+		
+@dataclass(slots=True, frozen=True)
+class TrackDict:
 	""" previously called LikedTracksItemTrack """
 	album: dict
 	artists: list
@@ -22,37 +25,40 @@ class TrackDict(DotDict):
 	type: str
 	uri: str
 
+	episode: bool | None = field(default=None) # playlistTrack has this field
+	track: bool | None = field(default=None)  # playlistTrack has this field
 
-class PlaylistTrackDict(TrackDict):
-	episode: bool
-	track: bool
-
-
-class LikedItemDict(DotDict):
+		
+@dataclass(slots=True, frozen=True)
+class LikedTrackItem:
 
 	added_at: str # TODO could be datetime
 	track: TrackDict
+	raw_track: TrackDict | None = field(default=None)
 
-	def __init__(self, item: dict):
-		super().__init__(item)
-		self.track = TrackDict(self.track)
-	
+	def __init__(self, item: dict) -> None:
+		init(self, item)
 
-class LikedTracksListDict(DotDict):
+
+@dataclass(slots=True, frozen=True)
+class LikedTrackList:
 	href: str
-	items_: list[LikedItemDict] # actually called items but renamed for dot notation access
+	items: list[LikedTrackItem]
 	limit: int
 	next: str | None
 	offset: int
 	previous: str | None
 	total: int
 
-	def __init__(self, item: dict):
-		super().__init__(item)
-		# self.tracks = [LikedTracksItem(track) for track in self.get('items')]
-		# TODO check if this works
-		self.items_ = [LikedItemDict(track) for track in item['items']]
+	def __init__(self, d: dict) -> None:
+		init(self, d)
+
+	# def __init__(self, item: dict):
+	# 	super().__init__(item)
+	# 	# self.tracks = [LikedTracksItem(track) for track in self.get('items')]
+	# 	# TODO check if this works
+	# 	self.items_ = [LikedItemDict(track) for track in item['items']]
 
 	@property
 	def tracks(self):
-		return [item.track for item in self.items_]
+		return [item.track for item in self.items]

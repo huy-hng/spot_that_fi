@@ -1,20 +1,61 @@
-from __future__ import annotations
-from src.types import DotDict
-from src.types.tracks import PlaylistTrackDict
+# from __future__ import annotations
+from dataclasses import InitVar, dataclass, field
+from src.types import init
+from src.types.tracks import TrackDict
 
-class _CurrentUserPlaylists(DotDict):
-	""" for reference when calling sp.current_user_playlists """
+
+@dataclass(slots=True, frozen=True)
+class PlaylistOwner:
+	id: str
+	display_name: str
+	external_urls: str
 	href: str
-	items: list[AbstractPlaylistType]
-	limit: int
-	next: str | None
-	offset: int
-	previous: str | None
+	type: str
+	uri: str
+
+
+@dataclass(slots=True, frozen=True)
+class AllPlaylistsTracks:
+	href: str
 	total: int
 
 
-# TODO: turn this into an ABC or protocol
-class AbstractPlaylistType(DotDict):
+@dataclass(slots=True, frozen=True)
+class PlaylistTrackItem:
+	"""
+		api_handler.get_one_playlist.tracks.items_[0] \n
+		when getting a single playlist: playlist.tracks.items[0]
+	"""
+	added_at: str
+	added_by: dict
+	is_local: bool
+	primary_color: None
+	track: TrackDict
+	video_thumbnail: dict
+
+	def __init__(self, d: dict) -> None:
+		init(self, d)
+
+
+@dataclass(slots=True, frozen=True)
+class SinglePlaylistTracks:
+	""" api_handler.get_one_playlist.tracks """	
+	href: str
+	items: list[PlaylistTrackItem]
+	limit: int
+	next: str
+	offset: int
+	previous: str
+	total: int
+
+	def __init__(self, playlist: dict) -> None:
+		# items = [PlaylistTracksItem(item) for item in playlist['items']]
+		init(self, playlist)
+
+
+# TODO: merge with allplaylists and singleplaylist since theyre too similar
+@dataclass(slots=True, frozen=True)
+class AbstractPlaylistType:
 	collaborative: bool
 	description: str
 	external_urls: dict
@@ -29,72 +70,37 @@ class AbstractPlaylistType(DotDict):
 	tracks: AllPlaylistsTracks | SinglePlaylistTracks
 	type: str
 	uri: str
+	followers: dict | None = field(default=None)  # belongs to SinglePlaylist
 
 	def __init__(self, playlist: dict):
-		super().__init__(playlist)
-		self.owner = PlaylistOwner(self.owner)
+		init(self, playlist)
 
 
+@dataclass(slots=True, frozen=True)
 class AllPlaylists(AbstractPlaylistType):
 	""" sp.current_user_playlists """
 	tracks: AllPlaylistsTracks
-	def __init__(self, playlist: dict):
-		super().__init__(playlist)
-		self.tracks = AllPlaylistsTracks(self.tracks)
+	
+	def __init__(self, playlist: dict) -> None:
+		init(self, playlist)
 	
 
-class AllPlaylistsTracks(DotDict):
-	href: str
-	total: int
-
-
+@dataclass(slots=True, frozen=True)
 class SinglePlaylist(AbstractPlaylistType):
 	""" api_handler.get_one_playlist """
-	followers: dict
 	tracks: SinglePlaylistTracks
-	def __init__(self, playlist: dict):
-		super().__init__(playlist)
-		self.tracks = SinglePlaylistTracks(self.tracks)
+
+	def __init__(self, playlist: dict) -> None:
+		init(self, playlist)
 
 
-class SinglePlaylistTracks(DotDict):
-	""" api_handler.get_one_playlist.tracks """	
+@dataclass(slots=True, frozen=True)
+class _CurrentUserPlaylists:
+	""" for reference when calling sp.current_user_playlists """
 	href: str
-	items_: list[PlaylistTracksItem]
+	items: list[AbstractPlaylistType]
 	limit: int
-	next: str
+	next: str | None
 	offset: int
-	previous: str
+	previous: str | None
 	total: int
-
-	def __init__(self, playlist: dict):
-		super().__init__(playlist)
-		self.items_ = [PlaylistTracksItem(item) for item in playlist['items']]
-
-
-class PlaylistTracksItem(DotDict):
-	"""
-		api_handler.get_one_playlist.tracks.items_[0] \n
-		when getting a single playlist: playlist.tracks.items[0]
-	"""
-	added_at: str
-	added_by: dict
-	is_local: bool
-	primary_color: None
-	track: PlaylistTrackDict
-	video_thumbnail: dict
-
-	def __init__(self, item: dict):
-		super().__init__(item)
-		self.track = PlaylistTrackDict(self.track)
-
-
-# region Sub Dicts
-class PlaylistOwner(DotDict):
-	id: str
-	display_name: str
-	external_urls: str
-	href: str
-	type: str
-	uri: str
-# endregion

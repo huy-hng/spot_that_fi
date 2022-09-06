@@ -1,12 +1,12 @@
 import time
 from typing import NamedTuple, Type, TypeGuard, TypeVar
-from helpers.helpers import grouper
 
 from src import api
 from src.api import spotify
-from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, SinglePlaylistTracks
+from src.types.playlists import AllPlaylists, PlaylistTrackItem, SinglePlaylist, SinglePlaylistTracks
 from src.settings.user_data import get_playlist_user_data
 
+from src.helpers.helpers import grouper
 from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.logger import log
 
@@ -140,13 +140,13 @@ class PlaylistHandler:
 				limit += offset
 				offset = 0
 
-			yield parsed.items_
+			yield parsed.items
 
 			if not parsed.previous:
 				break
 
 
-	def get_latest_tracks(self, num_tracks: int=0) -> list[PlaylistTracksItem]:
+	def get_latest_tracks(self, num_tracks: int=0) -> list[PlaylistTrackItem]:
 		""" returns the latest n songs in playlist in added order.
 		That means the latest added song is at the end of the list\n
 		if num_songs == 0: return all songs in playlist """
@@ -157,7 +157,7 @@ class PlaylistHandler:
 			self._update_data()
 			num_tracks = self.total_tracks
 
-		saved: list[PlaylistTracksItem]  = []
+		saved: list[PlaylistTrackItem]  = []
 		for tracks in self.get_track_generator(limit=LIMIT):
 			if len(saved) + len(tracks) > num_tracks:
 				rest = num_tracks % LIMIT
@@ -169,7 +169,7 @@ class PlaylistHandler:
 
 
 	def add_tracks_at_end(self,
-		tracks: list[PlaylistTracksItem] | list[str],
+		tracks: list[PlaylistTrackItem] | list[str],
 		position: int=-1,
 		group_size: int=1,
 		add_duplicates: bool=False
@@ -219,13 +219,13 @@ class PlaylistHandler:
 		self._update_data()
 
 
-	def remove_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
+	def remove_tracks(self, tracks: list[PlaylistTrackItem] | list[str]):
 		track_ids = handle_non_ids(tracks)
 		spotify.playlist_remove_all_occurrences_of_items(self.id, track_ids)
 		self._update_data()
 
 
-	def replace_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
+	def replace_tracks(self, tracks: list[PlaylistTrackItem] | list[str]):
 		""" Replaces all tracks in playlist.
 
 			Adding multiple tracks that aren't already in the playlist
@@ -239,13 +239,13 @@ class PlaylistHandler:
 		self._update_data()
 
 
-def get_ids(tracks: list[PlaylistTracksItem]) -> list[str]:
+def get_ids(tracks: list[PlaylistTrackItem]) -> list[str]:
 	if not tracks: return []
 
 	return [item.track.id for item in tracks]
 
 
-def get_names(tracks: list[PlaylistTracksItem]) -> list[str]:
+def get_names(tracks: list[PlaylistTrackItem]) -> list[str]:
 	if len(tracks) == 0:
 		return []
 
@@ -280,14 +280,14 @@ def convert_playlist_uri_to_id(id: str):
 
 T = TypeVar('T')
 
-def handle_non_ids(tracks: list[PlaylistTracksItem] | list[str]) -> list[str]:
+def handle_non_ids(tracks: list[PlaylistTrackItem] | list[str]) -> list[str]:
 	if is_set_of(tracks, str):
 		return tracks
-	elif is_set_of(tracks, PlaylistTracksItem):
+	elif is_set_of(tracks, PlaylistTrackItem):
 		return get_ids(tracks)
 
 	assert False
 
 
-def is_set_of(val: list[PlaylistTracksItem] | list[str], type_: Type[T]) -> TypeGuard[list[T]]:
+def is_set_of(val: list[PlaylistTrackItem] | list[str], type_: Type[T]) -> TypeGuard[list[T]]:
     return all(isinstance(x, type_) for x in val)

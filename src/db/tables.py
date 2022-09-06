@@ -4,8 +4,8 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.orm import relationship
-from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
-from src.types.tracks import TrackDict
+from src.types.playlists import AllPlaylists, PlaylistTrackItem, SinglePlaylist
+from src.types.playlists import TrackDict
 
 
 from src.db import Base as TableBase
@@ -26,7 +26,7 @@ class PlaylistTracksAssociation(TableBase):
 	added_by: str = Column(String, nullable=False)  # type: ignore
 	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
 
-	def __init__(self, track: PlaylistTracksItem):
+	def __init__(self, track: PlaylistTrackItem):
 		self.added_at = datetime.strptime(track.added_at, '%Y-%m-%dT%H:%M:%SZ')
 		self.added_by = track.added_by['id']
 

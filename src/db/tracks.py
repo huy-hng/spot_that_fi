@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from src.types.tracks import TrackDict
+from src.types.playlists import TrackDict
 from .tables import Track
 from . import SessionMaker
 from src.helpers.logger import log

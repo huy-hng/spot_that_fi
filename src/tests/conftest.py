@@ -1,6 +1,6 @@
 import pytest
 
-from src.api.playlists import PlaylistsHandler
+# from src.api.playlists import PlaylistsHandler
 from src.tests import PlaylistIDs
 
 # 55 tracks from calm
@@ -8,15 +8,15 @@ track_ids_55 = ['13KLstO6ywva9h94FOqpeW', '2xeW5CIB5XHkaDLYEFOSjs', '5PF2WtSZV4E
 	'4jPr49jXRJHftXlwTEA2w4', '7kTlyuaUciX2wQx7ogrd9w', '3j57f5yEpiLZYgkcA1GKjc', '7B76OJ0ExVlSkDh1xelvRl', '2aLH4EiEoZLpbeEQvTBbtH', '1USo158Kncaxfyq9q306dn', '0DXZHcAQAkXx8YlMIdzqgG', '7ycZN2o5PMNuTkUg2Q73wN', '0dNN5wjTkbJnQkOnzh9WUH', '6xS02EfbvnneFWCM90PJFG', '69jstgacdd40OwG9cLl45r', '3wdkrgUEyjhUSNSMV7cWgP', '2hmn4VOZepYRxdw7vKyagU', '6OZ3FzEORUBi1lvU4EfypC', '4jTnSGGfLpQTiORJxYxy65', '0HCFZGK3c1TQorbyPHcj1l', '74ZQkrS93fcV6fcRYxqjjK', '41RrVUJeCOVsBmjUM2sdQs', '0JL7DoEqAUcOntWmBuOSdh', '3TtxaSTGwLOyWNA73lPioY', '3p9zEhikB0h8QF3YbfNUcM', '1eBaPBwmO4HOqc7Kk9D9qg', '4u45ry45w5m8fHbKX9ZCzw', '24qTFQSTSe3cac6LAgBuC4', '410rGaFDJPwjsr9m9RPCkz', '6PcDDuSAPG1AE1wefg6Y7D', '7fWmftb04n0GsxEjezNhXt', '4NpJL7yrDXaL5OGhvcPSi3']
 
 
-@pytest.fixture(scope='session')
-def playlists_handler():
-	playlists = PlaylistsHandler()
-	return playlists
+# @pytest.fixture(scope='session')
+# def playlists_handler():
+# 	playlists = PlaylistsHandler()
+# 	return playlists
 
 
-@pytest.fixture(scope='session')
-def main(playlists_handler: PlaylistsHandler):
-	return playlists_handler.get_by_id(PlaylistIDs.main)
+# @pytest.fixture(scope='session')
+# def main(playlists_handler: PlaylistsHandler):
+# 	return playlists_handler.get_by_id(PlaylistIDs.main)
 
 # def replace_tracks(playlist_name: str, track_ids: list[str]):
 # 	playlists = LivePlaylists()

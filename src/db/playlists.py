@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session as Session
-from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
+from src.types.playlists import AllPlaylists, PlaylistTrackItem, SinglePlaylist
 
 from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
@@ -96,7 +96,7 @@ def does_playlist_exist(playlist_id: str):
 # region tracks functions
 
 # creates
-def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTracksItem]):
+def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem]):
 	with create_session() as session:
 		playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 

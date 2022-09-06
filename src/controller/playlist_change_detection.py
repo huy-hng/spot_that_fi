@@ -1,7 +1,7 @@
 from typing import NamedTuple
 from src.helpers.helpers import lookahead
 from src.helpers.myers import Myers
-from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
+from src.types.playlists import AllPlaylists, PlaylistTrackItem, SinglePlaylist
 from src.api.playlists import PlaylistHandler
 
 from src.helpers.logger import log
@@ -22,7 +22,7 @@ def get_changed_playlists(playlists: list[AllPlaylists]):
 
 
 class Diff(NamedTuple):
-	inserts: list[PlaylistTracksItem] = []
+	inserts: list[PlaylistTrackItem] = []
 	removals: list[str] = []
 
 def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
@@ -33,7 +33,7 @@ def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
 	"""
 
 	db_track_list = db.playlists.get_track_ids(playlist.id)
-	saved_items: list[PlaylistTracksItem] = []
+	saved_items: list[PlaylistTrackItem] = []
 
 	myers = Myers(db_track_list)
 	gen = playlist.get_track_generator()

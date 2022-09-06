@@ -1,5 +1,5 @@
 from enum import Enum
-from src.types.tracks import TrackDict
+from src.types.playlists import TrackDict
 
 class DurationScale(Enum):
 	SECONDS = 'seconds'
