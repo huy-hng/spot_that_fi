@@ -1,7 +1,7 @@
 import pytest
 
 from src import api
-from src.api import PlaylistsHandler, PlaylistHandler
+from src.api.playlists import PlaylistsHandler, get_ids
 from src.tests import PlaylistIDs
 
 
@@ -32,8 +32,8 @@ def test_add_tracks_to_playlist(playlists_handler: PlaylistsHandler, group_size:
 	tracks_to_add = unchanged.get_latest_tracks(num)
 	main.add_tracks_at_end(tracks_to_add, group_size)
 
-	expected = PlaylistHandler.get_ids(tracks_to_add)
-	result = PlaylistHandler.get_ids(main.get_latest_tracks(num))
+	expected = get_ids(tracks_to_add)
+	result = get_ids(main.get_latest_tracks(num))
 	assert result == expected
 
 

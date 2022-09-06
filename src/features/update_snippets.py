@@ -1,4 +1,4 @@
-from src import api
+from src.api.playlists import PlaylistHandler, PlaylistsHandler
 from src.controller import playlist_change_detection as pcd
 from src.types.playlists import AllPlaylists, SinglePlaylist
 
@@ -24,8 +24,8 @@ def sync_playlist_pair(
 	if not main_changed and snippet_changed:
 		return
 
-	snippet_playlist = api.PlaylistHandler(snippet)
-	main_playlist = api.PlaylistHandler(main)
+	snippet_playlist = PlaylistHandler(snippet)
+	main_playlist = PlaylistHandler(main)
 
 	if snippet_changed:
 		snippet_diff = pcd.get_playlist_diff(snippet_playlist)
@@ -49,7 +49,7 @@ def sync_all_playlists():
 	bulk logic is in sync_playlists
 	"""
 
-	playlists = api.PlaylistsHandler()
+	playlists = PlaylistsHandler()
 
 	for pair in playlists.get_sync_pairs():
 		sync_playlist_pair(pair.main, pair.snippet)

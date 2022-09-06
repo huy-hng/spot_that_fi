@@ -1,6 +1,6 @@
 import pytest
 
-from src.api import PlaylistsHandler
+from src.api.playlists import PlaylistsHandler
 from src.tests import PlaylistIDs
 
 # 55 tracks from calm

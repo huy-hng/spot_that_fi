@@ -1,7 +1,7 @@
 import pytest
 
 from src import api
-from src.api import PlaylistHandler
+from src.api.playlists import get_ids
 from src.controller import update_db
 from src.features import update_snippets
 from src.tests import PlaylistIDs, TrackIDs
@@ -13,7 +13,7 @@ def _replace_unchanged_playlist_with_calm():
 	gen = api.get_playlist_tracks_generator(PlaylistIDs.calm)
 	for items in gen:
 		api.replace_playlist_tracks(
-			PlaylistIDs.unchanged, PlaylistHandler.get_ids(items.items_))
+			PlaylistIDs.unchanged, get_ids(items.items_))
 		break
 
 
@@ -21,7 +21,7 @@ def reset_playlists():
 	gen = api.get_playlist_tracks_generator(PlaylistIDs.unchanged)
 	for items in gen:
 		api.replace_playlist_tracks(
-			PlaylistIDs.main, PlaylistHandler.get_ids(items.items_))
+			PlaylistIDs.main, get_ids(items.items_))
 		break
 	empty_snippets_playlist()
 
@@ -45,7 +45,7 @@ def test_snippets_from_empty():
 	update_snippets.sync_playlist_pair(main, snippet, snippet_size=10)
 
 	tracks = next(api.get_playlist_tracks_generator(snippet.id))
-	assert PlaylistHandler.get_ids(
+	assert get_ids(
 		tracks.items_) == TrackIDs.unchanged_track_ids[-10:]
 
 
@@ -64,4 +64,4 @@ def test_sanity_checks():
 	gen = api.get_playlist_tracks_generator(PlaylistIDs.unchanged)
 	items = next(gen)
 
-	assert PlaylistHandler.get_ids(items.items_) == TrackIDs.unchanged_track_ids
+	assert get_ids(items.items_) == TrackIDs.unchanged_track_ids

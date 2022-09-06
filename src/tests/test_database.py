@@ -1,8 +1,8 @@
 import json
 
 import pytest
-from src import api, db
-from src.api import PlaylistHandler, PlaylistsHandler
+from src import db
+from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
 from src.db import create_session
 from src.tests import PlaylistIDs
@@ -14,8 +14,8 @@ def test_get_track_diff(playlists_handler: PlaylistsHandler):
 	# snippet = sp.get_one_playlist(PlaylistIDs.snippet)
 	snippet = playlists_handler.get_by_id(PlaylistIDs.snippet)
 	diff = pcd.get_playlist_diff(snippet)
-	# removals = api.PlaylistHandler.get_names(diff.removals)
-	inserts = api.PlaylistHandler.get_names(diff.inserts)
+	# removals = PlaylistHandler.get_names(diff.removals)
+	inserts = get_names(diff.inserts)
 	print(diff.removals)
 	print(inserts)
 

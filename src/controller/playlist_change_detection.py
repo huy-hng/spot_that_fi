@@ -2,7 +2,7 @@ from typing import NamedTuple
 from src.helpers.helpers import lookahead
 from src.helpers.myers import Myers
 from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
-from src.api import PlaylistHandler
+from src.api.playlists import PlaylistHandler
 
 from src.helpers.logger import log
 from src import db
