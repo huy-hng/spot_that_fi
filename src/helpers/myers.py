@@ -23,10 +23,10 @@
 # 
 # For more information, please refer to <http://unlicense.org/> 
 
-from dataclasses import dataclass
 from enum import Enum
 from itertools import zip_longest
 from typing import Generic, NamedTuple, TypeVar
+from helpers import allow_generic_namedtuples
 
 # These define the structure of the history, and correspond to diff output with
 # lines that start with a space, a + and a - respectively.
@@ -55,8 +55,7 @@ def one(idx):
 	"""
 	return idx - 1
 
-# TODO: add generic typing for int and str
-@dataclass
+
 class Myers(Generic[T]):
 	"""
 		spotify playlist that are sorted by added_at can only have inserts
@@ -250,11 +249,12 @@ def main():
 	b_lines.append(20)
 
 	myers = Myers(a_lines, b_lines)
-	# myers = Myers([], b_lines)
-	if not myers.keeps:
-		print(myers.keeps)
-	# myers = Myers(b_lines, a_lines)
-	myers.print_diff()
+	myers2 = Myers(b_lines, a_lines)
+
+	# myers2.print_diff()
+	myers2.separate_operations()
+	print(myers.keeps)
+	print(myers2.keeps)
 	
 
 if __name__ == '__main__':

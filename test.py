@@ -1,5 +1,6 @@
 # %%
 from copy import copy, deepcopy
+from dataclasses import dataclass, field
 from typing import Generic, NamedTuple, TypeVar
 
 
@@ -102,10 +103,6 @@ class AllowGenericNamedTuple(type):
 		super().__init_subclass__()
 
 
-# def _namedtuple_mro_entries(bases):
-# 	assert bases[0] is GenericNamedTuple
-# 	return (_NamedTuple,)
-
 def _namedtuple_mro_entries(bases):
 	from typing import _GenericAlias, _NamedTuple
 	assert bases[0] is NamedTuple
@@ -120,8 +117,6 @@ def _namedtuple_mro_entries(bases):
 
 NamedTuple.__mro_entries__ = _namedtuple_mro_entries
 
-# class Test(GenericNamedTuple):
-# class Test(NamedTuple, dict):
 class Test(NamedTuple, Generic[T]):
 	a: T
 	b: str
@@ -129,18 +124,15 @@ class Test(NamedTuple, Generic[T]):
 
 		
 
+@dataclass
+class A:
+	l: list[int] = field(default_factory=list)
+	l: list[int] = []
+
 if __name__ == '__main__':
-
-	# test = GenericNamedTuple()
-	test = Test(True, 'asd', 'asd')
-	print(test)
-	# test.a
-	# test.b
-	# test.c
-
-
-	# pass
-	# test = NamedTuple('test', name=str, id=int)
-		# print(Test())
-	# print(type(tup))
-
+	a1 = A()
+	a2 = A()
+	a2.l.append(1)
+	print(a1.l)
+	print(a2.l)
+	
