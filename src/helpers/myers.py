@@ -43,13 +43,12 @@ class Myers(Generic[T]):
 	def separate_operations(self, after_index: int=0):
 
 		for line, operation in self.diff[after_index:]:
-			match operation:
-				case Operations.Keep:
-					self.keeps.append(line)
-				case Operations.Insert:
-					self.inserts.append(line)
-				case Operations.Remove:
-					self.removals.append(line)
+			if operation == Operations.Keep:
+				self.keeps.append(line)
+			elif operation == Operations.Insert:
+				self.inserts.append(line)
+			elif operation == Operations.Remove:
+				self.removals.append(line)
 
 
 	@property
@@ -60,11 +59,13 @@ class Myers(Generic[T]):
 				counter += 1
 		return counter
 
+
 	def has_something(self, something: Operations):
 		for _, operation in self.diff:
 			if operation == something:
 				return True
 		return False
+
 
 	@property
 	def first_keep_index(self):
