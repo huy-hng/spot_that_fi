@@ -6,7 +6,7 @@ from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
 from src.db import create_session
 from src.tests import PlaylistIDs
-from src.types.playlists import AllPlaylists
+from src.types.playlists import PlaylistType
 
 
 @pytest.mark.skip
@@ -23,7 +23,7 @@ def test_get_track_diff(playlists_handler: PlaylistsHandler):
 def test_playlist_update(main: PlaylistHandler):
 	with create_session() as session:
 		# setup (change snapshot id)
-		cp = AllPlaylists(main.playlist_data.copy())
+		cp = PlaylistType(main.playlist_data.copy())
 		cp.snapshot_id = 'asdfsdf'
 		db.playlists._update_playlist(session, cp)
 

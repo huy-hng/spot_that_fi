@@ -1,21 +1,21 @@
 from typing import NamedTuple
 from src.helpers.helpers import lookahead
 from src.helpers.myers import Myers
-from src.types.playlists import AllPlaylists, PlaylistTrackItem, SinglePlaylist
+from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType
 from src.api.playlists import PlaylistHandler
 
 from src.helpers.logger import log
 from src import db
 
 
-def has_playlist_changed(playlist: AllPlaylists | SinglePlaylist):
+def has_playlist_changed(playlist: PlaylistType | PlaylistType):
 	""" check if current snapshot_id and db snapshot_id are different """
 	current_snapshot = playlist.snapshot_id
 	previous_snapshot = db.playlists.get_playlist_snapshot_id(playlist.id)
 	return previous_snapshot != current_snapshot
 
 
-def get_changed_playlists(playlists: list[AllPlaylists]):
+def get_changed_playlists(playlists: list[PlaylistType]):
 	""" filteres the playlists param and returns only
 		playlists that changed """
 	return [p for p in playlists if has_playlist_changed(p)]

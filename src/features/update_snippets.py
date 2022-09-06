@@ -1,6 +1,6 @@
 from src.api.playlists import PlaylistHandler, PlaylistsHandler
 from src.controller import playlist_change_detection as pcd
-from src.types.playlists import AllPlaylists, SinglePlaylist
+from src.types.playlists import PlaylistType, PlaylistType
 
 # TODO move this to settings.json or .env
 SNIPPET_SIZE = 50
@@ -8,8 +8,8 @@ SNIPPET_SIZE = 50
 
 # TODO: possibility to put in playlist_id instead of instace of a playlist class
 def sync_playlist_pair(
-	main: AllPlaylists | SinglePlaylist,
-	snippet: AllPlaylists | SinglePlaylist,
+	main: PlaylistType | PlaylistType,
+	snippet: PlaylistType | PlaylistType,
 	*, snippet_size=SNIPPET_SIZE):
 	"""
 	compare main and snippet playlists and see what has changed and

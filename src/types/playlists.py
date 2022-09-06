@@ -5,16 +5,6 @@ from src.types.tracks import TrackDict
 
 
 @dataclass(slots=True, frozen=True)
-class PlaylistOwner:
-	id: str
-	display_name: str
-	external_urls: str
-	href: str
-	type: str
-	uri: str
-
-
-@dataclass(slots=True, frozen=True)
 class AllPlaylistsTracks:
 	href: str
 	total: int
@@ -39,7 +29,7 @@ class PlaylistTrackItem:
 
 @dataclass(slots=True, frozen=True)
 class SinglePlaylistTracks:
-	""" api_handler.get_one_playlist.tracks """	
+	""" api_handler.get_one_playlist.tracks """
 	href: str
 	items: list[PlaylistTrackItem]
 	limit: int
@@ -52,7 +42,32 @@ class SinglePlaylistTracks:
 		init(self, playlist)
 
 
-# TODO: merge with allplaylists and singleplaylist since theyre too similar
+class PlaylistOwner:
+	id: str = field(repr=False)
+	display_name: str = field(repr=False)
+	external_urls: str = field(repr=False)
+	href: str = field(repr=False)
+	type: str = field(repr=False)
+	uri: str = field(repr=False)
+
+
+@dataclass(slots=True, frozen=True)
+class PlaylistTracks:
+	""" api_handler.get_one_playlist.tracks """
+	href: str = field(repr=False)
+	total: int
+
+	# PlaylistTypeTracks
+	items: list[PlaylistTrackItem] = field(default_factory=list, repr=False)
+	limit: int | None = field(default=None, repr=False)
+	next: str | None = field(default=None, repr=False)
+	offset: int | None = field(default=None, repr=False)
+	previous: str | None = field(default=None, repr=False)
+
+	def __init__(self, playlist: dict) -> None:
+		init(self, playlist)
+
+
 @dataclass(slots=True, frozen=True)
 class PlaylistType:
 	collaborative: bool
@@ -63,10 +78,10 @@ class PlaylistType:
 	images: list
 	name: str
 	owner: PlaylistOwner
-	primary_color: None 
+	primary_color: None
 	public: bool
 	snapshot_id: str
-	tracks: AllPlaylistsTracks | SinglePlaylistTracks
+	tracks: PlaylistTracks
 	type: str
 	uri: str
 	followers: dict | None = field(default=None)  # belongs to SinglePlaylist
@@ -79,10 +94,10 @@ class PlaylistType:
 class AllPlaylists(PlaylistType):
 	""" sp.current_user_playlists """
 	tracks: AllPlaylistsTracks
-	
+
 	def __init__(self, playlist: dict) -> None:
 		init(self, playlist)
-	
+
 
 @dataclass(slots=True, frozen=True)
 class SinglePlaylist(PlaylistType):

@@ -3,7 +3,7 @@ from typing import NamedTuple, Type, TypeGuard, TypeVar
 
 from src import api
 from src.api import spotify
-from src.types.playlists import AllPlaylists, PlaylistTrackItem, SinglePlaylist, SinglePlaylistTracks
+from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType, PlaylistTypeTracks
 from src.settings.user_data import get_playlist_user_data
 
 from src.helpers.helpers import grouper
@@ -12,8 +12,8 @@ from src.helpers.logger import log
 
 
 class SyncPairs(NamedTuple):
-	main: AllPlaylists
-	snippet: AllPlaylists
+	main: PlaylistType
+	snippet: PlaylistType
 
 
 class PlaylistsHandler:
@@ -75,7 +75,7 @@ class PlaylistHandler:
 	This class doesn't save state, it just performs actions
 	on the playlists on spotify.
 	"""
-	def __init__(self, playlist: AllPlaylists | SinglePlaylist):
+	def __init__(self, playlist: PlaylistType | PlaylistType):
 		self.playlist_data = playlist
 		self.id = playlist.id
 		self.name = playlist.name
@@ -101,7 +101,7 @@ class PlaylistHandler:
 			Args:
 				total_tracks: total_tracks in playlist. Use this to save an api call
 				limit: amount of tracks to get at once
-				raw: get SinglePlaylistTracks
+				raw: get PlaylistTypeTracks
 
 			The order is the same as in spotify without any sorting.
 			The first returned item is the most recently added tracks
@@ -127,7 +127,7 @@ class PlaylistHandler:
 		while items := spotify.playlist_items(self.id, limit=clamp_limit(limit), offset=offset):
 			if items is None: break
 
-			parsed = SinglePlaylistTracks(items)
+			parsed = PlaylistTypeTracks(items)
 			if self.total_tracks != parsed.total: # fixes wrong self.total_tracks input
 				self.total_tracks = parsed.total
 				offset = max(0, self.total_tracks - limit)

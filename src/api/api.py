@@ -57,7 +57,7 @@ def get_one_playlist(playlist_id: str):
 	res = spotify.playlist(playlist_id)
 	if res is None:
 		raise PlaylistNotFoundError(f'Cannot find playlist with ID {playlist_id}')
-	return types.playlists.SinglePlaylist(res)
+	return types.playlists.PlaylistType(res)
 
 
 def get_all_playlists():
@@ -84,7 +84,7 @@ def get_all_playlists():
 
 
 	parsed_playlists = [
-		types.playlists.AllPlaylists(playlist)
+		types.playlists.PlaylistType(playlist)
 		for playlist in all_playlists
 	]
 

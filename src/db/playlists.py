@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session as Session
-from src.types.playlists import AllPlaylists, PlaylistTrackItem, SinglePlaylist
+from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType
 
 from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
@@ -24,19 +24,19 @@ def _get_playlist(session: Session, playlist_id: str):
 	return playlist
 
 
-def _add_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
+def _add_playlist(session: Session, playlist: PlaylistType | PlaylistType):
 	row = tables.Playlist(playlist)
 	session.add(row)
 
 
-def _update_playlist(session: Session, playlist: AllPlaylists | SinglePlaylist):
+def _update_playlist(session: Session, playlist: PlaylistType | PlaylistType):
 	""" this function updates a playlist in the db
 		it updates the playlist length, snapshot, etc """
 	db_playlist = _get_playlist(session, playlist.id)
 	db_playlist.update(playlist)
 
 
-def update_playlists(playlists: list[AllPlaylists | SinglePlaylist]):
+def update_playlists(playlists: list[PlaylistType | PlaylistType]):
 	""" adds or updates spotify playlist in db """
 	with create_session() as session:
 		for playlist in playlists:
