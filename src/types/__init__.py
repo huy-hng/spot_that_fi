@@ -29,20 +29,27 @@ def _init(self, d: dict):
 	)(self, **d)
 
 
+def parse_values(args, value):
+	found = value
+	if hasattr(args, '__args__'):
+		return parse_values(args.__args__, value)
+
+	for arg in args:
+		if isinstance(arg, GenericAlias):
+			found = [arg.__args__[0](item) for item in value]
+		elif is_dataclass(arg):
+			try:
+				found = arg(value)
+			except TypeError:
+				found = arg(**value)
+	return found
+
+
 def recursively_set_fields(self, kwargs):
 	for f in self.__dataclass_fields__.values():
 		value = kwargs.get(f.name)
 		if value is None:
 			continue
 
-		if is_dataclass(f.type):
-			try:
-				value = f.type(value)
-			except TypeError:
-				value = f.type(**value)
-		elif isinstance(f.type, GenericAlias):
-			value = [f.type.__args__[0](item) for item in value]
-		else:
-			continue
-
+		value = parse_values([f.type], value)
 		object.__setattr__(self, f.name, value)
