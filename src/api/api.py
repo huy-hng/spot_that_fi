@@ -37,7 +37,6 @@ def get_liked_tracks_generator(limit=50):
 		
 		First item in first iteration
 		is the most recently liked track. """
-	# items: types.tracks.LikedTracksListDict | None
 	offset = 0
 
 	while True:

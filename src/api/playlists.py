@@ -94,14 +94,14 @@ class PlaylistHandler:
 		self.snapshot_id = data.snapshot_id
 
 
-	def get_track_generator(self, *, limit=100):
+	def get_track_generator(self, *, total_tracks: int = 0, limit=100, raw=False):
 		""" Get latest tracks until total_tracks has been reached
 			or no tracks are left.
 
 			Args:
-				playlist_id: id of playlist to get tracks from
 				total_tracks: total_tracks in playlist. Use this to save an api call
 				limit: amount of tracks to get at once
+				raw: get SinglePlaylistTracks
 
 			The order is the same as in spotify without any sorting.
 			The first returned item is the most recently added tracks
@@ -140,7 +140,7 @@ class PlaylistHandler:
 				limit += offset
 				offset = 0
 
-			yield parsed
+			yield parsed.items_
 
 			if not parsed.previous:
 				break
@@ -159,7 +159,6 @@ class PlaylistHandler:
 
 		saved: list[PlaylistTracksItem]  = []
 		for tracks in self.get_track_generator(limit=LIMIT):
-			tracks = tracks.items_
 			if len(saved) + len(tracks) > num_tracks:
 				rest = num_tracks % LIMIT
 				saved = tracks[-rest:] + saved
