@@ -130,49 +130,36 @@ class PlaylistHandler:
 		"""
 		# TODO: use add_duplicates to control if duplicates should be added
 
-		track_ids = self.handle_non_ids(tracks)
+		track_ids = handle_non_ids(tracks)
 		self._update_data()
 		api.add_tracks_to_playlist(self.id, track_ids, self.total_tracks, group_size)
 
 
 	def remove_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
-		track_ids = self.handle_non_ids(tracks)
+		track_ids = handle_non_ids(tracks)
 		api.remove_tracks(self.id, track_ids)
 		self._update_data()
 
 
 	def replace_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
-		track_ids = self.handle_non_ids(tracks)
+		track_ids = handle_non_ids(tracks)
 		api.replace_playlist_tracks(self.id, track_ids)
 		self._update_data()
 
 
-	def handle_non_ids(self, tracks: list[PlaylistTracksItem] | list[str]) -> list[str]:
-		if is_set_of(tracks, str):
-			return tracks
-		elif is_set_of(tracks, PlaylistTracksItem):
-			return self.get_ids(tracks)
-		else:
-			raise
+def get_ids(tracks: list[PlaylistTracksItem]) -> list[str]:
+	if not tracks: return []
+
+	return [item.track.id for item in tracks]
 
 
-	# REFACTOR: move the two functions below somewhere else
-	@staticmethod
-	def get_ids(tracks: list[PlaylistTracksItem]) -> list[str]:
-		if not tracks: return []
+def get_names(tracks: list[PlaylistTracksItem]) -> list[str]:
+	if len(tracks) == 0:
+		return []
 
-		return [item.track.id for item in tracks]
-
-
-	@staticmethod
-	def get_names(tracks: list[PlaylistTracksItem]) -> list[str]:
-		if len(tracks) == 0:
-			return []
-
-		return [item.track.name for item in tracks]
+	return [item.track.name for item in tracks]
 
 
-@staticmethod
 def convert_playlist_uri_to_id(id: str):
 	""" converts uris and urls to ids and returns it """
 	type_ = 'playlist'
@@ -201,5 +188,14 @@ def convert_playlist_uri_to_id(id: str):
 
 T = TypeVar('T')
 
-def is_set_of(val: list[object], type: Type[T]) -> TypeGuard[list[T]]:
-    return all(isinstance(x, type) for x in val)
+def handle_non_ids(tracks: list[PlaylistTracksItem] | list[str]) -> list[str]:
+	if is_set_of(tracks, str):
+		return tracks
+	elif is_set_of(tracks, PlaylistTracksItem):
+		return get_ids(tracks)
+
+	assert False
+
+
+def is_set_of(val: list[PlaylistTracksItem] | list[str], type_: Type[T]) -> TypeGuard[list[T]]:
+    return all(isinstance(x, type_) for x in val)
