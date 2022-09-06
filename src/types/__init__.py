@@ -1,4 +1,4 @@
-from dataclasses import dataclass, is_dataclass
+from dataclasses import is_dataclass
 from types import GenericAlias
 
 
@@ -31,35 +31,18 @@ def _init(self, d: dict):
 
 def recursively_set_fields(self, kwargs):
 	for f in self.__dataclass_fields__.values():
-		# if isinstance(field_.type == dataclass)
-		if isinstance(f.type, GenericAlias):
-			a = GenericAlias(list, (int,))
-			# print(a.__args__)
-			b = f.type
-			# print(b.__args__[0])
-			print(dir(b))
-			for val in dir(b):
-				print (val)
+		value = kwargs.get(f.name)
+		if value is None:
+			continue
 
-			# for k,v in b.__dict__.items():
-			# 	print(k, v)
-			# f.type 
-		# if 'items' in f.name:
-		# 	print(f.type)
-			# print(len(f.type))
-			# a = f.type(['1'])
-			# print(a)
-			# print(is_dataclass(f.type))
 		if is_dataclass(f.type):
-			v = kwargs.get(f.name)
-			if v is None:
-				continue
-
 			try:
-				v = f.type(v)
+				value = f.type(value)
 			except TypeError:
-				v = f.type(**v)
+				value = f.type(**value)
+		elif isinstance(f.type, GenericAlias):
+			value = [f.type.__args__[0](item) for item in value]
+		else:
+			continue
 
-			object.__setattr__(self, f.name, v)
-
-# from . import playlists, tracks
+		object.__setattr__(self, f.name, value)
