@@ -5,12 +5,6 @@ from src.types.tracks import TrackDict
 
 
 @dataclass(slots=True, frozen=True)
-class AllPlaylistsTracks:
-	href: str
-	total: int
-
-
-@dataclass(slots=True, frozen=True)
 class PlaylistTrackItem:
 	"""
 		api_handler.get_one_playlist.tracks.items_[0] \n
@@ -25,22 +19,6 @@ class PlaylistTrackItem:
 
 	def __init__(self, d: dict) -> None:
 		init(self, d)
-
-
-@dataclass(slots=True, frozen=True)
-class SinglePlaylistTracks:
-	""" api_handler.get_one_playlist.tracks """
-	href: str
-	items: list[PlaylistTrackItem]
-	limit: int
-	next: str
-	offset: int
-	previous: str
-	total: int
-
-	def __init__(self, playlist: dict) -> None:
-		init(self, playlist)
-
 
 class PlaylistOwner:
 	id: str = field(repr=False)
@@ -59,9 +37,9 @@ class PlaylistTracks:
 
 	# PlaylistTypeTracks
 	items: list[PlaylistTrackItem] = field(default_factory=list, repr=False)
-	limit: int | None = field(default=None, repr=False)
+	limit: int = field(default=1, repr=False)
 	next: str | None = field(default=None, repr=False)
-	offset: int | None = field(default=None, repr=False)
+	offset: int = field(default=0, repr=False)
 	previous: str | None = field(default=None, repr=False)
 
 	def __init__(self, playlist: dict) -> None:
