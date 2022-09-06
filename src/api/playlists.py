@@ -1,7 +1,10 @@
+import time
 from typing import NamedTuple, Type, TypeGuard, TypeVar
+from helpers.helpers import grouper
 
 from src import api
-from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist
+from src.api import spotify
+from src.types.playlists import AllPlaylists, PlaylistTracksItem, SinglePlaylist, SinglePlaylistTracks
 from src.settings.user_data import get_playlist_user_data
 
 from src.helpers.exceptions import PlaylistNotFoundError
@@ -80,6 +83,10 @@ class PlaylistHandler:
 		self.snapshot_id = playlist.snapshot_id
 		self.total_tracks = playlist.tracks.total
 
+	@classmethod
+	def create_from_id(cls, playlist_id: str):
+		playlist = api.get_one_playlist(playlist_id)
+		return cls(playlist)
 
 	def _update_data(self):
 		data = api.get_one_playlist(self.id)
@@ -88,9 +95,55 @@ class PlaylistHandler:
 
 
 	def get_track_generator(self, *, limit=100):
-		for items in api.get_playlist_tracks_generator(self.id, self.total_tracks, limit=limit):
-			self.total_tracks = items.total
-			yield items.items_
+		""" Get latest tracks until total_tracks has been reached
+			or no tracks are left.
+
+			Args:
+				playlist_id: id of playlist to get tracks from
+				total_tracks: total_tracks in playlist. Use this to save an api call
+				limit: amount of tracks to get at once
+
+			The order is the same as in spotify without any sorting.
+			The first returned item is the most recently added tracks
+			
+			the section that is returned first are the items that have been
+			added last
+			
+			so if my playlist is [0,1,2,3,4] and 0 is the first track 
+			that has been added and my limit is 2, then the first yield is
+			[3,4], then comes [1,2] and at last [0],
+			where the generator terminates
+
+			### Note
+			Since on spotify new tracks are by default added to 'the bottom'
+			of the playlist it appears that playlists are chronologically
+			sorted from first added to last added
+		"""
+
+		clamp_limit = lambda limit: max(1, min(100, limit))
+		limit = clamp_limit(limit)
+
+		offset = max(0, self.total_tracks - limit)
+		while items := spotify.playlist_items(self.id, limit=clamp_limit(limit), offset=offset):
+			if items is None: break
+
+			parsed = SinglePlaylistTracks(items)
+			if self.total_tracks != parsed.total: # fixes wrong self.total_tracks input
+				self.total_tracks = parsed.total
+				offset = max(0, self.total_tracks - limit)
+				continue
+
+			offset = parsed.offset
+			offset -= limit
+
+			if offset < 0:
+				limit += offset
+				offset = 0
+
+			yield parsed
+
+			if not parsed.previous:
+				break
 
 
 	def get_latest_tracks(self, num_tracks: int=0) -> list[PlaylistTracksItem]:
@@ -106,6 +159,7 @@ class PlaylistHandler:
 
 		saved: list[PlaylistTracksItem]  = []
 		for tracks in self.get_track_generator(limit=LIMIT):
+			tracks = tracks.items_
 			if len(saved) + len(tracks) > num_tracks:
 				rest = num_tracks % LIMIT
 				saved = tracks[-rest:] + saved
@@ -117,10 +171,28 @@ class PlaylistHandler:
 
 	def add_tracks_at_end(self,
 		tracks: list[PlaylistTracksItem] | list[str],
+		position: int=-1,
 		group_size: int=1,
 		add_duplicates: bool=False
 	):
-		""" this should behave like adding songs normally to a playlist.
+		""" Adds tracks to playlist. 
+
+			Args:
+				playlist_id:
+					the id or uri of the playlist to add tracks to
+				track_ids:
+					a list of track ids to add to the playlist
+				position:
+					the position to add the tracks to
+					if position == -1: add at the end
+				group_size:
+					optional argument for batching tracks (to save on rate limiting)
+					if group_size <= 0: add all tracks at once
+					if group_size == 1: add one track at a time
+					if group_size > 1: add {group_size} tracks at once
+
+
+			this should behave like adding songs normally to a playlist.
 			each song should be appended at the end of the playlist.
 
 			That means, (tracks[-1]) should be the last song added.
@@ -131,19 +203,40 @@ class PlaylistHandler:
 		# TODO: use add_duplicates to control if duplicates should be added
 
 		track_ids = handle_non_ids(tracks)
+
+		group_size = max(0, group_size)
+
+		if position == -1:
+			position = api.get_one_playlist(self.id).tracks.total
+
+		curr_position = position
+
+		groups = grouper(track_ids, group_size)
+		for group in groups:
+			spotify.playlist_add_items(self.id, group, curr_position)
+			curr_position += group_size
+			time.sleep(0.5)
+
 		self._update_data()
-		api.add_tracks_to_playlist(self.id, track_ids, self.total_tracks, group_size)
 
 
 	def remove_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
 		track_ids = handle_non_ids(tracks)
-		api.remove_tracks(self.id, track_ids)
+		spotify.playlist_remove_all_occurrences_of_items(self.id, track_ids)
 		self._update_data()
 
 
 	def replace_tracks(self, tracks: list[PlaylistTracksItem] | list[str]):
+		""" Replaces all tracks in playlist.
+
+			Adding multiple tracks that aren't already in the playlist
+			results in wonky order.
+			Not sorting the playlist in spotify shows
+			the correct order, but when sorted by date added, it is scrambled.
+			The reason for that is probably date_added attribute is all the same.
+		"""
 		track_ids = handle_non_ids(tracks)
-		api.replace_playlist_tracks(self.id, track_ids)
+		spotify.playlist_replace_items(self.id, track_ids)
 		self._update_data()
 
 

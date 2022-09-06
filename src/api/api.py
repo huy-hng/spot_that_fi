@@ -30,13 +30,32 @@ spotify = spotipy.Spotify(auth_manager=SpotifyOAuth(
 		redirect_uri=redirect_uri, scope=scope))
 
 
-#region create
 def like_tracks(track_ids: list[str]):
 	spotify.current_user_saved_tracks_add(track_ids)
-#endregion
 
 
-#region read
+def get_liked_tracks_generator(limit=50):
+	""" returns a generator that loops over liked tracks
+		in reverse chronological order.
+		
+		First item in first iteration
+		is the most recently liked track. """
+	# items: types.tracks.LikedTracksListDict | None
+	offset = 0
+
+	while True:
+		items = spotify.current_user_saved_tracks(limit, offset)
+		if items is None: continue
+		items = types.tracks.LikedTracksListDict(items)
+		write_dict_to_file('liked_tracks', items)
+		offset += limit
+
+		yield items
+
+		if not items.next:
+			break
+
+
 def get_one_playlist(playlist_id: str):
 	""" should accept argument as uri, url and id """
 	res = spotify.playlist(playlist_id)
@@ -75,15 +94,8 @@ def get_all_playlists():
 
 	return parsed_playlists
 
-def _get_playlist_items(playlist_id: str, *, limit=100, offset=0):
-	items = spotify.playlist_items(playlist_id, limit=limit, offset=offset)
-	if items is None:
-		raise PlaylistNotFoundError(
-			f'Playlist with ID {playlist_id} could not be found on Spotify')
-	return items
 
-
-def get_playlist_tracks_generator(
+def _get_playlist_tracks_generator(
 	playlist_id: str, total_tracks: int=0, *, limit=100):
 	""" Get latest tracks until total_tracks has been reached
 		or no tracks are left.
@@ -136,30 +148,7 @@ def get_playlist_tracks_generator(
 			break
 
 
-def get_liked_tracks_generator(limit=50):
-	""" returns a generator that loops over liked tracks
-		in reverse chronological order.
-		
-		First item in first iteration
-		is the most recently liked track. """
-	# items: types.tracks.LikedTracksListDict | None
-	offset = 0
-
-	while True:
-		items = spotify.current_user_saved_tracks(limit, offset)
-		if items is None: continue
-		items = types.tracks.LikedTracksListDict(items)
-		write_dict_to_file('liked_tracks', items)
-		offset += limit
-
-		yield items
-
-		if not items.next:
-			break
-#endregion
-
-#region update
-def replace_playlist_tracks(playlist_id: str, track_ids: list[str]):
+def _replace_playlist_tracks(playlist_id: str, track_ids: list[str]):
 	""" Replaces all tracks in playlist.
 
 		Adding multiple tracks that aren't already in the playlist
@@ -171,7 +160,7 @@ def replace_playlist_tracks(playlist_id: str, track_ids: list[str]):
 	spotify.playlist_replace_items(playlist_id, track_ids)
 
 
-def add_tracks_to_playlist(
+def _add_tracks_to_playlist(
 	playlist_id: str, track_ids: list[str], position: int, group_size=1):
 	""" Adds tracks to playlist. 
 
@@ -201,11 +190,8 @@ def add_tracks_to_playlist(
 		spotify.playlist_add_items(playlist_id, group, curr_position)
 		curr_position += group_size
 		time.sleep(0.5)
-#endregion
 
 
-#region delete
-def remove_tracks(uri: str, track_ids: list[str]):
+def _remove_tracks(playlist_id: str, track_ids: list[str]):
 	# TEST how does this behave if tracks arent in playlist
-	spotify.playlist_remove_all_occurrences_of_items(uri, track_ids)
-#endregion
+	spotify.playlist_remove_all_occurrences_of_items(playlist_id, track_ids)
