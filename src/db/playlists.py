@@ -11,7 +11,7 @@ from src.helpers.logger import log
 
 
 @get_session
-def nested_session(playlist, *, session: Session=_):
+def nested_session(playlist, *, session: Session = _):
 	""" returns a list with playlist ids """
 
 	add_playlist(playlist)
@@ -24,9 +24,8 @@ def nested_session(playlist, *, session: Session=_):
 	assert playlist.id == q.id
 
 
-
 @get_session
-def get_playlist(playlist_id: str, *, session: Session=_):
+def get_playlist(playlist_id: str, *, session: Session = _):
 	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
 	if playlist is None:
@@ -36,13 +35,13 @@ def get_playlist(playlist_id: str, *, session: Session=_):
 
 
 @get_session
-def add_playlist(playlist: PlaylistType, *, session: Session=_):
+def add_playlist(playlist: PlaylistType, *, session: Session = _):
 	row = tables.Playlist(playlist)
 	session.add(row)
 
 
 @get_session
-def update_playlist(playlist: PlaylistType, *, session: Session=_):
+def update_playlist(playlist: PlaylistType, *, session: Session = _):
 	""" this function updates a playlist in the db
 		it updates the playlist length, snapshot, etc """
 	db_playlist = get_playlist(playlist.id, session=session)
@@ -50,26 +49,25 @@ def update_playlist(playlist: PlaylistType, *, session: Session=_):
 
 
 @get_session
-def delete_playlist(playlist_id: str, *, session: Session=_):
-	
+def delete_playlist(playlist_id: str, *, session: Session = _):
+
 	playlist = session.query(tables.Playlist).filter(Playlist.id == playlist_id)
 
 	# if playlist is None:
 	# 	return
-	
+
 	playlist.delete()
 
-	
 
 @get_session
-def get_all_playlists(*, session: Session=_) -> list[str]:
+def get_all_playlists(*, session: Session = _) -> list[str]:
 	""" returns a list with playlist ids """
 	q = session.query(tables.Playlist).all()
 	return [playlist.id for playlist in q]
 
 
 @get_session
-def update_playlists(playlists: list[PlaylistType], *, session: Session=_):
+def update_playlists(playlists: list[PlaylistType], *, session: Session = _):
 	""" adds or updates spotify playlist in db """
 	for playlist in playlists:
 		# FIX: remove hardcoded name below
@@ -86,7 +84,7 @@ def update_playlists(playlists: list[PlaylistType], *, session: Session=_):
 
 
 @get_session
-def get_id_from_name(playlist_name: str, *, session: Session=_) -> str:
+def get_id_from_name(playlist_name: str, *, session: Session = _) -> str:
 	playlist: tables.Playlist | None = session.query(tables.Playlist).filter(
 		tables.Playlist.name == playlist_name).first()
 
@@ -97,13 +95,13 @@ def get_id_from_name(playlist_name: str, *, session: Session=_) -> str:
 
 
 @get_session
-def get_playlist_snapshot_id(playlist_id: str, *, session: Session=_):
+def get_playlist_snapshot_id(playlist_id: str, *, session: Session = _):
 	playlist = get_playlist(playlist_id, session=session)
 	return playlist.snapshot_id
 
 
 @get_session
-def does_playlist_exist(playlist_id: str, *, session: Session=_):
+def does_playlist_exist(playlist_id: str, *, session: Session = _):
 	try:
 		get_playlist(playlist_id, session=session)
 	except PlaylistNotFoundError:
@@ -118,7 +116,7 @@ def does_playlist_exist(playlist_id: str, *, session: Session=_):
 
 # creates
 @get_session
-def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem], *, session: Session=_):
+def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem], *, session: Session = _):
 	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
 	for track in tracks:
@@ -149,7 +147,7 @@ def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem], *,
 
 
 @get_session
-def get_track_ids(playlist_id: str, *, session: Session=_):
+def get_track_ids(playlist_id: str, *, session: Session = _):
 	""" returns a list with track_ids sorted by added_at (time) """
 	playlist = get_playlist(playlist_id, session=session)
 
@@ -161,7 +159,7 @@ def get_track_ids(playlist_id: str, *, session: Session=_):
 
 
 @get_session
-def get_track_names(playlist_id: str, *, session: Session=_):
+def get_track_names(playlist_id: str, *, session: Session = _):
 	""" returns a list with track_ids sorted by added_at (time) """
 	playlist = get_playlist(playlist_id, session=session)
 	associations = playlist.playlist_track_association
@@ -173,7 +171,7 @@ def get_track_names(playlist_id: str, *, session: Session=_):
 
 
 @get_session
-def is_track_in_playlist(playlist_id: str, track_id: str, *, session: Session=_):
+def is_track_in_playlist(playlist_id: str, track_id: str, *, session: Session = _):
 	q = get_PlaylistTracksAssociation(playlist_id, track_id, session=session)
 	return does_exist(q)
 
@@ -181,7 +179,7 @@ def is_track_in_playlist(playlist_id: str, track_id: str, *, session: Session=_)
 @get_session
 def get_PlaylistTracksAssociation(
         playlist_id: str,
-        track_id: str, *, session: Session=_):
+        track_id: str, *, session: Session = _):
 
 	return session.query(PlaylistTracksAssociation).filter(
             PlaylistTracksAssociation.track_id == track_id,
@@ -190,7 +188,7 @@ def get_PlaylistTracksAssociation(
 
 # deletes
 @get_session
-def remove_tracks_from_playlist(playlist_id: str, items: list[str], *, session: Session=_):
+def remove_tracks_from_playlist(playlist_id: str, items: list[str], *, session: Session = _):
 	# TODO: if track has no assocation with any playlists anymore
 	# and also isnt liked, delete
 	for item in items:
