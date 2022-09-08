@@ -10,10 +10,6 @@ from src.db import tables, create_session
 
 from src.helpers.logger import log
 
-# region playlist functions
-
-# creates
-
 
 def _get_playlist(session: Session, playlist_id: str):
 	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
@@ -40,6 +36,7 @@ def update_playlists(playlists: list[PlaylistType]):
 	""" adds or updates spotify playlist in db """
 	with create_session() as session:
 		for playlist in playlists:
+			# FIX: remove hardcoded name below
 			if playlist.owner.id != 'slaybesh':
 				log.debug(f'Playlist {playlist.name} belong to you.')
 
