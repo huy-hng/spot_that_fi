@@ -5,41 +5,12 @@ import timeit
 
 import pytest
 from src import db
+from src.db import create_session
 from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
 from src.tests import PlaylistIDs
 from src.types.playlists import PlaylistType
 from src.helpers.exceptions import PlaylistNotFoundError
-
-
-def created_session(playlist_id: str):
-	with create_session() as session:
-		playlist = session.query(db.tables.Playlist).get(playlist_id)
-
-
-def passed_session(session, playlist_id: str):
-	playlist = session.query(db.tables.Playlist).get(playlist_id)
-
-
-def test_time():
-	# result = timeit.timeit(timer)
-	# print(result)
-	playlist_id = '063Tra4gBrn9kOf0kZQiIT'
-	create_stmt = f'created_session("{playlist_id}")'
-	create_setup = 'from src.tests.test_database import created_session'
-
-	passed_stmt = f'passed_session(session, "{playlist_id}")'
-	passed_setup = """\
-from src.tests.test_database import passed_session
-from src.db import SessionMaker
-session = SessionMaker()
-"""
-	num = 10000
-	passed = timeit.timeit(passed_stmt, passed_setup, number=num)
-	created = timeit.timeit(create_stmt, create_setup, number=num)
-
-	print(f'{created=}')
-	print(f'{passed=}')
 
 
 def test_session(unchanged: PlaylistHandler):
@@ -53,7 +24,7 @@ def test_session(unchanged: PlaylistHandler):
 	# print(res)
 
 	db.playlists.delete_playlist(playlist.id)
-	ids = db.playlists.get_all_playlists()
+	ids = db.playlists.get_all_playlist_ids()
 	assert playlist.id not in ids
 
 	return []
@@ -126,7 +97,7 @@ def add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
 
 
 def add_tracks_to_all_playlists():
-	playlist_ids = db.playlists.get_all_playlists()
+	playlist_ids = db.playlists.get_all_playlist_ids()
 
 	for playlist_id in playlist_ids:
 		with open(f'./data/playlists/{playlist_id}.json') as f:
@@ -137,19 +108,47 @@ def add_tracks_to_all_playlists():
 def liked_tracks_not_in_playlists():
 	track_ids = db.tracks.get_liked_tracks_not_in_playlists()
 
-	with create_session() as session:
-		for track_id in track_ids:
-			row = db.tracks.get_track(session, track_id)
-			print(row.name)
+	for track_id in track_ids:
+		row = db.tracks.get_track(track_id)
+		print(row.name)
 
 
 def get_playlist_tracks(playlist_name: str):
-	with create_session() as session:
-		playlist_id = db.playlists.get_id_from_name(playlist_name)
-		playlist = db.playlists.get_playlist(session, playlist_id)
-		associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
-		associations.sort(key=lambda x: x.added_at)
-		# sorted(associations/, )
+	playlist_id = db.playlists.get_id_from_name(playlist_name)
+	playlist = db.playlists.get_playlist(playlist_id)
+	associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
+	associations.sort(key=lambda x: x.added_at)
+	# sorted(associations/, )
 
-		for ass in associations:
-			print(ass.track.name)
+	for ass in associations:
+		print(ass.track.name)
+
+
+def created_session(playlist_id: str):
+	with create_session() as session:
+		playlist = session.query(db.tables.Playlist).get(playlist_id)
+
+
+def passed_session(session, playlist_id: str):
+	playlist = session.query(db.tables.Playlist).get(playlist_id)
+
+
+def test_time():
+	# result = timeit.timeit(timer)
+	# print(result)
+	playlist_id = '063Tra4gBrn9kOf0kZQiIT'
+	create_stmt = f'created_session("{playlist_id}")'
+	create_setup = 'from src.tests.test_database import created_session'
+
+	passed_stmt = f'passed_session(session, "{playlist_id}")'
+	passed_setup = """\
+from src.tests.test_database import passed_session
+from src.db import SessionMaker
+session = SessionMaker()
+"""
+	num = 10000
+	passed = timeit.timeit(passed_stmt, passed_setup, number=num)
+	created = timeit.timeit(create_stmt, create_setup, number=num)
+
+	print(f'{created=}')
+	print(f'{passed=}')

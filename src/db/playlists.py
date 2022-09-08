@@ -60,10 +60,17 @@ def delete_playlist(playlist_id: str, *, session: Session = _):
 
 
 @get_session
-def get_all_playlists(*, session: Session = _) -> list[str]:
+def get_all_playlist_ids(*, session: Session = _) -> list[str]:
 	""" returns a list with playlist ids """
 	q = session.query(tables.Playlist).all()
 	return [playlist.id for playlist in q]
+
+
+@get_session
+def get_all_playlists(*, session: Session = _) -> list[tables.Playlist]:
+	""" returns a list with playlist ids """
+	q = session.query(tables.Playlist).all()
+	return q
 
 
 @get_session

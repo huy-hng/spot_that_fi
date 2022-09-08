@@ -70,7 +70,7 @@ def get_liked_tracks_not_in_playlists(*, session: Session = _) -> list[str]:
 	# TODO: Track.liked == True filter is not necessary if all
 	# unliked tracks arent in the db
 	q: list[Track] = session.query(Track).filter(
-		Track.liked == True and ~Track.playlist_track_association.any()
+		Track.liked == True and ~Track.playlist_track_association.any()  # type: ignore
 	).all()
 	ids = [track.id for track in q]
 	return ids
@@ -80,7 +80,7 @@ def get_liked_tracks_not_in_playlists(*, session: Session = _) -> list[str]:
 def get_not_liked_tracks_in_playlists(*, session: Session = _) -> list[str]:
 	""" returns a list of track ids that are in playlists but not liked """
 	q: list[Track] = session.query(Track).filter(
-		Track.liked == False and Track.playlist_track_association.any()
+		Track.liked == False and Track.playlist_track_association.any()  # type: ignore
 	).all()
 	ids = [track.name for track in q]
 	return ids
