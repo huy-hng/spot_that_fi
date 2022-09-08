@@ -76,14 +76,6 @@ def get_session(fn):
 def create_session() -> Session:
 	return SessionMaker.begin()
 
-# def get_session(fn):
-# 	session = None
-# 	@wraps(fn)
-# 	def wrapper(*args, **kwargs):
-# 		with SessionMaker.begin() as session:
-# 			session: Session
-# 			return fn(session, *args, **kwargs)
-# 	return wrapper
 
 from .tables import *
 # Base.metadata.drop_all(bind=engine)

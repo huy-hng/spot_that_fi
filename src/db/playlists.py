@@ -173,7 +173,7 @@ def get_track_names(playlist_id: str, *, session: Session = _):
 @get_session
 def is_track_in_playlist(playlist_id: str, track_id: str, *, session: Session = _):
 	q = get_PlaylistTracksAssociation(playlist_id, track_id, session=session)
-	return does_exist(q)
+	return does_exist(q, session=session)
 
 
 @get_session

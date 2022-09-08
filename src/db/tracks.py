@@ -33,13 +33,12 @@ def add_track(track: TrackDict, liked=False, *, session: Session = _) -> Track |
 
 @get_session
 def add_tracks(tracks: list[TrackDict], liked=False, *, session: Session = _):
-	with SessionMaker.begin() as session:
-		""" adds a (liked) track to the database (if not already) """
-		for track in tracks:
-			if track.is_local:
-				continue
+	""" adds a (liked) track to the database (if not already) """
+	for track in tracks:
+		if track.is_local:
+			continue
 
-			add_track(track, liked)
+		add_track(track, liked, session=session)
 # endregion create
 
 
@@ -51,44 +50,40 @@ def get_track(track_id: str, *, session: Session = _):
 
 @get_session
 def does_track_exist(track_id: str, *, session: Session = _):
-	with SessionMaker.begin() as session:
-		q = session.query(Track).get(track_id)
+	q = session.query(Track).get(track_id)
 
-		if q is None:
-			return False
-		return True
+	if q is None:
+		return False
+	return True
 
 
 @get_session
 def get_liked_tracks(*, session: Session = _) -> list[str]:
-	with SessionMaker.begin() as session:
-		q: list[Track] = session.query(Track).filter(Track.liked == True).all()
-		return [track.id for track in q]
+	q: list[Track] = session.query(Track).filter(Track.liked == True).all()
+	return [track.id for track in q]
 
 
 @get_session
 def get_liked_tracks_not_in_playlists(*, session: Session = _) -> list[str]:
-	with SessionMaker.begin() as session:
-		""" returns a list of track ids that are liked but not in any playlist. """
+	""" returns a list of track ids that are liked but not in any playlist. """
 
-		# TODO: Track.liked == True filter is not necessary if all
-		# unliked tracks arent in the db
-		q: list[Track] = session.query(Track).filter(
-			Track.liked == True and ~Track.playlist_track_association.any()
-		).all()
-		ids = [track.id for track in q]
-		return ids
+	# TODO: Track.liked == True filter is not necessary if all
+	# unliked tracks arent in the db
+	q: list[Track] = session.query(Track).filter(
+		Track.liked == True and ~Track.playlist_track_association.any()
+	).all()
+	ids = [track.id for track in q]
+	return ids
 
 
 @get_session
 def get_not_liked_tracks_in_playlists(*, session: Session = _) -> list[str]:
-	with SessionMaker.begin() as session:
-		""" returns a list of track ids that are in playlists but not liked """
-		q: list[Track] = session.query(Track).filter(
-			Track.liked == False and Track.playlist_track_association.any()
-		).all()
-		ids = [track.name for track in q]
-		return ids
+	""" returns a list of track ids that are in playlists but not liked """
+	q: list[Track] = session.query(Track).filter(
+		Track.liked == False and Track.playlist_track_association.any()
+	).all()
+	ids = [track.name for track in q]
+	return ids
 # endregion read
 
 
