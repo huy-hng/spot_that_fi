@@ -63,8 +63,8 @@ def get_one_playlist(playlist_id: str):
 
 def get_all_playlists():
 	""" api call expense: 50 playlists = 1 call \n
-			if one has 60 playlists in their spotify,
-			this functions would do 2 api calls """
+		if one has 60 playlists in their spotify,
+		this functions would do 2 api calls """
 
 
 	all_playlists: list[dict] = []
