@@ -47,6 +47,10 @@ class PlaylistTracks:
 	def __init__(self, playlist: dict) -> None:
 		init(self, playlist)
 
+	@property
+	def tracks(self):
+		return [item.track for item in self.items]
+
 
 # @dataclass(slots=True, frozen=True)
 @dataclass(slots=True)

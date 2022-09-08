@@ -34,7 +34,6 @@ class LikedTrackItem:
 
 	added_at: str # TODO could be datetime
 	track: TrackDict
-	raw_track: TrackDict | None = field(default=None)
 
 	def __init__(self, item: dict) -> None:
 		init(self, item)
@@ -52,12 +51,6 @@ class LikedTrackList:
 
 	def __init__(self, d: dict) -> None:
 		init(self, d)
-
-	# def __init__(self, item: dict):
-	# 	super().__init__(item)
-	# 	# self.tracks = [LikedTracksItem(track) for track in self.get('items')]
-	# 	# TODO check if this works
-	# 	self.items_ = [LikedItemDict(track) for track in item['items']]
 
 	@property
 	def tracks(self):
