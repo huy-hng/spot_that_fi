@@ -1,5 +1,4 @@
-from functools import update_wrapper, wraps
-from typing import Callable, Generic, TypeVar
+from functools import wraps
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -14,6 +13,7 @@ SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base(bind=engine)
 scoped = scoped_session(SessionMaker)
 
+_: Session = None
 
 class SessionManager:
 	session: Session = None
@@ -60,26 +60,14 @@ class SessionManager:
 
 def get_session(fn):
 	@wraps(fn)
-	def wrapper(*args, **kwargs):
-		print(args, kwargs)
-		if 'session' in kwargs:
-			print(f'passed session for {fn.__name__}')
-			return fn(*args, **kwargs)
+	def wrapper(*args, session=None, **kwargs):
+		if session is not None:
+			print(f'using passed session for {fn.__name__}')
+			return fn(*args, session=session, **kwargs)
 			
-
-		if ASession.session is not None:
-			# kwargs['session'] = ASession.session
-			print(f'using existing session for {fn.__name__}')
-			return fn(*args, **kwargs)
-
-		with SessionMaker.begin() as session_:
-			# kwargs['session'] = session_
+		with SessionMaker.begin() as session:
 			print(f'creating new session for {fn.__name__}')
-			ASession.session = session_
-			result = fn(*args, **kwargs)
-
-			ASession.session = None
-			return result
+			return fn(*args, session=session, **kwargs)
 
 	return wrapper
 

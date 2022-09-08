@@ -7,7 +7,6 @@ import pytest
 from src import db
 from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
-from src.db import SessionManager, create_session, ASession
 from src.tests import PlaylistIDs
 from src.types.playlists import PlaylistType
 from src.helpers.exceptions import PlaylistNotFoundError
@@ -50,18 +49,12 @@ def test_session(unchanged: PlaylistHandler):
 	playlist.id = 'asdfsdf'
 	playlist.name = 'ergdf'
 
-	# session = get_session()
-	# q = a.query(tables.Playlist).all()
-	# with create_session() as session:
-	# 	session.close()
-	# 	with pytest.raises(Exception):
-	# db.playlists._add_playlist(playlist)
+	# res = db.playlists.nested_session(playlist)
+	# print(res)
 
-	with create_session() as session:
-		# res = db.playlists._get_playlist(playlist.id, session=session)
-		print(id(session))
-		res = db.playlists._get_playlist(playlist.id)
-		print(res)
+	db.playlists.delete_playlist(playlist.id)
+	ids = db.playlists.get_all_playlists()
+	assert playlist.id not in ids
 	# db.playlists.nested_session(playlist)
 	# db.playlists._get_playlist(playlist.id)
 
@@ -104,15 +97,15 @@ def test_playlist_update(main: PlaylistHandler):
 		cp = dataclasses.asdict(main.playlist_data)
 		cp['snapshot_id'] = 'asdfasdf'
 		cp = PlaylistType(cp)
-		db.playlists._update_playlist(session, cp)
+		db.playlists.update_playlist(session, cp)
 
 		# actual test
-		db_playlist = db.playlists._get_playlist(session, main.id)
+		db_playlist = db.playlists.get_playlist(session, main.id)
 		old_snapshot = db_playlist.snapshot_id
 
-		db.playlists._update_playlist(session, main.playlist_data)
+		db.playlists.update_playlist(session, main.playlist_data)
 
-		db_playlist = db.playlists._get_playlist(session, main.id)
+		db_playlist = db.playlists.get_playlist(session, main.id)
 		new_snapshot = db_playlist.snapshot_id
 
 		# print(f'{old_snapshot=}')
@@ -174,7 +167,7 @@ def liked_tracks_not_in_playlists():
 def get_playlist_tracks(playlist_name: str):
 	with create_session() as session:
 		playlist_id = db.playlists.get_id_from_name(playlist_name)
-		playlist = db.playlists._get_playlist(session, playlist_id)
+		playlist = db.playlists.get_playlist(session, playlist_id)
 		associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
 		associations.sort(key=lambda x: x.added_at)
 		# sorted(associations/, )

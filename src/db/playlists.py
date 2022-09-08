@@ -5,30 +5,29 @@ from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
 from .tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
-from src.db import tables, create_session, get_session, SessionManager
+from src.db import tables, get_session, _
 
 from src.helpers.logger import log
 
 
-@SessionManager.session_wrapper
-def nested_session(playlist):
+@get_session
+def nested_session(playlist, *, session: Session=_):
 	""" returns a list with playlist ids """
-	_get_playlist(playlist)
-	# _add_playlist(playlist)
-	# q = SessionManager.session.query(tables.Playlist).all()
 
-	# ids = [playlist.id for playlist in q]
-	# assert playlist.id in ids
+	add_playlist(playlist)
 
-	# # _delete_playlist(playlist.id)
-	# ids = get_all_playlists()
-	# print(SessionManager.session.add)
-	# assert playlist.id not in ids
+	q = session.query(tables.Playlist).all()
+	ids = [playlist.id for playlist in q]
+	assert playlist.id in ids
+
+	q = get_playlist(playlist.id, session=session)
+	assert playlist.id == q.id
 
 
-@SessionManager.session_wrapper
-def _get_playlist(playlist_id: str):
-	playlist: tables.Playlist = SessionManager.session.query(tables.Playlist).get(playlist_id)
+
+@get_session
+def get_playlist(playlist_id: str, *, session: Session=_):
+	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
 	if playlist is None:
 		raise PlaylistNotFoundError(playlist_id)
@@ -36,158 +35,153 @@ def _get_playlist(playlist_id: str):
 	return playlist
 
 
-@SessionManager.session_wrapper
-def _add_playlist(playlist: PlaylistType):
+@get_session
+def add_playlist(playlist: PlaylistType, *, session: Session=_):
 	row = tables.Playlist(playlist)
-	SessionManager.session.add(row)
+	session.add(row)
 
 
-def _update_playlist(session: Session, playlist: PlaylistType):
+@get_session
+def update_playlist(playlist: PlaylistType, *, session: Session=_):
 	""" this function updates a playlist in the db
 		it updates the playlist length, snapshot, etc """
-	db_playlist = _get_playlist(playlist.id)
+	db_playlist = get_playlist(playlist.id, session=session)
 	db_playlist.update(playlist)
 
 
-@SessionManager.session_wrapper
-def _delete_playlist(playlist_id: str):
+@get_session
+def delete_playlist(playlist_id: str, *, session: Session=_):
 	
 	playlist = session.query(tables.Playlist).filter(Playlist.id == playlist_id)
 
-	if playlist is None:
-		return
+	# if playlist is None:
+	# 	return
 	
 	playlist.delete()
-	# session().commit()
 
 	
 
-@SessionManager.session_wrapper
-def update_playlists(playlists: list[PlaylistType]):
-	""" adds or updates spotify playlist in db """
-	with create_session() as session:
-		for playlist in playlists:
-			# FIX: remove hardcoded name below
-			if playlist.owner.id != 'slaybesh':
-				log.debug(f'Playlist {playlist.name} belong to you.')
-
-			elif does_playlist_exist(playlist.id):
-				log.info(f'Updating playlist: {playlist.name}')
-				_update_playlist(session, playlist)
-
-			else:
-				log.info(f'Adding playlist: {playlist.name}')
-				_add_playlist(playlist)
-
-
-# reads
-def get_all_playlists() -> list[str]:
+@get_session
+def get_all_playlists(*, session: Session=_) -> list[str]:
 	""" returns a list with playlist ids """
-	with create_session() as session:
-		q = session.query(tables.Playlist).all()
-		return [playlist.id for playlist in q]
+	q = session.query(tables.Playlist).all()
+	return [playlist.id for playlist in q]
 
 
-def get_id_from_name(playlist_name: str) -> str:
-	with create_session() as session:
-		playlist: tables.Playlist | None = session.query(tables.Playlist).filter(
-			tables.Playlist.name == playlist_name).first()
+@get_session
+def update_playlists(playlists: list[PlaylistType], *, session: Session=_):
+	""" adds or updates spotify playlist in db """
+	for playlist in playlists:
+		# FIX: remove hardcoded name below
+		if playlist.owner.id != 'slaybesh':
+			log.debug(f'Playlist {playlist.name} belong to you.')
 
-		if playlist is None:
-			raise PlaylistNotFoundError(playlist_name)
+		elif does_playlist_exist(playlist.id):
+			log.info(f'Updating playlist: {playlist.name}')
+			update_playlist(playlist, session=session)
 
-		return playlist.id
-
-
-def get_playlist_snapshot_id(playlist_id: str):
-	with create_session() as session:
-		playlist = _get_playlist(session, playlist_id)
-		return playlist.snapshot_id
-
-
-def does_playlist_exist(playlist_id: str):
-	with create_session() as session:
-		try:
-			_get_playlist(session, playlist_id)
-		except PlaylistNotFoundError:
-			return False
-		return True
+		else:
+			log.info(f'Adding playlist: {playlist.name}')
+			add_playlist(playlist)
 
 
-""" def update_playlist_snapshot(playlist_id: str, snapshot_id: str):
-	with Session.begin() as session:
-		playlist = get_playlist(session, playlist_id)
-		playlist.snapshot_id = snapshot_id """
+@get_session
+def get_id_from_name(playlist_name: str, *, session: Session=_) -> str:
+	playlist: tables.Playlist | None = session.query(tables.Playlist).filter(
+		tables.Playlist.name == playlist_name).first()
+
+	if playlist is None:
+		raise PlaylistNotFoundError(playlist_name)
+
+	return playlist.id
+
+
+@get_session
+def get_playlist_snapshot_id(playlist_id: str, *, session: Session=_):
+	playlist = get_playlist(playlist_id, session=session)
+	return playlist.snapshot_id
+
+
+@get_session
+def does_playlist_exist(playlist_id: str, *, session: Session=_):
+	try:
+		get_playlist(playlist_id, session=session)
+	except PlaylistNotFoundError:
+		return False
+	return True
+
+
 # endregion playlist functions
 
 
 # region tracks functions
 
 # creates
-def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem]):
-	with create_session() as session:
-		playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
+@get_session
+def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem], *, session: Session=_):
+	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
 
-		for track in tracks:
+	for track in tracks:
 
-			row = add_track(session, track.track)
-			if row is None or row.id is None:
+		row = add_track(track.track, session=session)
+		if row is None or row.id is None:
+			continue
+
+		try:
+			if is_track_in_playlist(playlist.id, row.id, session=session):
+				log.debug(f'{row.name} is already in {playlist.name}')
 				continue
+		except Exception as e:
+			log.exception(e)  # TODO find out what this error is
+			log.error(f'Not sure what this error is.')
+			continue
 
-			try:
-				if is_track_in_playlist(session, playlist.id, row.id):
-					log.debug(f'{row.name} is already in {playlist.name}')
-					continue
-			except Exception as e:
-				log.exception(e)  # TODO find out what this error is
-				log.error(f'Not sure what this error is.')
-				continue
+		association = PlaylistTracksAssociation(track)
+		association.track = row
+		association.playlist = playlist
+		playlist.playlist_track_association.append(association)
 
-			association = PlaylistTracksAssociation(track)
-			association.track = row
-			association.playlist = playlist
-			playlist.playlist_track_association.append(association)
+		session.add(association)
 
-			session.add(association)
-
-			log.debug(f'Adding {row.name} to {playlist.name}')
+		log.debug(f'Adding {row.name} to {playlist.name}')
 
 # reads
 
 
-def get_track_ids(playlist_id: str):
+@get_session
+def get_track_ids(playlist_id: str, *, session: Session=_):
 	""" returns a list with track_ids sorted by added_at (time) """
-	with create_session() as session:
-		playlist = _get_playlist(session, playlist_id)
+	playlist = get_playlist(playlist_id, session=session)
 
-		associations = playlist.playlist_track_association
-		associations.sort(key=lambda x: x.added_at)
+	associations = playlist.playlist_track_association
+	associations.sort(key=lambda x: x.added_at)
 
-		track_ids: list[str] = [ass.track_id for ass in associations]
-		return track_ids
+	track_ids: list[str] = [ass.track_id for ass in associations]
+	return track_ids
 
 
-def get_track_names(playlist_id: str):
+@get_session
+def get_track_names(playlist_id: str, *, session: Session=_):
 	""" returns a list with track_ids sorted by added_at (time) """
-	with create_session() as session:
-		playlist = _get_playlist(session, playlist_id)
-		associations = playlist.playlist_track_association
-		associations.sort(key=lambda x: x.added_at)
-		track_names: list[str] = []
-		for ass in associations:
-			track_names.append(ass.track.name)
-		return track_names
+	playlist = get_playlist(playlist_id, session=session)
+	associations = playlist.playlist_track_association
+	associations.sort(key=lambda x: x.added_at)
+	track_names: list[str] = []
+	for ass in associations:
+		track_names.append(ass.track.name)
+	return track_names
 
 
-def is_track_in_playlist(session: Session, playlist_id: str, track_id: str):
-	q = get_PlaylistTracksAssociation(session, playlist_id, track_id)
+@get_session
+def is_track_in_playlist(playlist_id: str, track_id: str, *, session: Session=_):
+	q = get_PlaylistTracksAssociation(playlist_id, track_id, session=session)
 	return does_exist(q)
 
 
+@get_session
 def get_PlaylistTracksAssociation(
-        session: Session,
         playlist_id: str,
-        track_id: str):
+        track_id: str, *, session: Session=_):
 
 	return session.query(PlaylistTracksAssociation).filter(
             PlaylistTracksAssociation.track_id == track_id,
@@ -195,11 +189,11 @@ def get_PlaylistTracksAssociation(
 
 
 # deletes
-def remove_tracks_from_playlist(playlist_id: str, items: list[str]):
-	with create_session() as session:
-		# TODO: if track has no assocation with any playlists anymore
-		# and also isnt liked, delete
-		for item in items:
-			q = get_PlaylistTracksAssociation(session, playlist_id, item)
-			q.delete()
+@get_session
+def remove_tracks_from_playlist(playlist_id: str, items: list[str], *, session: Session=_):
+	# TODO: if track has no assocation with any playlists anymore
+	# and also isnt liked, delete
+	for item in items:
+		q = get_PlaylistTracksAssociation(playlist_id, item, session=session)
+		q.delete()
 # endregion tracks functions
