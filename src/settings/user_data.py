@@ -16,7 +16,7 @@ class SnippetPlaylistType:
 
 
 @dataclass(slots=True, frozen=True)
-class PlaylistType:
+class UserPlaylistType:
 	snippet_playlist: list[SnippetPlaylistType]
 	liked_tracks_without_playlists: str
 	
@@ -26,7 +26,7 @@ class PlaylistType:
 
 def get_playlist_user_data():
 	with open('../../user_data/playlists.json') as f:
-		playlist_data: PlaylistType = json.load(f)
+		playlist_data: UserPlaylistType = json.load(f)
 		return playlist_data
 
 

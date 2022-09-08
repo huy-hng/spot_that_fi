@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
-from sqlalchemy.sql.schema import ForeignKey, Table
+from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.orm import relationship
-from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType
+from src.types.playlists import PlaylistTrackItem, PlaylistType
 from src.types.playlists import TrackDict
 
 
