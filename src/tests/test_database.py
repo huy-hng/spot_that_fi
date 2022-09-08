@@ -55,27 +55,6 @@ def test_session(unchanged: PlaylistHandler):
 	db.playlists.delete_playlist(playlist.id)
 	ids = db.playlists.get_all_playlists()
 	assert playlist.id not in ids
-	# db.playlists.nested_session(playlist)
-	# db.playlists._get_playlist(playlist.id)
-
-	# db.playlists._delete_playlist(playlist.id)
-
-	# with pytest.raises(PlaylistNotFoundError):
-	# 	db.playlists._get_playlist(playlist.id)
-
-	# time.sleep(5)
-	# with create_session() as session:
-	# 	db.playlists._delete_playlist(session, playlist.id)
-
-	# 	with pytest.raises(PlaylistNotFoundError):
-	# 		db.playlists._get_playlist(session, playlist.id)
-
-	# a.close
-	# playlist = _get_playlist(a, q[-1].id)
-	# print(playlist.id)
-
-	# close_all_sessions()
-	# ids = [_get_playlist(sess, playlist.id).id for playlist in q]
 
 	return []
 
