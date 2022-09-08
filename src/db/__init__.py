@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 engine = create_engine('sqlite:///src/db/SpotifyData.db')
 SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base(bind=engine)
-_: Session = None
+_: Session = None  # type: ignore
 
 
 def create_session() -> Session:
@@ -30,7 +30,7 @@ def get_session(fn):
 
 
 class SessionManager:
-	session: Session = None
+	session: Session = None  # type: ignore
 
 	@classmethod
 	def session_wrapper(cls, fn):
@@ -52,7 +52,7 @@ class SessionManager:
 				cls.session = session_
 				result = fn(*args, **kwargs)
 
-				cls.session = None
+				cls.session = None  # type: ignore
 				return result
 
 		return wrapper
@@ -65,7 +65,7 @@ class SessionManager:
 			with SessionMaker.begin() as session_:
 				cls.session = session_
 				result = fn(*args, **kwargs)
-			cls.session = None
+			cls.session = None  # type: ignore
 			return result
 		return wrapper
 

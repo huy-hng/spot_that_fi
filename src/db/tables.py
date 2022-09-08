@@ -1,27 +1,21 @@
 from __future__ import annotations
 
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Boolean, DateTime
-from sqlalchemy.sql.schema import ForeignKey
+
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
-from src.types.playlists import PlaylistTrackItem, PlaylistType
-from src.types.playlists import TrackDict
-
-
+from sqlalchemy.sql.schema import ForeignKey
 from src.db import Base as TableBase
+from src.types.playlists import PlaylistTrackItem, PlaylistType, TrackDict
 
 
 class PlaylistTracksAssociation(TableBase):
 	__tablename__ = 'playlist_tracks_association'
 
-	playlist_id: str = Column(
-		ForeignKey('playlist.id'), primary_key=True)  # type: ignore
-	track_id: str = Column(
-		ForeignKey('track.id'), primary_key=True)  # type: ignore
-	track: Track = relationship('Track',
-			back_populates='playlist_track_association')
-	playlist: Playlist = relationship('Playlist',
-			back_populates='playlist_track_association')
+	playlist_id: str = Column(ForeignKey('playlist.id'), primary_key=True)  # type: ignore
+	track_id: str = Column(ForeignKey('track.id'), primary_key=True)  # type: ignore
+	track: Track = relationship('Track', back_populates='playlist_track_association')
+	playlist: Playlist = relationship('Playlist', back_populates='playlist_track_association')
 
 	added_by: str = Column(String, nullable=False)  # type: ignore
 	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
