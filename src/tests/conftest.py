@@ -1,7 +1,9 @@
+import json
 import pytest
 
 from src.api.playlists import PlaylistsHandler
 from src.tests import PlaylistIDs
+from src.types.playlists import PlaylistType
 
 # 55 tracks from calm
 track_ids_55 = ['13KLstO6ywva9h94FOqpeW', '2xeW5CIB5XHkaDLYEFOSjs', '5PF2WtSZV4EtmGx4oER1zt', '2VvohoUXfl1dW6gM1UHPvK', '0HX7Qdf2R0pfeDueFpF6C4', '3Yojk6oNOGZGlxMrYXsaJh', '3A6WcOcwVB3dFZppYvlEvi', '0euC0zrWPMPACwjnyulC6l', '6WoloXr2PXu8FRYZFtzbij', '4qDVck33icBULgnvP6WmPh', '6CRrPTcxzM4pIO29GJF7Nk', '2KnuaZYoGzDoHiBTNYOTXG', '0FfqyjhB6Kspvit1oOo7ax', '2EZemIRw1LnIUM7YoiKWPQ', '7r8SEXh79XwN1tmOG2dbxN', '4dDEkdgT6gLXG1VSI0Qgtq', '02zYabT1FTwMy8byKpd40O', '6XR59BEFC1Z2kQ7PayDNPj', '7u2PsDpp4FdXsbn4sTh6MY', '5EMGQPQI60jvyDjKT2Fn2I', '6rSUrh8ErKSKfbH0t0IzCM', '6UdoWvHXqS0T4j0qCFFxBl', '0VMmHFqENPTDq3lHafvOPt', '2hNBhYGXQbq9KHYvK2itFY', '7x0vY5vTKzxMqozQWCj8Nd', '6dquCx5KAW5jCgGgoTlghL', '1IY1Ge6tFl0m9pr2Yg0OFe',
@@ -10,7 +12,11 @@ track_ids_55 = ['13KLstO6ywva9h94FOqpeW', '2xeW5CIB5XHkaDLYEFOSjs', '5PF2WtSZV4E
 
 @pytest.fixture(scope='session')
 def playlists_handler():
-	playlists = PlaylistsHandler()
+	with open('./data/api_data/current_user_playlist_items.json') as f:
+		data: list[dict] = json.load(f)
+
+	playlists = [PlaylistType(p) for p in data]
+	playlists = PlaylistsHandler(playlists)
 	return playlists
 
 

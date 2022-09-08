@@ -8,7 +8,7 @@ from src.api import spotify
 from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType, PlaylistTracks
 from src.settings.user_data import get_playlist_user_data
 
-from src.helpers.helpers import grouper
+from src.helpers.helpers import grouper, write_dict_to_file
 from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.logger import log
 
@@ -20,9 +20,9 @@ class SyncPairs(NamedTuple):
 
 
 class PlaylistsHandler:
-	def __init__(self):
+	def __init__(self, playlists: list[PlaylistType] | None=None):
 		self.playlists: list[PlaylistHandler]
-		self.fetch_playlists()
+		self.fetch_playlists(playlists)
 
 		# for easier lookup
 		self.names: dict[str, int] = {}
@@ -33,8 +33,9 @@ class PlaylistsHandler:
 			self.ids[playlist.id] = index
 
 
-	def fetch_playlists(self):
-		playlists = api.get_all_playlists()
+	def fetch_playlists(self, playlists: list[PlaylistType] | None=None):
+		if playlists is None:
+			playlists = api.get_all_playlists()
 		self.playlists = [PlaylistHandler(playlist) for playlist in playlists]
 
 

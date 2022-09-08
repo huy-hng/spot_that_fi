@@ -4,7 +4,7 @@ from typing import Iterable, TypeVar, NamedTuple
 
 def allow_generic_namedtuples():
 	def _namedtuple_mro_entries(bases):
-		from typing import _GenericAlias, _NamedTuple
+		from typing import _GenericAlias, _NamedTuple  # type: ignore
 		assert bases[0] is NamedTuple
 
 		if len(bases) > 1:
@@ -15,7 +15,7 @@ def allow_generic_namedtuples():
 
 		return (_NamedTuple,)
 
-	NamedTuple.__mro_entries__ = _namedtuple_mro_entries
+	NamedTuple.__mro_entries__ = _namedtuple_mro_entries  # type: ignore
 
 
 def write_dict_to_file(name: str, data):
