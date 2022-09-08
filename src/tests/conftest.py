@@ -17,6 +17,10 @@ def playlists_handler():
 @pytest.fixture(scope='session')
 def main(playlists_handler: PlaylistsHandler):
 	return playlists_handler.get_by_id(PlaylistIDs.main)
+	
+@pytest.fixture(scope='session')
+def unchanged(playlists_handler: PlaylistsHandler):
+	return playlists_handler.get_by_id(PlaylistIDs.main)
 
 # def replace_tracks(playlist_name: str, track_ids: list[str]):
 # 	playlists = LivePlaylists()

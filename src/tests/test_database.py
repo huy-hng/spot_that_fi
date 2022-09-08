@@ -1,13 +1,90 @@
 import dataclasses
 import json
+import time
+import timeit
 
 import pytest
 from src import db
 from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
-from src.db import create_session
+from src.db import SessionManager, create_session, ASession
 from src.tests import PlaylistIDs
 from src.types.playlists import PlaylistType
+from src.helpers.exceptions import PlaylistNotFoundError
+
+
+def created_session(playlist_id: str):
+	with create_session() as session:
+		playlist = session.query(db.tables.Playlist).get(playlist_id)
+
+
+def passed_session(session, playlist_id: str):
+	playlist = session.query(db.tables.Playlist).get(playlist_id)
+
+
+def test_time():
+	# result = timeit.timeit(timer)
+	# print(result)
+	playlist_id = '063Tra4gBrn9kOf0kZQiIT'
+	create_stmt = f'created_session("{playlist_id}")'
+	create_setup = 'from src.tests.test_database import created_session'
+
+	passed_stmt = f'passed_session(session, "{playlist_id}")'
+	passed_setup = """\
+from src.tests.test_database import passed_session
+from src.db import SessionMaker
+session = SessionMaker()
+"""
+	num = 10000
+	passed = timeit.timeit(passed_stmt, passed_setup, number=num)
+	created = timeit.timeit(create_stmt, create_setup, number=num)
+
+	print(f'{created=}')
+	print(f'{passed=}')
+
+
+def test_session(unchanged: PlaylistHandler):
+
+	playlist = unchanged.playlist_data
+	print(playlist.id)
+	playlist.id = 'asdfsdf'
+	playlist.name = 'ergdf'
+
+	# session = get_session()
+	# q = a.query(tables.Playlist).all()
+	# with create_session() as session:
+	# 	session.close()
+	# 	with pytest.raises(Exception):
+	# db.playlists._add_playlist(playlist)
+
+	with create_session() as session:
+		# res = db.playlists._get_playlist(playlist.id, session=session)
+		print(id(session))
+		res = db.playlists._get_playlist(playlist.id)
+		print(res)
+	# db.playlists.nested_session(playlist)
+	# db.playlists._get_playlist(playlist.id)
+
+	# db.playlists._delete_playlist(playlist.id)
+
+	# with pytest.raises(PlaylistNotFoundError):
+	# 	db.playlists._get_playlist(playlist.id)
+
+	# time.sleep(5)
+	# with create_session() as session:
+	# 	db.playlists._delete_playlist(session, playlist.id)
+
+	# 	with pytest.raises(PlaylistNotFoundError):
+	# 		db.playlists._get_playlist(session, playlist.id)
+
+	# a.close
+	# playlist = _get_playlist(a, q[-1].id)
+	# print(playlist.id)
+
+	# close_all_sessions()
+	# ids = [_get_playlist(sess, playlist.id).id for playlist in q]
+
+	return []
 
 
 @pytest.mark.skip
@@ -52,11 +129,11 @@ def get_tracks_in_db_playlist():
 		print(name)
 
 
-def check_track_in_playlist():
-	playlist_id = '0oWDXsY9BhT9NKimKwNY9d'
+def test_check_track_in_playlist(unchanged: PlaylistHandler):
 	track_id = '14fIlfcmFPlj4V2IazeJ25'
+	ids = db.playlists.get_track_ids(unchanged.id)
 	# track_id = 'asd14fIlfcmFPlj4V2IazeJ25'
-	res = db.helpers.is_track_in_playlist(playlist_id, track_id)
+	res = db.playlists.is_track_in_playlist(unchanged.id, track_id)
 	print(res)
 
 

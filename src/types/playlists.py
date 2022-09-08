@@ -48,7 +48,8 @@ class PlaylistTracks:
 		init(self, playlist)
 
 
-@dataclass(slots=True, frozen=True)
+# @dataclass(slots=True, frozen=True)
+@dataclass(slots=True)
 class PlaylistType:
 	collaborative: bool
 	description: str

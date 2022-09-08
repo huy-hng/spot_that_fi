@@ -5,14 +5,30 @@ from src.helpers.exceptions import PlaylistNotFoundError
 from .helpers import does_exist
 from .tracks import add_track
 from .tables import Playlist, PlaylistTracksAssociation
-from src.db import tables, create_session
-# from . import Session
+from src.db import tables, create_session, get_session, SessionManager
 
 from src.helpers.logger import log
 
 
-def _get_playlist(session: Session, playlist_id: str):
-	playlist: tables.Playlist = session.query(tables.Playlist).get(playlist_id)
+@SessionManager.session_wrapper
+def nested_session(playlist):
+	""" returns a list with playlist ids """
+	_get_playlist(playlist)
+	# _add_playlist(playlist)
+	# q = SessionManager.session.query(tables.Playlist).all()
+
+	# ids = [playlist.id for playlist in q]
+	# assert playlist.id in ids
+
+	# # _delete_playlist(playlist.id)
+	# ids = get_all_playlists()
+	# print(SessionManager.session.add)
+	# assert playlist.id not in ids
+
+
+@SessionManager.session_wrapper
+def _get_playlist(playlist_id: str):
+	playlist: tables.Playlist = SessionManager.session.query(tables.Playlist).get(playlist_id)
 
 	if playlist is None:
 		raise PlaylistNotFoundError(playlist_id)
@@ -20,18 +36,33 @@ def _get_playlist(session: Session, playlist_id: str):
 	return playlist
 
 
-def _add_playlist(session: Session, playlist: PlaylistType):
+@SessionManager.session_wrapper
+def _add_playlist(playlist: PlaylistType):
 	row = tables.Playlist(playlist)
-	session.add(row)
+	SessionManager.session.add(row)
 
 
 def _update_playlist(session: Session, playlist: PlaylistType):
 	""" this function updates a playlist in the db
 		it updates the playlist length, snapshot, etc """
-	db_playlist = _get_playlist(session, playlist.id)
+	db_playlist = _get_playlist(playlist.id)
 	db_playlist.update(playlist)
 
 
+@SessionManager.session_wrapper
+def _delete_playlist(playlist_id: str):
+	
+	playlist = session.query(tables.Playlist).filter(Playlist.id == playlist_id)
+
+	if playlist is None:
+		return
+	
+	playlist.delete()
+	# session().commit()
+
+	
+
+@SessionManager.session_wrapper
 def update_playlists(playlists: list[PlaylistType]):
 	""" adds or updates spotify playlist in db """
 	with create_session() as session:
@@ -46,7 +77,7 @@ def update_playlists(playlists: list[PlaylistType]):
 
 			else:
 				log.info(f'Adding playlist: {playlist.name}')
-				_add_playlist(session, playlist)
+				_add_playlist(playlist)
 
 
 # reads
@@ -154,13 +185,13 @@ def is_track_in_playlist(session: Session, playlist_id: str, track_id: str):
 
 
 def get_PlaylistTracksAssociation(
-		session: Session,
-		playlist_id: str,
-		track_id: str):
+        session: Session,
+        playlist_id: str,
+        track_id: str):
 
 	return session.query(PlaylistTracksAssociation).filter(
-			PlaylistTracksAssociation.track_id == track_id,
-			PlaylistTracksAssociation.playlist_id == playlist_id)
+            PlaylistTracksAssociation.track_id == track_id,
+            PlaylistTracksAssociation.playlist_id == playlist_id)
 
 
 # deletes
