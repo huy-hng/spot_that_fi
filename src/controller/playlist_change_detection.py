@@ -1,11 +1,11 @@
 from typing import NamedTuple
-from src.helpers.helpers import lookahead
-from src.helpers.myers import Myers
-from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType
-from src.api.playlists import PlaylistHandler
 
-from src.helpers.logger import log
 from src import db
+from src.api.playlists import PlaylistHandler
+from src.helpers.helpers import lookahead
+from src.helpers.logger import log
+from src.helpers.myers import Myers
+from src.types.playlists import PlaylistTrackItem, PlaylistType
 
 
 def has_playlist_changed(playlist: PlaylistType):
@@ -15,15 +15,16 @@ def has_playlist_changed(playlist: PlaylistType):
 	return previous_snapshot != current_snapshot
 
 
-def get_changed_playlists(playlists: list[PlaylistType]):
+def get_changed_playlists(playlists: list[PlaylistHandler]):
 	""" filteres the playlists param and returns only
 		playlists that changed """
-	return [p for p in playlists if has_playlist_changed(p)]
+	return [p for p in playlists if has_playlist_changed(p.playlist_data)]
 
 
 class Diff(NamedTuple):
 	inserts: list[PlaylistTrackItem] = []
 	removals: list[str] = []
+
 
 def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
 	""" returns the difference between tracks in db and on spotify
@@ -44,7 +45,7 @@ def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
 		myers = Myers(db_track_list, track_ids)
 
 		fki = myers.first_keep_index if has_next else 0
-		if fki is not None: # check to save on iterations
+		if fki is not None:  # check to save on iterations
 
 			estimated_total = fki + len(saved_items)
 			if estimated_total == playlist.total_tracks:

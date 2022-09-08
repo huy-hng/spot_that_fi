@@ -1,3 +1,4 @@
+from __future__ import annotations
 import time
 from typing import NamedTuple, Type, TypeGuard, TypeVar
 
@@ -12,8 +13,9 @@ from src.helpers.logger import log
 
 
 class SyncPairs(NamedTuple):
-	main: PlaylistType
-	snippet: PlaylistType
+	main: PlaylistHandler
+	snippet: PlaylistHandler
+
 
 
 class PlaylistsHandler:
@@ -51,7 +53,7 @@ class PlaylistsHandler:
 		return self.playlists[index]
 
 
-	def get_sync_pairs(self) -> list[SyncPairs]:
+	def get_sync_pairs(self):
 		# read pairs from some file
 		pairs: list[SyncPairs] = []
 		playlist_data = get_playlist_user_data()
@@ -62,11 +64,14 @@ class PlaylistsHandler:
 
 			main = self.get_by_id(main_id)
 			snippet = self.get_by_id(snippet_id)
-			# pairs.append(SyncPairs(main.playlist_data, snippet.playlist_data))
+			pairs.append(SyncPairs(main, snippet))
 
 		return pairs
 
 
+# REFACTOR: either use this class exclusively and inherit/merge from/with PlaylistType
+	# merging could cause problems with the hacky way PlaylistType instantiation works
+# REFACTOR: or delete this class and move its method to src.api
 class PlaylistHandler:
 	""" handles crud operations of a live playlist
 	the methods shouldnt be complicated
@@ -94,7 +99,7 @@ class PlaylistHandler:
 		self.snapshot_id = data.snapshot_id
 
 
-	def get_track_generator(self, *, total_tracks: int = 0, limit=100, raw=False):
+	def get_track_generator(self, *, limit=100, raw=False):
 		""" Get latest tracks until total_tracks has been reached
 			or no tracks are left.
 

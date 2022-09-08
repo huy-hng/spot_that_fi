@@ -1,6 +1,5 @@
 from src.api.playlists import PlaylistHandler, PlaylistsHandler
 from src.controller import playlist_change_detection as pcd
-from src.types.playlists import PlaylistType, PlaylistType
 
 # TODO move this to settings.json or .env
 SNIPPET_SIZE = 50
@@ -8,8 +7,8 @@ SNIPPET_SIZE = 50
 
 # TODO: possibility to put in playlist_id instead of instace of a playlist class
 def sync_playlist_pair(
-	main: PlaylistType,
-	snippet: PlaylistType,
+	main_playlist: PlaylistHandler,
+	snippet_playlist: PlaylistHandler,
 	*, snippet_size=SNIPPET_SIZE):
 	"""
 	compare main and snippet playlists and see what has changed and
@@ -19,13 +18,10 @@ def sync_playlist_pair(
 	# that happened in the playlists. This means update_playlist_tracks_in_db
 	# cannot finish running before this function started
 
-	snippet_changed = pcd.has_playlist_changed(snippet)
-	main_changed = pcd.has_playlist_changed(main)
+	snippet_changed = pcd.has_playlist_changed(snippet_playlist.playlist_data)
+	main_changed = pcd.has_playlist_changed(main_playlist.playlist_data)
 	if not main_changed and snippet_changed:
 		return
-
-	snippet_playlist = PlaylistHandler(snippet)
-	main_playlist = PlaylistHandler(main)
 
 	if snippet_changed:
 		snippet_diff = pcd.get_playlist_diff(snippet_playlist)
