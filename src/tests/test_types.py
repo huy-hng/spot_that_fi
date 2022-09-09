@@ -14,7 +14,6 @@ def test_parse_liked_tracks():
 	parsed = tracks.LikedTrackItem(liked_tracks[0])
 	
 	print(parsed.track.episode)
-	print(parsed.raw_track)
 	print(parsed.added_at)
 
 def test_parse_playlist_track():

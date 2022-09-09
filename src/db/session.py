@@ -1,15 +1,9 @@
 
 from functools import wraps
 
-from sqlalchemy.orm import Session, sessionmaker
-# from src.db import engine
-from sqlalchemy import create_engine
-db_path = 'sqlite:///src/db/databases'
-engine = create_engine('sqlite:///:memory:')
-engine = create_engine(f'{db_path}/SpotifyData.db')
-engine = create_engine(f'{db_path}/Testing.db')
+from sqlalchemy.orm import Session
+from src.db import SessionMaker
 
-SessionMaker = sessionmaker(bind=engine)
 
 def create_session() -> Session:
 	return SessionMaker.begin()
