@@ -3,10 +3,10 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
+from src.helpers.exceptions import PlaylistNotFoundError
+from src.helpers.helpers import write_dict_to_file
 from src.types.playlists import PlaylistType
 from src.types.tracks import LikedTrackList
-from src.helpers.exceptions import PlaylistNotFoundError
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -43,8 +43,8 @@ def get_liked_tracks_generator(limit=50):
 	while True:
 		items = spotify.current_user_saved_tracks(limit, offset)
 		if items is None: continue
-		items = LikedTrackList(items)
 		# write_dict_to_file('liked_tracks', items)
+		items = LikedTrackList(items)
 		offset += limit
 
 		yield items

@@ -32,7 +32,7 @@ class TrackDict:
 @dataclass(slots=True, frozen=True)
 class LikedTrackItem:
 
-	added_at: str # TODO could be datetime
+	added_at: str
 	track: TrackDict
 
 	def __init__(self, item: dict) -> None:

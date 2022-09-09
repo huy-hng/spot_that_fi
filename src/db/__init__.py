@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
 # engine = create_engine('sqlite:///:memory:')
+# engine = create_engine('sqlite:///src/db/Testing.db')
 engine = create_engine('sqlite:///src/db/SpotifyData.db')
 SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base(bind=engine)
@@ -19,11 +20,11 @@ def get_session(fn):
 	@wraps(fn)
 	def wrapper(*args, session=None, **kwargs):
 		if session is not None:
-			print(f'using passed session for {fn.__name__}')
+			# print(f'using passed session for {fn.__name__}')
 			return fn(*args, session=session, **kwargs)
 
 		with SessionMaker.begin() as session:
-			print(f'creating new session for {fn.__name__}')
+			# print(f'creating new session for {fn.__name__}')
 			return fn(*args, session=session, **kwargs)
 
 	return wrapper
