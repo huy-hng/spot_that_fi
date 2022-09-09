@@ -1,5 +1,5 @@
 from src.tests.test_snippet_feature import reset_playlists
-from src.tests import test_database
+from src.tests.db import test_database
 from src.tests import get_sample_data
 
 # reset_playlists()

@@ -1,6 +1,7 @@
 from typing import NamedTuple
 
 
+# TODO: sample data for testing that stays the same
 class PlaylistIDs(NamedTuple):
 	calm = '6LB26f7o7YcANtlVuxhXZq'
 	unchanged = '6BDxVpN7v1HFSRGgt8LYCn'
