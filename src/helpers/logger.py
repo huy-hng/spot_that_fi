@@ -18,22 +18,22 @@ formatter = logging.Formatter(
 console_formatter = logging.Formatter('%(message)3s')
 
 
-def file_handler(folder, log_level):
-	if not os.path.isdir(f'{folder_path}/{folder}'):
-		os.mkdir(f'{folder_path}/{folder}')
+def add_file_handler(level, log_level):
+	date = datetime.datetime.now().strftime("%Y-%m-%d")
+	path = f'{folder_path}/{date}'
 
-	handler = logging.FileHandler(
-			f'{folder_path}/{folder}/'
-			+ datetime.datetime.now().strftime("%Y-%m-%d")
-			+ '.log')
+	if not os.path.isdir(path):
+		os.mkdir(path)
+
+	handler = logging.FileHandler(f'{path}/{level}.log')
 	handler.setLevel(log_level)
 	handler.setFormatter(formatter)
 	log.addHandler(handler)
 
 
-file_handler('debug', logging.DEBUG)
-file_handler('info', logging.INFO)
-file_handler('error', logging.ERROR)
+add_file_handler('debug', logging.DEBUG)
+add_file_handler('info', logging.INFO)
+add_file_handler('error', logging.ERROR)
 
 consoleHandler = logging.StreamHandler()
 consoleHandler.setFormatter(console_formatter)
