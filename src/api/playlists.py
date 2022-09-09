@@ -8,7 +8,7 @@ from src.api import spotify
 from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType, PlaylistTracks
 from src.settings.user_data import get_playlist_user_data
 
-from src.helpers.helpers import grouper, write_dict_to_file
+from src.helpers.helpers import clamp, grouper, write_dict_to_file
 from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.logger import log
 
@@ -18,9 +18,8 @@ class SyncPairs(NamedTuple):
 	snippet: PlaylistHandler
 
 
-
 class PlaylistsHandler:
-	def __init__(self, playlists: list[PlaylistType] | None=None):
+	def __init__(self, playlists: list[PlaylistType] | None = None):
 		self.playlists: list[PlaylistHandler]
 		self.fetch_playlists(playlists)
 
@@ -32,12 +31,10 @@ class PlaylistsHandler:
 			self.names[playlist.name] = index
 			self.ids[playlist.id] = index
 
-
-	def fetch_playlists(self, playlists: list[PlaylistType] | None=None):
+	def fetch_playlists(self, playlists: list[PlaylistType] | None = None):
 		if playlists is None:
 			playlists = api.get_all_playlists()
 		self.playlists = [PlaylistHandler(playlist) for playlist in playlists]
-
 
 	def get_by_id(self, playlist_id: str):
 		index = self.ids.get(playlist_id)
@@ -46,14 +43,12 @@ class PlaylistsHandler:
 
 		return self.playlists[index]
 
-
 	def get_by_name(self, name: str):
 		index = self.names.get(name)
 		if index is None:
 			raise PlaylistNotFoundError('Playlist Name does not exist.')
 
 		return self.playlists[index]
-
 
 	def get_sync_pairs(self):
 		# read pairs from some file
@@ -82,6 +77,7 @@ class PlaylistHandler:
 	This class doesn't save state, it just performs actions
 	on the playlists on spotify.
 	"""
+
 	def __init__(self, playlist: PlaylistType):
 		self.data = playlist
 		self.id = playlist.id
@@ -100,7 +96,6 @@ class PlaylistHandler:
 		self.total_tracks = data.tracks.total
 		self.snapshot_id = data.snapshot_id
 
-
 	def get_track_generator(self, *, limit=100, raw=False):
 		""" Get latest tracks until total_tracks has been reached
 			or no tracks are left.
@@ -112,10 +107,10 @@ class PlaylistHandler:
 
 			The order is the same as in spotify without any sorting.
 			The first returned item is the most recently added tracks
-			
+
 			the section that is returned first are the items that have been
 			added last
-			
+
 			so if my playlist is [0,1,2,3,4] and 0 is the first track 
 			that has been added and my limit is 2, then the first yield is
 			[3,4], then comes [1,2] and at last [0],
@@ -127,15 +122,15 @@ class PlaylistHandler:
 			sorted from first added to last added
 		"""
 
-		clamp_limit = lambda limit: max(1, min(100, limit))
-		limit = clamp_limit(limit)
+		limit = clamp(limit, 1, 100)
 
 		offset = max(0, self.total_tracks - limit)
-		while items := spotify.playlist_items(self.id, limit=clamp_limit(limit), offset=offset):
-			if items is None: break
+		while items := spotify.playlist_items(self.id, limit=clamp(limit, 1, 100), offset=offset):
+			if items is None:
+				break
 
 			parsed = PlaylistTracks(items)
-			if self.total_tracks != parsed.total: # fixes wrong self.total_tracks input
+			if self.total_tracks != parsed.total:  # fixes wrong self.total_tracks input
 				self.total_tracks = parsed.total
 				offset = max(0, self.total_tracks - limit)
 				continue
@@ -152,8 +147,7 @@ class PlaylistHandler:
 			if not parsed.previous:
 				break
 
-
-	def get_latest_tracks(self, num_tracks: int=0) -> list[PlaylistTrackItem]:
+	def get_latest_tracks(self, num_tracks: int = 0) -> list[PlaylistTrackItem]:
 		""" returns the latest n songs in playlist in added order.
 		That means the latest added song is at the end of the list\n
 		if num_songs == 0: return all songs in playlist """
@@ -164,7 +158,7 @@ class PlaylistHandler:
 			self._update_data()
 			num_tracks = self.total_tracks
 
-		saved: list[PlaylistTrackItem]  = []
+		saved: list[PlaylistTrackItem] = []
 		for tracks in self.get_track_generator(limit=LIMIT):
 			if len(saved) + len(tracks) > num_tracks:
 				rest = num_tracks % LIMIT
@@ -174,13 +168,12 @@ class PlaylistHandler:
 
 		return saved
 
-
 	def add_tracks_at_end(self,
-		tracks: list[PlaylistTrackItem] | list[str],
-		position: int=-1,
-		group_size: int=1,
-		add_duplicates: bool=False
-	):
+                       tracks: list[PlaylistTrackItem] | list[str],
+                       position: int = -1,
+                       group_size: int = 1,
+                       add_duplicates: bool = False
+                       ):
 		""" Adds tracks to playlist. 
 
 			Args:
@@ -225,12 +218,10 @@ class PlaylistHandler:
 
 		self._update_data()
 
-
 	def remove_tracks(self, tracks: list[PlaylistTrackItem] | list[str]):
 		track_ids = handle_non_ids(tracks)
 		spotify.playlist_remove_all_occurrences_of_items(self.id, track_ids)
 		self._update_data()
-
 
 	def replace_tracks(self, tracks: list[PlaylistTrackItem] | list[str]):
 		""" Replaces all tracks in playlist.
@@ -247,7 +238,8 @@ class PlaylistHandler:
 
 
 def get_ids(tracks: list[PlaylistTrackItem]) -> list[str]:
-	if not tracks: return []
+	if not tracks:
+		return []
 
 	return [item.track.id for item in tracks]
 
@@ -286,6 +278,7 @@ def convert_playlist_uri_to_id(id: str):
 
 
 T = TypeVar('T')
+
 
 def handle_non_ids(tracks: list[PlaylistTrackItem] | list[str]) -> list[str]:
 	if is_set_of(tracks, str):
