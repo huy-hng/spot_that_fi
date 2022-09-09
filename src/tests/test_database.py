@@ -4,18 +4,61 @@ import time
 import timeit
 
 import pytest
-from src import db
-from src.db import create_session
+from src import api, db
 from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
-from src.tests import PlaylistIDs
-from src.types.playlists import PlaylistType
+from src.db import create_session
 from src.helpers.exceptions import PlaylistNotFoundError
+from src.helpers.helpers import write_dict_to_file
+from src.tests import PlaylistIDs
+from src.types.playlists import PlaylistTrackItem, PlaylistType
+from src.types.tracks import LikedTrackList
+
+# TODO: sample data for testing that stays the same
+
+
+def test_add_playlists(playlists_handler: PlaylistsHandler):
+	playlists = [playlist.data for playlist in playlists_handler.playlists]
+	db.playlists.add_playlists(playlists)
+
+	ids = db.playlists.get_playlist_ids()
+	return ids
+
+
+def test_add_playlist_tracks(playlists_handler: PlaylistsHandler):
+	# playlist_ids = db.playlists.get_playlist_ids()
+	playlist_ids = test_add_playlists(playlists_handler)
+
+	for playlist_id in playlist_ids:
+		try:
+			with open(f'./data/playlists/{playlist_id}.json') as f:
+				tracks_data = json.load(f)
+		except Exception:
+			continue
+
+		tracks = [PlaylistTrackItem(data) for data in tracks_data]
+		db.playlists.add_tracks_to_playlist(playlist_id, tracks)
+		break
+
+	for id in playlist_ids:
+		names = db.playlists.get_track_names(id)
+		print(len(names))
+		break
+
+
+def test_add_liked_tracks():
+	with open(f'./data/liked_tracks.json') as f:
+		tracks_data = json.load(f)
+
+	items = LikedTrackList(tracks_data)
+	for track in items.items:
+		db.tracks.like_track(track)
+
 
 
 def test_session(unchanged: PlaylistHandler):
 
-	playlist = unchanged.playlist_data
+	playlist = unchanged.data
 	print(playlist.id)
 	playlist.id = 'asdfsdf'
 	playlist.name = 'ergdf'
@@ -24,7 +67,7 @@ def test_session(unchanged: PlaylistHandler):
 	# print(res)
 
 	db.playlists.delete_playlist(playlist.id)
-	ids = db.playlists.get_all_playlist_ids()
+	ids = db.playlists.get_playlist_ids()
 	assert playlist.id not in ids
 
 	return []
@@ -44,7 +87,7 @@ def test_get_track_diff(playlists_handler: PlaylistsHandler):
 def test_playlist_update(main: PlaylistHandler):
 	with create_session() as session:
 		# setup (change snapshot id)
-		cp = dataclasses.asdict(main.playlist_data)
+		cp = dataclasses.asdict(main.data)
 		cp['snapshot_id'] = 'asdfasdf'
 		cp = PlaylistType(cp)
 		db.playlists.update_playlist(session, cp)
@@ -53,7 +96,7 @@ def test_playlist_update(main: PlaylistHandler):
 		db_playlist = db.playlists.get_playlist(session, main.id)
 		old_snapshot = db_playlist.snapshot_id
 
-		db.playlists.update_playlist(session, main.playlist_data)
+		db.playlists.update_playlist(session, main.data)
 
 		db_playlist = db.playlists.get_playlist(session, main.id)
 		new_snapshot = db_playlist.snapshot_id
@@ -92,19 +135,6 @@ def add_liked_tracks():
 	db.tracks.add_tracks(tracks, liked=True)
 
 
-def add_tracks_to_playlist(playlist_id: str, tracks: list[dict]):
-	db.playlists.add_tracks_to_playlist(playlist_id, tracks)
-
-
-def add_tracks_to_all_playlists():
-	playlist_ids = db.playlists.get_all_playlist_ids()
-
-	for playlist_id in playlist_ids:
-		with open(f'./data/playlists/{playlist_id}.json') as f:
-			tracks = json.load(f)
-			add_tracks_to_playlist(playlist_id, tracks)
-
-
 def liked_tracks_not_in_playlists():
 	track_ids = db.tracks.get_liked_tracks_not_in_playlists()
 
@@ -116,7 +146,7 @@ def liked_tracks_not_in_playlists():
 def get_playlist_tracks(playlist_name: str):
 	playlist_id = db.playlists.get_id_from_name(playlist_name)
 	playlist = db.playlists.get_playlist(playlist_id)
-	associations: list[db.tables.PlaylistTracksAssociation] = playlist.playlist_track_association
+	associations: list[db.tables.PlaylistAssociation] = playlist.tracks
 	associations.sort(key=lambda x: x.added_at)
 	# sorted(associations/, )
 

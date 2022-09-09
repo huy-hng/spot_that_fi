@@ -7,21 +7,28 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
 from src.db import Base as TableBase
 from src.types.playlists import PlaylistTrackItem, PlaylistType, TrackDict
+from src.types.tracks import LikedTrackItem
 
 
-class PlaylistTracksAssociation(TableBase):
-	__tablename__ = 'playlist_tracks_association'
+def parse_time(time: str):
+	# TODO: timezones?
+	return datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ')
+
+class PlaylistAssociation(TableBase):
+	__tablename__ = 'playlist_association'
 
 	playlist_id: str = Column(ForeignKey('playlist.id'), primary_key=True)  # type: ignore
 	track_id: str = Column(ForeignKey('track.id'), primary_key=True)  # type: ignore
-	track: Track = relationship('Track', back_populates='playlist_track_association')
-	playlist: Playlist = relationship('Playlist', back_populates='playlist_track_association')
+	track: Track = relationship('Track', back_populates='playlists')
+	playlist: Playlist = relationship('Playlist', back_populates='tracks')
 
 	added_by: str = Column(String, nullable=False)  # type: ignore
 	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
+	# TODO: implement default order of playlist
+	order: int = Column(Integer)  # type: ignore
 
 	def __init__(self, track: PlaylistTrackItem):
-		self.added_at = datetime.strptime(track.added_at, '%Y-%m-%dT%H:%M:%SZ')
+		self.added_at = parse_time(track.added_at)
 		self.added_by = track.added_by['id']
 
 
@@ -35,8 +42,8 @@ class Playlist(TableBase):
 	snapshot_id: str = Column(String, nullable=False)  # type: ignore
 	owner_id: str = Column(String, nullable=False)  # type: ignore
 
-	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
-			'PlaylistTracksAssociation', back_populates='playlist')
+	tracks: list[PlaylistAssociation] = relationship(
+			'PlaylistAssociation', back_populates='playlist')
 
 	def __init__(self, playlist: PlaylistType) -> None:
 		self.id = playlist.id
@@ -57,10 +64,11 @@ class Track(TableBase):
 	name: str = Column(String, nullable=False)  # type: ignore
 	duration_ms: int = Column(Integer, nullable=False)  # type: ignore
 	popularity: int = Column(Integer, nullable=False)  # type: ignore
-	liked: bool = Column(Boolean, default=False)  # type: ignore
+	liked: bool = Column(Boolean)  # type: ignore
+	liked_at: datetime = Column(DateTime)  # type: ignore
 
-	playlist_track_association: list[PlaylistTracksAssociation] = relationship(
-			'PlaylistTracksAssociation', back_populates='track')
+	playlists: list[PlaylistAssociation] = relationship(
+			'PlaylistAssociation', back_populates='track')
 
 	def __init__(self, track: TrackDict):
 		self.id = track.id
@@ -68,6 +76,10 @@ class Track(TableBase):
 		self.duration_ms = track.duration_ms
 		self.popularity = track.popularity
 		self.is_local = track.is_local
+
+	def update_liked(self, track: LikedTrackItem):
+		self.liked = True
+		self.liked_at = parse_time(track.added_at)
 
 	def __repr__(self):
 		return f'{self.id=}\n{self.name=}\n{self.is_local=}'

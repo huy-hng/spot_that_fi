@@ -1,13 +1,20 @@
 from sqlalchemy.orm import Session
 
-from src.types.playlists import TrackDict
+from src.types.tracks import TrackDict, LikedTrackItem
 from .tables import Track
 from . import SessionMaker
 from src.helpers.logger import log
 from src.db import get_session, _
 
 
-# region create
+@get_session
+def get_track(track_id: str, *, session: Session = _) -> Track:
+	""" returns db object bound to a session
+
+		if track_id doesn't exist, None is returned """
+	return session.query(Track).get(track_id)
+
+
 @get_session
 def add_track(track: TrackDict, liked=False, *, session: Session = _) -> Track | None:
 	""" adds a single track to db (if not already)
@@ -18,12 +25,9 @@ def add_track(track: TrackDict, liked=False, *, session: Session = _) -> Track |
 		# and therefore has no id
 		return None
 
-	if does_track_exist(row.id):
-		try:
-			row: Track = session.query(Track).get(row.id)
-		except Exception as e:
-			log.error(row.name)
-			return None
+	t = get_track(track.id, session=session)
+	if t is not None:
+		row = t
 	else:
 		session.add(row)
 
@@ -39,22 +43,22 @@ def add_tracks(tracks: list[TrackDict], liked=False, *, session: Session = _):
 			continue
 
 		add_track(track, liked, session=session)
-# endregion create
 
+
+
+@get_session
+def like_track(track: LikedTrackItem, *, session: Session = _):
+	row = add_track(track.track, session=session)
+	if row is not None:
+		row.update_liked(track)
 
 # region read
-@get_session
-def get_track(track_id: str, *, session: Session = _):
-	return session.query(Track).get(track_id)
 
 
 @get_session
 def does_track_exist(track_id: str, *, session: Session = _):
-	q = session.query(Track).get(track_id)
-
-	if q is None:
-		return False
-	return True
+	track = get_track(track_id)
+	return track is not None
 
 
 @get_session
