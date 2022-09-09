@@ -5,8 +5,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
 # engine = create_engine('sqlite:///:memory:')
-# engine = create_engine('sqlite:///src/db/Testing.db')
-engine = create_engine('sqlite:///src/db/SpotifyData.db')
+db_path = 'sqlite:///src/db/databases'
+# engine = create_engine(f'{db_path}/Testing.db')
+engine = create_engine(f'{db_path}/SpotifyData.db')
 SessionMaker = sessionmaker(bind=engine)
 Base = declarative_base(bind=engine)
 _: Session = None  # type: ignore
