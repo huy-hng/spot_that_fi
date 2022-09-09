@@ -14,38 +14,47 @@ def get_track(track_id: str, *, session: Session = _) -> TrackTable:
 
 
 @get_session
-def add_track(track: TrackDict, liked=False, *, session: Session = _) -> TrackTable | None:
+def add_track(track: TrackDict, *, session: Session = _) -> TrackTable | None:
 	""" adds a single track to db (if not already)
 			and returns it """
+	t = get_track(track.id)
+	if t is not None:
+		return t
+
 	row = TrackTable(track)
 	if row.id is None:  # TODO whats this case?
 		# this case might be when its a local song that is not on spotify servers
 		# and therefore has no id
 		return None
 
-	t = get_track(track.id, session=session)
-	if t is not None:
-		row = t
-	else:
-		session.add(row)
-
-	row.liked = liked
+	session.add(row)
 	return row
 
 
 @get_session
-def add_tracks(tracks: list[TrackDict], liked=False, *, session: Session = _):
+def add_tracks(tracks: list[TrackDict], *, session: Session = _):
 	""" adds a (liked) track to the database (if not already) """
 	for track in tracks:
 		if track.is_local:
 			continue
 
-		add_track(track, liked, session=session)
+		add_track(track)
 
 
 @get_session
-def like_track(track: LikedTrackItem, *, session: Session = _):
-	row = add_track(track.track, session=session)
+def like_tracks(tracks: list[LikedTrackItem]):
+	i = 0
+	for track in tracks:
+		like_track(track)
+		if i == 3:
+			break
+
+		i+= 1
+
+
+@get_session
+def like_track(track: LikedTrackItem):
+	row = add_track(track.track)
 	if row is not None:
 		row.update_liked(track)
 
@@ -53,7 +62,7 @@ def like_track(track: LikedTrackItem, *, session: Session = _):
 
 
 @get_session
-def does_track_exist(track_id: str, *, session: Session = _):
+def does_track_exist(track_id: str):
 	track = get_track(track_id)
 	return track is not None
 
