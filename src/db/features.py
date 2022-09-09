@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from src import db
 from src.db import _, get_session
-from src.db.tables import Playlist
+from src.db.tables import PlaylistTable
 from src.helpers.logger import log
 
 
@@ -12,7 +12,7 @@ def get_latest_tracks_added_to_playlists(days_old=14, *, session: Session = _):
 	""" returns a list with track_ids that
 		have been recently added to playlists """
 
-	playlists = session.query(Playlist).all()
+	playlists = session.query(PlaylistTable).all()
 	# playlists = 
 
 	latest_tracks: list[str] = []  # list with track_ids

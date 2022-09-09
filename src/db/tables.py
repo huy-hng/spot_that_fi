@@ -5,22 +5,21 @@ from datetime import datetime
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
-from src.db import Base as TableBase
+
+from src.db import Base
 from src.types.playlists import PlaylistTrackItem, PlaylistType, TrackDict
 from src.types.tracks import LikedTrackItem
 
 
-def parse_time(time: str):
-	# TODO: timezones?
-	return datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ')
-
-class PlaylistAssociation(TableBase):
+class PlaylistAssociation(Base):
 	__tablename__ = 'playlist_association'
 
-	playlist_id: str = Column(ForeignKey('playlist.id'), primary_key=True)  # type: ignore
-	track_id: str = Column(ForeignKey('track.id'), primary_key=True)  # type: ignore
-	track: Track = relationship('Track', back_populates='playlists')
-	playlist: Playlist = relationship('Playlist', back_populates='tracks')
+	playlist_id: str = Column(ForeignKey('playlist_table.id'), primary_key=True)  # type: ignore
+	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type: ignore
+
+	track: TrackTable = relationship('TrackTable', back_populates='playlists')
+	playlist: PlaylistTable = relationship(
+		'PlaylistTable', back_populates='tracks')
 
 	added_by: str = Column(String, nullable=False)  # type: ignore
 	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
@@ -32,8 +31,8 @@ class PlaylistAssociation(TableBase):
 		self.added_by = track.added_by['id']
 
 
-class Playlist(TableBase):
-	__tablename__ = 'playlist'
+class PlaylistTable(Base):
+	__tablename__ = 'playlist_table'
 
 	id: str = Column(String, primary_key=True)  # type: ignore
 	name: str = Column(String, nullable=False)  # type: ignore
@@ -43,7 +42,7 @@ class Playlist(TableBase):
 	owner_id: str = Column(String, nullable=False)  # type: ignore
 
 	tracks: list[PlaylistAssociation] = relationship(
-			'PlaylistAssociation', back_populates='playlist')
+            'PlaylistAssociation', back_populates='playlist')
 
 	def __init__(self, playlist: PlaylistType) -> None:
 		self.id = playlist.id
@@ -57,8 +56,8 @@ class Playlist(TableBase):
 		self.owner_id = playlist.owner.id
 
 
-class Track(TableBase):
-	__tablename__ = 'track'
+class TrackTable(Base):
+	__tablename__ = 'track_table'
 
 	id: str = Column(String, primary_key=True)  # type: ignore
 	name: str = Column(String, nullable=False)  # type: ignore
@@ -68,7 +67,7 @@ class Track(TableBase):
 	liked_at: datetime = Column(DateTime)  # type: ignore
 
 	playlists: list[PlaylistAssociation] = relationship(
-			'PlaylistAssociation', back_populates='track')
+            'PlaylistAssociation', back_populates='track')
 
 	def __init__(self, track: TrackDict):
 		self.id = track.id
@@ -83,3 +82,8 @@ class Track(TableBase):
 
 	def __repr__(self):
 		return f'{self.id=}\n{self.name=}\n{self.is_local=}'
+
+
+def parse_time(time: str):
+	# TODO: timezones?
+	return datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ')
