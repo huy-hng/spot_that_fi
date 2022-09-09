@@ -35,7 +35,8 @@ def add_playlist(playlist: PlaylistType, *, session: Session = _):
 @get_session
 def add_playlists(playlists: list[PlaylistType], *, session: Session = _):
 	for playlist in playlists:
-
+		if does_playlist_exist(playlist.id):
+			continue
 		row = PlaylistTable(playlist)
 		session.add(row)
 
