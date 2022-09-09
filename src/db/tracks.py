@@ -1,12 +1,10 @@
-from sqlalchemy.orm import Session
-
-from src.db import _, get_session
+from src.db.session import _, get_session
 from src.db.tables import TrackTable
 from src.types.tracks import LikedTrackItem, TrackDict
 
 
 @get_session
-def get_track(track_id: str, *, session: Session = _) -> TrackTable:
+def get_track(track_id: str, *, session=_) -> TrackTable:
 	""" returns db object bound to a session
 
 		if track_id doesn't exist, None is returned """
@@ -14,7 +12,7 @@ def get_track(track_id: str, *, session: Session = _) -> TrackTable:
 
 
 @get_session
-def add_track(track: TrackDict, *, session: Session = _) -> TrackTable | None:
+def add_track(track: TrackDict, *, session=_) -> TrackTable | None:
 	""" adds a single track to db (if not already)
 			and returns it """
 	t = get_track(track.id)
@@ -32,7 +30,7 @@ def add_track(track: TrackDict, *, session: Session = _) -> TrackTable | None:
 
 
 @get_session
-def add_tracks(tracks: list[TrackDict], *, session: Session = _):
+def add_tracks(tracks: list[TrackDict]):
 	""" adds a (liked) track to the database (if not already) """
 	for track in tracks:
 		if track.is_local:
@@ -61,8 +59,8 @@ def unlike_tracks(track_ids: list[str]):
 
 
 @get_session
-def unlike_track(track_id: str):
-	row: TrackTable = get_track(track_id)
+def unlike_track(track_id: str, *, session=_):
+	row: TrackTable = get_track(track_id, session=session)
 	if row is not None:
 		row.liked_at = None
 		row.liked = False
@@ -77,14 +75,14 @@ def does_track_exist(track_id: str):
 
 
 @get_session
-def get_liked_tracks(*, session: Session = _) -> list[str]:
+def get_liked_tracks(*, session=_) -> list[str]:
 	q: list[TrackTable] = session.query(
 		TrackTable).filter(TrackTable.liked == True).all()
 	return [track.id for track in q]
 
 
 @get_session
-def get_liked_tracks_not_in_playlists(*, session: Session = _) -> list[str]:
+def get_liked_tracks_not_in_playlists(*, session=_) -> list[str]:
 	""" returns a list of track ids that are liked but not in any playlist. """
 
 	# TODO: Track.liked == True filter is not necessary if all
@@ -97,7 +95,7 @@ def get_liked_tracks_not_in_playlists(*, session: Session = _) -> list[str]:
 
 
 @get_session
-def get_not_liked_tracks_in_playlists(*, session: Session = _) -> list[str]:
+def get_not_liked_tracks_in_playlists(*, session=_) -> list[str]:
 	""" returns a list of track ids that are in playlists but not liked """
 	q: list[TrackTable] = session.query(TrackTable).filter(
 		TrackTable.liked == False and TrackTable.playlist_track_association.any()  # type: ignore
