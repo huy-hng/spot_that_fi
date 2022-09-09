@@ -15,6 +15,9 @@ def get_track(track_id: str, *, session=_) -> TrackTable:
 def add_track(track: TrackDict, *, session=_) -> TrackTable | None:
 	""" adds a single track to db (if not already)
 			and returns it """
+	if track.is_local:
+		return
+
 	t = get_track(track.id)
 	if t is not None:
 		return t
@@ -33,9 +36,6 @@ def add_track(track: TrackDict, *, session=_) -> TrackTable | None:
 def add_tracks(tracks: list[TrackDict]):
 	""" adds a (liked) track to the database (if not already) """
 	for track in tracks:
-		if track.is_local:
-			continue
-
 		add_track(track)
 
 
@@ -49,7 +49,7 @@ def like_tracks(tracks: list[LikedTrackItem]):
 def like_track(track: LikedTrackItem):
 	row = add_track(track.track)
 	if row is not None:
-		row.update_liked(track)
+		row.liked_at = track.added_at
 
 
 @get_session
@@ -59,12 +59,10 @@ def unlike_tracks(track_ids: list[str]):
 
 
 @get_session
-def unlike_track(track_id: str, *, session=_):
-	row: TrackTable = get_track(track_id, session=session)
+def unlike_track(track_id: str):
+	row: TrackTable = get_track(track_id)
 	if row is not None:
 		row.liked_at = None
-		row.liked = False
-
 # region read
 
 

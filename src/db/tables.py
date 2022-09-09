@@ -14,17 +14,18 @@ from src.types.tracks import LikedTrackItem
 class PlaylistAssociation(Base):
 	__tablename__ = 'playlist_association'
 
-	playlist_id: str = Column(ForeignKey('playlist_table.id'), primary_key=True)  # type: ignore
-	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type: ignore
-
-	track: TrackTable = relationship('TrackTable', back_populates='playlists')
-	playlist: PlaylistTable = relationship(
-		'PlaylistTable', back_populates='tracks')
-
-	added_by: str = Column(String, nullable=False)  # type: ignore
-	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
 	# TODO: implement default order of playlist
 	order: int = Column(Integer)  # type: ignore
+	
+	added_by: str = Column(String, nullable=False)  # type: ignore
+	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
+
+	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type: ignore
+	track: TrackTable = relationship('TrackTable', back_populates='playlists')
+
+	playlist_id: str = Column(ForeignKey('playlist_table.id'), primary_key=True)  # type: ignore
+	playlist: PlaylistTable = relationship('PlaylistTable', back_populates='tracks')
+
 
 	def __init__(self, track: PlaylistTrackItem):
 		self.added_at = parse_time(track.added_at)
@@ -63,8 +64,8 @@ class TrackTable(Base):
 	name: str = Column(String, nullable=False)  # type: ignore
 	duration_ms: int = Column(Integer, nullable=False)  # type: ignore
 	popularity: int = Column(Integer, nullable=False)  # type: ignore
-	liked: bool = Column(Boolean)  # type: ignore
-	liked_at: datetime = Column(DateTime)  # type: ignore
+
+	_liked_at: datetime | None = Column('liked_at', DateTime)  # type: ignore
 
 	playlists: list[PlaylistAssociation] = relationship(
             'PlaylistAssociation', back_populates='track')
@@ -76,9 +77,16 @@ class TrackTable(Base):
 		self.popularity = track.popularity
 		self.is_local = track.is_local
 
-	def update_liked(self, track: LikedTrackItem):
-		self.liked = True
-		self.liked_at = parse_time(track.added_at)
+	@property
+	def liked_at(self):
+		return self._liked_at
+
+	@liked_at.setter
+	def liked_at(self, added_at: str | None):
+		if added_at is None:
+			self._liked_at = added_at
+		else:
+			self._liked_at = parse_time(added_at)
 
 	def __repr__(self):
 		return f'{self.id=}\n{self.name=}\n{self.is_local=}'
