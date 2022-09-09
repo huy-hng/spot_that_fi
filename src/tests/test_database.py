@@ -22,6 +22,7 @@ def test_add_playlists(playlists_handler: PlaylistsHandler):
 	db.playlists.add_playlists(playlists)
 
 	ids = db.playlists.get_playlist_ids()
+	print(ids)
 	return ids
 
 
