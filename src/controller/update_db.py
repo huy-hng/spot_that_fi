@@ -21,10 +21,10 @@ def update_playlist_tracks_in_db(playlist: PlaylistHandler, diff: pcd.Diff | Non
 	""" playlist should be very up to date """
 	# TEST: check if this function works for an empty playlist that has just been added
 
-	if not pcd.has_playlist_changed(playlist.playlist_data):
+	if not pcd.has_playlist_changed(playlist.data):
 		return
 
-	db.playlists.update_playlists([playlist.playlist_data])
+	db.playlists.update_playlists([playlist.data])
 
 	if diff is None:
 		diff = pcd.get_playlist_diff(playlist)

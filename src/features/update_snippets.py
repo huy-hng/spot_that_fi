@@ -18,8 +18,8 @@ def sync_playlist_pair(
 	# that happened in the playlists. This means update_playlist_tracks_in_db
 	# cannot finish running before this function started
 
-	snippet_changed = pcd.has_playlist_changed(snippet_playlist.playlist_data)
-	main_changed = pcd.has_playlist_changed(main_playlist.playlist_data)
+	snippet_changed = pcd.has_playlist_changed(snippet_playlist.data)
+	main_changed = pcd.has_playlist_changed(main_playlist.data)
 	if not main_changed and snippet_changed:
 		return
 

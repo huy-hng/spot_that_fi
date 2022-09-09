@@ -18,7 +18,7 @@ def has_playlist_changed(playlist: PlaylistType):
 def get_changed_playlists(playlists: list[PlaylistHandler]):
 	""" filteres the playlists param and returns only
 		playlists that changed """
-	return [p for p in playlists if has_playlist_changed(p.playlist_data)]
+	return [p for p in playlists if has_playlist_changed(p.data)]
 
 
 class Diff(NamedTuple):

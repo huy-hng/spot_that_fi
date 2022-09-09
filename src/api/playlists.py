@@ -83,7 +83,7 @@ class PlaylistHandler:
 	on the playlists on spotify.
 	"""
 	def __init__(self, playlist: PlaylistType):
-		self.playlist_data = playlist
+		self.data = playlist
 		self.id = playlist.id
 		self.name = playlist.name
 
