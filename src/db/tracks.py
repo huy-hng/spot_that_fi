@@ -1,5 +1,6 @@
+from src.db.helpers import does_exist
 from src.db.session import _, get_session
-from src.db.tables import TrackTable
+from src.db.tables import LikedTable, TrackTable
 from src.types.tracks import LikedTrackItem, TrackDict
 
 
@@ -46,10 +47,17 @@ def like_tracks(tracks: list[LikedTrackItem]):
 
 
 @get_session
-def like_track(track: LikedTrackItem):
-	row = add_track(track.track)
-	if row is not None:
-		row.liked_at = track.added_at
+def like_track(track: LikedTrackItem, *, session=_):
+	track_id = track.track.id
+	added_at = track.added_at
+
+	if is_track_liked(track_id):
+		return
+
+	add_track(track.track)
+
+	row = LikedTable(track_id, added_at)
+	session.add(row)
 
 
 @get_session
@@ -63,6 +71,23 @@ def unlike_track(track_id: str):
 	row: TrackTable = get_track(track_id)
 	if row is not None:
 		row.liked_at = None
+
+
+@get_session
+def get_liked_track(track_id: str, *, session=_) -> LikedTable:
+	return session.query(LikedTable).get(track_id)
+
+
+@get_session
+def get_liked_tracks(*, session=_) -> list[str]:
+	q: list[LikedTable] = session.query(LikedTable).all()
+	return [track.track_id for track in q]
+
+
+@get_session
+def is_track_liked(track_id: str, *, session=_):
+	liked_track = get_liked_track(track_id)
+	return liked_track is not None
 # region read
 
 
@@ -70,13 +95,6 @@ def unlike_track(track_id: str):
 def does_track_exist(track_id: str):
 	track = get_track(track_id)
 	return track is not None
-
-
-@get_session
-def get_liked_tracks(*, session=_) -> list[str]:
-	q: list[TrackTable] = session.query(
-		TrackTable).filter(TrackTable.liked == True).all()
-	return [track.id for track in q]
 
 
 @get_session
@@ -96,7 +114,7 @@ def get_liked_tracks_not_in_playlists(*, session=_) -> list[str]:
 def get_not_liked_tracks_in_playlists(*, session=_) -> list[str]:
 	""" returns a list of track ids that are in playlists but not liked """
 	q: list[TrackTable] = session.query(TrackTable).filter(
-		TrackTable.liked == False and TrackTable.playlist_track_association.any()  # type: ignore
+		TrackTable.liked == False and TrackTable.playlists.any()  # type: ignore
 	).all()
 	ids = [track.name for track in q]
 	return ids
