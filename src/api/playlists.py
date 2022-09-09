@@ -8,7 +8,7 @@ from src.api import spotify
 from src.types.playlists import PlaylistType, PlaylistTrackItem, PlaylistType, PlaylistTracks
 from src.settings.user_data import get_playlist_user_data
 
-from src.helpers.helpers import clamp, grouper, write_dict_to_file
+from src.helpers.helpers import clamp, grouper, write_data
 from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.logger import log
 

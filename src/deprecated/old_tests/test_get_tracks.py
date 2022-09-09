@@ -1,6 +1,6 @@
 from src import api
 from src.helpers.logger import log
-from src.helpers.helpers import write_dict_to_file, read_dict_from_file
+from src.helpers.helpers import write_data, read_data
 
 
 def test_get_tracks():

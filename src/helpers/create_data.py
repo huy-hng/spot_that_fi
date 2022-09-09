@@ -1,6 +1,6 @@
 import json
 
-from src.helpers.helpers import read_dict_from_file, write_dict_to_file
+from src.helpers.helpers import read_data, write_data
 from src import api
 from src.helpers.logger import log
 
@@ -12,7 +12,7 @@ def write_liked_tracks():
 
 		tracks += batch
 
-	write_dict_to_file('liked_tracks', tracks)
+	write_data('liked_tracks', tracks)
 
 
 def write_tracks_in_playlists():

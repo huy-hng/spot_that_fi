@@ -4,7 +4,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 from src.helpers.exceptions import PlaylistNotFoundError
-from src.helpers.helpers import clamp, write_dict_to_file
+from src.helpers.helpers import clamp, write_data
 from src.types.playlists import PlaylistType
 from src.types.tracks import LikedTrackList
 from dotenv import load_dotenv

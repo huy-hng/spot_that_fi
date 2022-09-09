@@ -5,7 +5,7 @@ import dataclasses
 from src import api
 from src.api.playlists import PlaylistsHandler, get_ids
 from src.tests import PlaylistIDs
-from src.helpers.helpers import write_dict_to_file
+from src.helpers.helpers import write_data
 
 
 def get_liked_tracks():

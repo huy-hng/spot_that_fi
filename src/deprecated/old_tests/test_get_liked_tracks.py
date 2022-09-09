@@ -1,6 +1,6 @@
 from src import api
 from src.helpers.logger import log
-from src.helpers.helpers import write_dict_to_file
+from src.helpers.helpers import write_data
 
 
 def test_get_liked_tracks():

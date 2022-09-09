@@ -17,15 +17,17 @@ def allow_generic_namedtuples():
 
 	NamedTuple.__mro_entries__ = _namedtuple_mro_entries  # type: ignore
 
+
 def clamp(x: int, /, minimum: int, maximum: int):
 	return max(minimum, min(maximum, x))
 
-def write_dict_to_file(name: str, data):
+
+def write_data(name: str, data):
 	with open(f'./data/{name}.json', 'w') as f:
 		f.write(json.dumps(data, indent=2))
 
 
-def read_dict_from_file(name: str):
+def read_data(name: str):
 	with open(f'./data/{name}.json') as f:
 		return json.load(f)
 
