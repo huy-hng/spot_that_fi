@@ -43,13 +43,8 @@ def add_tracks(tracks: list[TrackDict], *, session: Session = _):
 
 @get_session
 def like_tracks(tracks: list[LikedTrackItem]):
-	i = 0
 	for track in tracks:
 		like_track(track)
-		if i == 3:
-			break
-
-		i+= 1
 
 
 @get_session
@@ -57,6 +52,20 @@ def like_track(track: LikedTrackItem):
 	row = add_track(track.track)
 	if row is not None:
 		row.update_liked(track)
+
+
+@get_session
+def unlike_tracks(track_ids: list[str]):
+	for id in track_ids:
+		unlike_track(id)
+
+
+@get_session
+def unlike_track(track_id: str):
+	row: TrackTable = get_track(track_id)
+	if row is not None:
+		row.liked_at = None
+		row.liked = False
 
 # region read
 

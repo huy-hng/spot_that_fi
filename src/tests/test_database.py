@@ -9,12 +9,23 @@ from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
 from src.db import create_session
 from src.helpers.exceptions import PlaylistNotFoundError
-from src.helpers.helpers import write_dict_to_file
+from src.helpers.helpers import write_data
 from src.tests import PlaylistIDs
+from src.tests import mock_api
 from src.types.playlists import PlaylistTrackItem, PlaylistType
 from src.types.tracks import LikedTrackList
 
 # TODO: sample data for testing that stays the same
+
+def test_add_liked_tracks():
+	for items in mock_api.get_liked_tracks_generator():
+		db.tracks.like_tracks(items.items)
+
+
+def test_unlike_tracks():
+	for items in mock_api.get_liked_tracks_generator():
+		ids = [track.id for track in items.tracks]
+		db.tracks.unlike_tracks(ids)
 
 
 def test_add_playlists(playlists_handler: PlaylistsHandler):
@@ -45,16 +56,6 @@ def test_add_playlist_tracks(playlists_handler: PlaylistsHandler):
 		names = db.playlists.get_track_names(id)
 		print(len(names))
 		break
-
-
-def test_add_liked_tracks():
-	with open(f'./data/liked_tracks.json') as f:
-		tracks_data = json.load(f)
-
-	items = LikedTrackList(tracks_data)
-	for track in items.items:
-		db.tracks.like_track(track)
-
 
 
 def test_session(unchanged: PlaylistHandler):
