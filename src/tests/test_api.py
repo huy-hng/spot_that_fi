@@ -1,14 +1,22 @@
+import time
 import pytest
+import dataclasses
 
 from src import api
 from src.api.playlists import PlaylistsHandler, get_ids
 from src.tests import PlaylistIDs
+from src.helpers.helpers import write_dict_to_file
 
 
-def test_get_liked_tracks():
+def get_liked_tracks():
+	responses = []
 	for items in api.get_liked_tracks_generator():
-		# print(items)
+		d = dataclasses.asdict(items)
+		responses.append(d)
+		time.sleep(0.1)
 		break
+
+	# write_dict_to_file('asdict_liked_track_list', responses)
 
 
 def test_get_one_playlist():
