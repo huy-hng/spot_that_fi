@@ -17,6 +17,8 @@ def allow_generic_namedtuples():
 
 	NamedTuple.__mro_entries__ = _namedtuple_mro_entries  # type: ignore
 
+def clamp(x: int, /, minimum: int, maximum: int):
+	return max(minimum, min(maximum, x))
 
 def write_dict_to_file(name: str, data):
 	with open(f'./data/{name}.json', 'w') as f:
