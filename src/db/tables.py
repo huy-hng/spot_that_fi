@@ -3,12 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql.schema import ForeignKey
 
 from src.db.initializer import Base
+from src.helpers.helpers import parse_time
 from src.types.playlists import PlaylistTrackItem, PlaylistType, TrackDict
-from src.types.tracks import LikedTrackItem
 
 
 class PlaylistAssociation(Base):
@@ -20,6 +20,7 @@ class PlaylistAssociation(Base):
 	added_by: str = Column(String, nullable=False)  # type: ignore
 	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
 
+	# REFACTOR: use back_ref?
 	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type: ignore
 	track: TrackTable = relationship('TrackTable', back_populates='playlists')
 
@@ -35,12 +36,13 @@ class PlaylistAssociation(Base):
 class PlaylistTable(Base):
 	__tablename__ = 'playlist_table'
 
-	id: str = Column(String, primary_key=True)  # type: ignore
-	name: str = Column(String, nullable=False)  # type: ignore
-	total_tracks: int = Column(Integer, nullable=False)  # type: ignore
-	public: bool = Column(Boolean, nullable=False)  # type: ignore
-	snapshot_id: str = Column(String, nullable=False)  # type: ignore
-	owner_id: str = Column(String, nullable=False)  # type: ignore
+
+	id: str = Column(String, primary_key=True)			# type: ignore
+	total_tracks: int = Column(Integer, nullable=False)	# type: ignore
+	public: bool = Column(Boolean, nullable=False)		# type: ignore
+	name: str = Column(String, nullable=False)			# type: ignore
+	owner_id: str = Column(String, nullable=False)		# type: ignore
+	snapshot_id: str = Column(String, nullable=False)	# type: ignore
 
 	tracks: list[PlaylistAssociation] = relationship(
             'PlaylistAssociation', back_populates='playlist')
@@ -65,7 +67,7 @@ class TrackTable(Base):
 	duration_ms: int = Column(Integer, nullable=False)  # type: ignore
 	popularity: int = Column(Integer, nullable=False)  # type: ignore
 
-	_liked_at: datetime | None = Column('liked_at', DateTime)  # type: ignore
+	liked: LikedTable  # relationship
 
 	playlists: list[PlaylistAssociation] = relationship(
             'PlaylistAssociation', back_populates='track')
@@ -75,23 +77,28 @@ class TrackTable(Base):
 		self.name = track.name
 		self.duration_ms = track.duration_ms
 		self.popularity = track.popularity
-		self.is_local = track.is_local
+		# self.is_local = track.is_local
+
+	def __repr__(self):
+		return f'{self.id=}\n{self.name=}'
+
+
+class LikedTable(Base):
+	__tablename__ = 'liked_table'
+
+	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type:ignore
+	track: TrackTable = relationship('TrackTable', backref=backref('liked', uselist=False))
+	_liked_at: datetime = Column('liked_at', DateTime, nullable=False)  # type: ignore
+
+	def __init__(self, track_id: str, added_at: str):
+		self.track_id = track_id
+		self.liked_at = added_at
+		
 
 	@property
 	def liked_at(self):
 		return self._liked_at
 
 	@liked_at.setter
-	def liked_at(self, added_at: str | None):
-		if added_at is None:
-			self._liked_at = added_at
-		else:
-			self._liked_at = parse_time(added_at)
-
-	def __repr__(self):
-		return f'{self.id=}\n{self.name=}\n{self.is_local=}'
-
-
-def parse_time(time: str):
-	# TODO: timezones?
-	return datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ')
+	def liked_at(self, added_at: str):
+		self._liked_at = parse_time(added_at)

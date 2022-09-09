@@ -105,17 +105,17 @@ def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem], *,
 	playlist: PlaylistTable = session.query(PlaylistTable).get(playlist_id)
 
 	for track in tracks:
-		row = db.tracks.add_track(track.track)
-		if row is None or row.id is None:
-			continue
-
 		try:
-			if is_track_in_playlist(playlist.id, row.id):
-				log.debug(f'{row.name} is already in {playlist.name}')
+			if is_track_in_playlist(playlist.id, track.track.id):
+				log.debug(f'{track.track.name} is already in {playlist.name}')
 				continue
 		except Exception as e:
 			log.exception(e)  # TODO find out what this error is
 			log.error(f'Not sure what this error is.')
+			continue
+
+		row = db.tracks.add_track(track.track)
+		if row is None or row.id is None:
 			continue
 
 		association = PlaylistAssociation(track)
@@ -155,19 +155,16 @@ def get_track_names(playlist_id: str):
 
 
 @get_session
-def is_track_in_playlist(playlist_id: str, track_id: str):
-	q = get_playlist_track(playlist_id, track_id)
-	return db.helpers.does_exist(q)
-
-
-@get_session
-def get_playlist_track(
-        playlist_id: str,
-        track_id: str, *, session=_):
-
+def get_playlist_track(playlist_id: str, track_id: str, *, session=_):
 	return session.query(PlaylistAssociation).filter(
             PlaylistAssociation.track_id == track_id,
             PlaylistAssociation.playlist_id == playlist_id)
+
+
+@get_session
+def is_track_in_playlist(playlist_id: str, track_id: str):
+	q = get_playlist_track(playlist_id, track_id)
+	return db.helpers.does_exist(q)
 
 
 @get_session

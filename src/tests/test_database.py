@@ -8,6 +8,8 @@ from src import api, db
 from src.api.playlists import PlaylistHandler, PlaylistsHandler, get_names
 from src.controller import playlist_change_detection as pcd
 from src.db import create_session
+from src.db.tables import LikedTable, TrackTable
+from src.db.helpers import does_exist
 from src.helpers.exceptions import PlaylistNotFoundError
 from src.helpers.helpers import write_data
 from src.tests import PlaylistIDs
@@ -17,9 +19,25 @@ from src.types.tracks import LikedTrackList
 
 # TODO: sample data for testing that stays the same
 
+
 def test_add_liked_tracks():
 	for items in mock_api.get_liked_tracks_generator():
 		db.tracks.like_tracks(items.items)
+
+
+def test_get_liked_tracks():
+	ids = db.tracks.get_liked_tracks()
+	assert len(ids) == 3854
+
+
+def test_get_liked_track():
+	track_id = '6Lt7kRIl2Sw9gJtwaTTWZ2'
+	with create_session() as session:
+		q = session.query(TrackTable).filter(TrackTable.liked.has())
+		print(does_exist(q))
+		liked = db.tracks.get_liked_track(track_id, session=session)
+		r = liked.track.liked.track.duration_ms
+		print(r)
 
 
 def test_unlike_tracks():
@@ -38,7 +56,6 @@ def test_add_playlists(playlists_handler: PlaylistsHandler):
 
 
 def test_add_playlist_tracks(playlists_handler: PlaylistsHandler):
-	# playlist_ids = db.playlists.get_playlist_ids()
 	playlist_ids = test_add_playlists(playlists_handler)
 
 	for playlist_id in playlist_ids:

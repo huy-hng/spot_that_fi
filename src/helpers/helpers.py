@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 from typing import Iterable, TypeVar, NamedTuple
 
@@ -16,6 +17,11 @@ def allow_generic_namedtuples():
 		return (_NamedTuple,)
 
 	NamedTuple.__mro_entries__ = _namedtuple_mro_entries  # type: ignore
+
+
+def parse_time(time: str):
+	# TODO: timezones?
+	return datetime.strptime(time, '%Y-%m-%dT%H:%M:%SZ')
 
 
 def clamp(x: int, /, minimum: int, maximum: int):
