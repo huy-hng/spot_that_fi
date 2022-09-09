@@ -6,7 +6,7 @@ from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql.schema import ForeignKey
 
-from src.db import Base
+from src.db.initializer import Base
 from src.types.playlists import PlaylistTrackItem, PlaylistType, TrackDict
 from src.types.tracks import LikedTrackItem
 

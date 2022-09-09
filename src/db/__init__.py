@@ -1,27 +1,17 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, sessionmaker
+"""
+1.	- create declarative_base (without engine)
+	- create sessionmaker (without engine)
+2.	import create_session, get_session
+3.	import src.db files
+4.	(at the latest) create engine and pass to base and sessionmaker
+5.	Base.metadata stuff
+"""
+from sqlalchemy.orm import Session
+from src.db.initializer import configure_db, delete_tables
+from src.db.session import _, create_session, get_session
 
+# delete_tables(engine)
+# engine = engine.get_testing_engine()
+# configure_db(engine)
 
-_: Session = None  # type: ignore
-
-db_path = 'sqlite:///database'
-engine = create_engine('sqlite:///:memory:')
-engine = create_engine(f'{db_path}/SpotifyData.db')
-engine = create_engine(f'{db_path}/Testing.db')
-
-Base = declarative_base()
-SessionMaker = sessionmaker()
-
-from src.db import tables
-from src.db.session import create_session, get_session
-
-def configure():
-	Base.metadata.bind = engine
-	SessionMaker.configure(bind=engine)
-
-configure()  # engine has to be put in before the lines below
-Base.metadata.drop_all()
-Base.metadata.create_all()
-
-from src.db import helpers, playlists, tracks
+from src.db import helpers, playlists, tables, tracks
