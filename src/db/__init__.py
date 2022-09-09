@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 _: Session = None  # type: ignore
 
-db_path = 'sqlite:///src/db/databases'
+db_path = 'sqlite:///database'
 engine = create_engine('sqlite:///:memory:')
 engine = create_engine(f'{db_path}/SpotifyData.db')
 engine = create_engine(f'{db_path}/Testing.db')
