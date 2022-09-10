@@ -42,14 +42,12 @@ def add_tracks(tracks: list[TrackDict]):
 
 @get_session
 def like_tracks(items: LikedTrackList):
-	# FIX: index can also be done by incrementing largeest index in db
-	last_index = items.total - items.offset
-	for i, item in enumerate(items.items):
-		like_track(item, last_index - i)
+	for item in items.items:
+		like_track(item)
 
 
 @get_session
-def like_track(track: LikedTrackItem, index: int, *, session=_):
+def like_track(track: LikedTrackItem, *, session=_):
 	track_id = track.track.id
 	added_at = track.added_at
 
@@ -58,12 +56,12 @@ def like_track(track: LikedTrackItem, index: int, *, session=_):
 
 	add_track(track.track)
 
-	row = LikedTable(track_id, index, added_at)
+	row = LikedTable(track_id, added_at)
 	session.add(row)
 
 
 @get_session
-def relike_track(track: LikedTrackItem, index: int, *, session=_):
+def relike_track(track: LikedTrackItem):
 	track_id = track.track.id
 	added_at = track.added_at
 
@@ -71,7 +69,6 @@ def relike_track(track: LikedTrackItem, index: int, *, session=_):
 	if liked is None:
 		return
 
-	liked.index = index
 	liked.added_at = added_at
 
 
@@ -94,9 +91,15 @@ def get_liked_track(track_id: str, *, session=_) -> LikedTable:
 
 @get_session
 def get_liked_tracks(*, session=_) -> list[str]:
-	order = LikedTable.index.desc()  # type: ignore
+	order = LikedTable._added_at.desc()  # type: ignore
 	q: list[LikedTable] = session.query(LikedTable).order_by(order).all()
 	return [track.track_id for track in q]
+	# return [track.index for track in q]
+
+
+# TODO
+def shift_liked_tracks_index():
+	pass
 
 
 @get_session

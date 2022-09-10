@@ -9,25 +9,40 @@ from src.controller import liked_change_detection as lcd
 
 
 # TODO: remove LikedTable entry and see what happens with TrackTable entry
-def test_add_liked_tracks():
+def test_add_liked_tracks(empty_db):
+# def test_add_liked_tracks():
 	for items in mock_api.get_liked_tracks_generator():
 		db.tracks.like_tracks(items)
 
 
-def test_diff():
+# TODO: use different databases to test different things.
+# this way things are going to be faster
+# ex: a test needs a specific fully populated db, emptying it and populating it
+# 	is very expensinve
+def test_diff(empty_db):
+	# for items in mock_api.get_liked_tracks_generator():
+	# 	db.tracks.like_tracks(items)
 	# test_add_liked_tracks()
-	pass
 	ids = db.tracks.get_liked_tracks()
-	db.tracks.unlike_tracks(ids[:50])
+	# db.tracks.unlike_tracks(ids[30:70])
 
-	lcd.get_diff()
+	# TODO: something is still wrong with the algorithm. It should only have inserts
+	# when tracks are removed with unlike_tracks
+	# testing needs to be done with proper data
+	# i.e. added and removed data from mock_api
+	# this can be achieved by not adding all mock_api data to the db
+	# instead leave some out, which are going to be inserts
+	# and skip some, which are going to be removals
+	diff = lcd.get_diff()
+	print(len(diff.inserts))
+	print(len(diff.removals))
 
 
 @timer
 def test_get_sorted_limited():
 	with create_session() as session:
 		query: list[LikedTable] = session.query(LikedTable).order_by(
-			LikedTable.index.desc()).limit(50).all()  # type: ignore
+			LikedTable._added_at.desc()).limit(50).all()  # type: ignore
 		# for q in query:
 		# 	print(q.index)
 

@@ -86,15 +86,13 @@ class TrackTable(Base):
 class LikedTable(Base):
 	__tablename__ = 'liked_table'
 
-	index: int = Column(Integer, nullable=False)  # type: ignore
 	# FIX? smaller datetime, since resolution is seconds
 	_added_at: datetime = Column('added_at', DateTime, nullable=False)  # type: ignore
 
 	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type:ignore
 	track: TrackTable = relationship('TrackTable', backref=backref('liked', uselist=False))
 
-	def __init__(self, track_id: str, index:int, added_at: str):
-		self.index = index
+	def __init__(self, track_id: str, added_at: str):
 		self.track_id = track_id
 		self.added_at = added_at
 		
