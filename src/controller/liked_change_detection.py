@@ -1,7 +1,8 @@
+from pprint import pprint
 from typing import NamedTuple
 
 from src import db
-from src.helpers.helpers import lookahead
+from src.helpers.helpers import lookahead, timer
 from src.helpers.logger import log
 from src.helpers.myers import Myers
 from src.tests import mock_api as api
@@ -36,14 +37,15 @@ class Diff(NamedTuple):
 	inserts: list[LikedTrackItem] = []
 	removals: list[str] = []
 
-
+@timer
 def get_diff() -> Diff:
 	"""
 	1. check if total liked tracks is different
 	2. do myers with keep first algorithm
 	"""
-
+	# REFACTOR: merge with playlist change detector
 	db_ids = db.tracks.get_liked_tracks()
+	len_db = db.tracks.get_len_liked()
 	saved_items: list[LikedTrackItem] = []
 
 	myers = Myers([''])
@@ -52,21 +54,21 @@ def get_diff() -> Diff:
 		saved_items += items_list.items
 
 		track_ids = [item.track.id for item in saved_items]
-		new_len = db_ids[:len(track_ids)]
-		myers = Myers(db_ids[:len(track_ids)], track_ids)
+		new_len = len(track_ids)
+		myers = Myers(db_ids[:new_len], track_ids)
 
-		fki = myers.first_keep_index if has_next else 0
+		fki = myers.last_keep_index if has_next else 0
 		if fki is not None:  # check to save on iterations
-
-			estimated_total = fki + len(saved_items)
+			# fki = items_list.total - fki
+			estimated_total = fki + (len_db - len(myers.removals))
 			if estimated_total == items_list.total:
 				myers.separate_operations(fki)
 				break
 
-			elif not has_next:
-				log.error('Something is severly wrong here')
-				log.error(f'{db_ids = }')
-				log.error(f'{saved_items = }')
+			# elif not has_next:
+				# log.error('Something is severly wrong here')
+				# log.error(f'{db_ids = }')
+				# log.error(f'{saved_items = }')
 
 	lookup_table = {item.track.id: item for item in saved_items if item}
 	inserts = [lookup_table[line] for line in myers.inserts]

@@ -1,6 +1,8 @@
 from enum import Enum
 from itertools import zip_longest
+import math
 from typing import Generic, NamedTuple, TypeVar
+from difflib import Differ
 
 from src.helpers.helpers import allow_generic_namedtuples
 
@@ -27,21 +29,35 @@ class Myers(Generic[T]):
 		that a_lines doesnt have these items, which means for the sake of
 		syncing, they should be removed from b_lines
 	"""
-	vis_width = 16
-	# TODO: adjust vis_width depending on max length of lines
-	# also adjust ljust and rjust for the formatter
+	max_line_length = 0
 	def __init__(self, a_lines: list[T]=[], b_lines: list[T]=[]):
-		self._a_lines = a_lines
-		self._b_lines = b_lines
-		self.diff = myers_algorithm(a_lines, b_lines)
 
-		self.keeps: list[T] = []
-		self.inserts: list[T] = []
-		self.removals: list[T] = []
+		self._a_lines = [str(line) for line in a_lines]
+		self._b_lines = [str(line) for line in b_lines]
+		# self._a_lines = a_lines
+		# self._b_lines = b_lines
+
+		d = Differ()
+		self._diff = d.compare(self._a_lines, self._b_lines)
+		self.refactor()
+
+		self.keeps: list[str] = []
+		self.inserts: list[str] = []
+		self.removals: list[str] = []
+
+
+	def refactor(self):
+		self.diff = []
+		for line in self._diff:
+			operation = Operations(line[0])
+			val = line[2:]
+			if len(val) > self.max_line_length:
+				self.max_line_length = len(val)
+			wrapped = Element(val, operation)
+			self.diff.append(wrapped)
 
 
 	def separate_operations(self, after_index: int=0):
-
 		for line, operation in self.diff[after_index:]:
 			if operation == Operations.Keep:
 				self.keeps.append(line)
@@ -49,7 +65,6 @@ class Myers(Generic[T]):
 				self.inserts.append(line)
 			elif operation == Operations.Remove:
 				self.removals.append(line)
-
 
 	@property
 	def get_num_elems_after(self):
@@ -74,25 +89,35 @@ class Myers(Generic[T]):
 				return i
 		return None
 
+	@property
+	def last_keep_index(self):
+		for i, elem in enumerate(reversed(self.diff)):
+			if elem.operation == Operations.Keep:
+				return i
+		return None
+
 
 	def get_vis_diff(self, title: str='Difference'):
 		arr: list[str] = []
 
-		formatter = lambda left, right: f'| {left.rjust(5)} | {right.ljust(4)} |'
+		line_length = self.max_line_length + 2
+		whole_length = line_length * 2 + 7
+		
+		formatter = lambda left, right: f'| {left.rjust(line_length)} | {right.ljust(line_length)} |'
 
-		arr.append(self.vis_width*'-')
-		arr.append(f'|{title.center(self.vis_width-2)}|')
-		arr.append(self.vis_width*'-')
+		arr.append(whole_length*'-')
+		arr.append(f'|{title.center(whole_length-2)}|')
+		arr.append(whole_length*'-')
 		for line, operation in self.diff:
 			line = str(line)
-			line = operation.value + line
+			line = f'{operation.value} {line}'
 			if operation == Operations.Keep:
 				arr.append(formatter(line, line))
 			elif operation == Operations.Insert:
 				arr.append(formatter('', line))
 			elif operation == Operations.Remove:
 				arr.append(formatter(line, ''))
-		arr.append(self.vis_width*'-')
+		arr.append(whole_length*'-')
 
 		return arr
 
@@ -104,9 +129,13 @@ class Myers(Generic[T]):
 
 	@classmethod
 	def print_groups(cls, *diffs: list[str], group_size=1, distance=2, print_fn=print):
+
+		# FIX line length
+		line_length = cls.max_line_length + 2
+		whole_length = line_length * 2 + 7
 		for n in range(0, len(diffs), group_size):
 			group = diffs[n:n+group_size]
-			zipped = list(zip_longest(*group, fillvalue=' '*cls.vis_width))
+			zipped = list(zip_longest(*group, fillvalue=' '*whole_length))
 
 			for long_line in zipped:
 				delimiter = ' ' * distance

@@ -1,8 +1,9 @@
 import random
 from dataclasses import dataclass
+from pprint import pprint
 
 import pytest
-from src.helpers.helpers import lookahead
+from src.helpers.helpers import lookahead, timer
 from src.helpers.myers import Myers
 
 
@@ -111,12 +112,12 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	b_myers.separate_operations()
 	ab_myers.separate_operations()
 
-	# Myers.print_groups(
-	# 	a_myers.get_vis_diff('a_lines'),
-	# 	b_myers.get_vis_diff('b_lines'),
-	# 	ab_myers.get_vis_diff('ab_lines'),
-	# 	group_size=3
-	# )
+	Myers.print_groups(
+		a_myers.get_vis_diff('a_lines'),
+		b_myers.get_vis_diff('b_lines'),
+		ab_myers.get_vis_diff('ab_lines'),
+		group_size=3
+	)
 
 	a_result = changer(a_after, b_myers.inserts, b_myers.removals)
 	b_result = a_result[-5:]
@@ -130,6 +131,22 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 	assert a_result == a.expected
 	assert b_result == b.expected
 
+
+@timer
+def test_large_sequence():
+
+	a_lines = list(range(30))
+	b_lines = list(range(20, 40))
+	a_lines.reverse()
+	b_lines.reverse()
+	myers = Myers(a_lines, b_lines)
+	myers.separate_operations()
+	myers.print_diff()
+	# print(myers.removals)
+	# print(myers.inserts)
+	# print(myers.keeps)
+
+	# print(myers.diff)
 
 def random_input():
 	total = 20
