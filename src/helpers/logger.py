@@ -30,7 +30,6 @@ def add_file_handler(level, log_level):
 	handler.setFormatter(formatter)
 	log.addHandler(handler)
 
-
 add_file_handler('debug', logging.DEBUG)
 add_file_handler('info', logging.INFO)
 add_file_handler('error', logging.ERROR)

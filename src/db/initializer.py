@@ -27,6 +27,6 @@ def configure_db(engine: Engine):
 	Base.metadata.create_all()
 
 
-def delete_tables(engine):
+def delete_tables():
 	Base.metadata.drop_all()
 	Base.metadata.create_all()

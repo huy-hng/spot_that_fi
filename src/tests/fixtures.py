@@ -8,11 +8,9 @@ from src.tests import PlaylistIDs
 from src.types.playlists import PlaylistType
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture
 def empty_db():
-	engine = get_testing_engine()
-	configure_db(engine)
-	delete_tables(engine)
+	delete_tables()
 
 
 @pytest.fixture(scope='session')

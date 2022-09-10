@@ -68,11 +68,8 @@ def update_playlists(playlists: list[PlaylistType]):
 
 @get_session
 def delete_playlist(playlist_id: str, *, session=_):
-
-	playlist = session.query(PlaylistTable).filter(
-		PlaylistTable.id == playlist_id)
-
-	playlist.delete()
+	q = session.query(PlaylistTable).filter_by(id=playlist_id)
+	q.delete()
 
 
 @get_session

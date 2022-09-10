@@ -1,6 +1,8 @@
 from datetime import datetime
+import time
+from functools import wraps
 import json
-from typing import Iterable, TypeVar, NamedTuple
+from typing import Callable, Iterable, TypeVar, NamedTuple
 
 
 def allow_generic_namedtuples():
@@ -18,6 +20,16 @@ def allow_generic_namedtuples():
 
 	NamedTuple.__mro_entries__ = _namedtuple_mro_entries  # type: ignore
 
+
+def timer(fn: Callable):
+	@wraps(fn)
+	def wrapper(*args, **kwargs):
+		start = time.perf_counter()
+		result = fn(*args, **kwargs)
+		end = time.perf_counter()
+		print(f'{fn.__name__} took {end-start: 2f} seconds to execute.')
+		return result
+	return wrapper
 
 def parse_time(time: str):
 	# TODO: timezones?

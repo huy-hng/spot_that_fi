@@ -23,11 +23,11 @@ def get_session(fn: Callable):
 	def wrapper(*args, **kwargs):
 		global _session, _parent_function
 		if 'session' in kwargs:
-			log.debug(f"using passed session for '{fn.__name__}'")
+			# log.debug(f"using passed session for '{fn.__name__}'")
 			return fn(*args, **kwargs)
 
 		elif _session is not None:
-			log.debug(f"using '{_parent_function}' session for '{fn.__name__}'")
+			# log.debug(f"using '{_parent_function}' session for '{fn.__name__}'")
 
 			if requires_session:
 				kwargs['session'] = _session
@@ -37,7 +37,7 @@ def get_session(fn: Callable):
 		_parent_function = fn.__name__
 		with SessionMaker.begin() as session:
 			_session = session
-			log.debug(f"creating new session for '{fn.__name__}'")
+			# log.debug(f"creating new session for '{fn.__name__}'")
 
 			if requires_session:
 				kwargs['session'] = session

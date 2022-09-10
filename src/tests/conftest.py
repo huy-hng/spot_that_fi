@@ -17,7 +17,7 @@ def pytest_sessionstart(session):
 	"""
 	engine = get_testing_engine()
 	configure_db(engine)
-	# delete_tables(engine)
+	# delete_tables()
 
 
 def pytest_sessionfinish(session, exitstatus):
