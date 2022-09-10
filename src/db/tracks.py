@@ -1,7 +1,7 @@
 from src.db.helpers import does_exist
 from src.db.session import _, get_session
 from src.db.tables import LikedTable, TrackTable
-from src.types.tracks import LikedTrackItem, TrackDict
+from src.types.tracks import LikedTrackItem, LikedTrackList, TrackDict
 
 
 @get_session
@@ -41,13 +41,15 @@ def add_tracks(tracks: list[TrackDict]):
 
 
 @get_session
-def like_tracks(tracks: list[LikedTrackItem]):
-	for track in tracks:
-		like_track(track)
+def like_tracks(items: LikedTrackList):
+	# FIX: index can also be done by incrementing largeest index in db
+	last_index = items.total - items.offset
+	for i, item in enumerate(items.items):
+		like_track(item, last_index - i)
 
 
 @get_session
-def like_track(track: LikedTrackItem, *, session=_):
+def like_track(track: LikedTrackItem, index: int, *, session=_):
 	track_id = track.track.id
 	added_at = track.added_at
 
@@ -56,8 +58,21 @@ def like_track(track: LikedTrackItem, *, session=_):
 
 	add_track(track.track)
 
-	row = LikedTable(track_id, added_at)
+	row = LikedTable(track_id, index, added_at)
 	session.add(row)
+
+
+@get_session
+def relike_track(track: LikedTrackItem, index: int, *, session=_):
+	track_id = track.track.id
+	added_at = track.added_at
+
+	liked = get_liked_track(track_id)
+	if liked is None:
+		return
+
+	liked.index = index
+	liked.added_at = added_at
 
 
 @get_session
@@ -67,10 +82,9 @@ def unlike_tracks(track_ids: list[str]):
 
 
 @get_session
-def unlike_track(track_id: str):
-	row: TrackTable = get_track(track_id)
-	if row is not None:
-		row.liked_at = None
+def unlike_track(track_id: str, *, session=_):
+	q = session.query(LikedTable).filter_by(track_id=track_id)
+	q.delete()
 
 
 @get_session
@@ -80,15 +94,22 @@ def get_liked_track(track_id: str, *, session=_) -> LikedTable:
 
 @get_session
 def get_liked_tracks(*, session=_) -> list[str]:
-	q: list[LikedTable] = session.query(LikedTable).all()
+	order = LikedTable.index.desc()  # type: ignore
+	q: list[LikedTable] = session.query(LikedTable).order_by(order).all()
 	return [track.track_id for track in q]
 
 
 @get_session
-def is_track_liked(track_id: str, *, session=_):
+def is_track_liked(track_id: str):
 	liked_track = get_liked_track(track_id)
 	return liked_track is not None
 # region read
+
+
+@get_session
+def get_len_liked(*, session=_):
+	# REFACTOR?
+	return session.query(LikedTable).count()
 
 
 @get_session

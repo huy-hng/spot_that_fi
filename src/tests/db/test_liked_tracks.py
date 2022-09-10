@@ -1,34 +1,68 @@
 from src import db
 from src.db import create_session
 from src.db.helpers import does_exist
-from src.db.tables import TrackTable
+from src.db.tables import TrackTable, LikedTable
+from src.helpers.helpers import timer
 from src.tests import mock_api
+from src.types.tracks import LikedTrackItem, LikedTrackList, TrackDict
+from src.controller import liked_change_detection as lcd
 
 
+# TODO: remove LikedTable entry and see what happens with TrackTable entry
 def test_add_liked_tracks():
 	for items in mock_api.get_liked_tracks_generator():
-		db.tracks.like_tracks(items.items)
+		db.tracks.like_tracks(items)
 
 
-def test_get_liked_tracks():
+def test_diff():
+	# test_add_liked_tracks()
+	pass
 	ids = db.tracks.get_liked_tracks()
-	assert len(ids) == 3854
+	db.tracks.unlike_tracks(ids[:50])
+
+	lcd.get_diff()
 
 
-def test_get_liked_track():
+@timer
+def test_get_sorted_limited():
+	with create_session() as session:
+		query: list[LikedTable] = session.query(LikedTable).order_by(
+			LikedTable.index.desc()).limit(50).all()  # type: ignore
+		# for q in query:
+		# 	print(q.index)
+
+
+def test_get_liked_ids():
+	ids = db.tracks.get_liked_tracks()
+	print(ids[0])
+
+
+def test_get_length():
+	len_ids = db.tracks.get_len_liked()
+	assert len_ids == 3854
+
+
+def test_get_one_track():
 	track_id = '6Lt7kRIl2Sw9gJtwaTTWZ2'
 	with create_session() as session:
 		q = session.query(TrackTable).filter(TrackTable.liked.has())
-		print(does_exist(q))
 		liked = db.tracks.get_liked_track(track_id, session=session)
-		r = liked.track.liked.track.duration_ms
-		print(r)
+		r = liked.track.liked.track.id
+		assert r == track_id
 
 
 def test_unlike_tracks():
 	for items in mock_api.get_liked_tracks_generator():
+		db.tracks.like_tracks(items)
+		len_before = db.tracks.get_len_liked()
+
 		ids = [track.id for track in items.tracks]
+
 		db.tracks.unlike_tracks(ids)
+		len_after = db.tracks.get_len_liked()
+		assert len_before - len_after == len(ids)
+
+		break
 
 
 """ deprecated """

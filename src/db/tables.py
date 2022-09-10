@@ -14,19 +14,19 @@ from src.types.playlists import PlaylistTrackItem, PlaylistType, TrackDict
 class PlaylistAssociation(Base):
 	__tablename__ = 'playlist_association'
 
+
+	# REFACTOR?: use back_ref
+	playlist_id: str = Column(ForeignKey('playlist_table.id'), primary_key=True)  # type: ignore
+	playlist: PlaylistTable = relationship('PlaylistTable', back_populates='tracks')
+
+	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type: ignore
+	track: TrackTable = relationship('TrackTable', back_populates='playlists')
+
 	# TODO: implement default order of playlist
 	order: int = Column(Integer)  # type: ignore
 	
 	added_by: str = Column(String, nullable=False)  # type: ignore
 	added_at: datetime = Column(DateTime, nullable=False)  # type: ignore
-
-	# REFACTOR: use back_ref?
-	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type: ignore
-	track: TrackTable = relationship('TrackTable', back_populates='playlists')
-
-	playlist_id: str = Column(ForeignKey('playlist_table.id'), primary_key=True)  # type: ignore
-	playlist: PlaylistTable = relationship('PlaylistTable', back_populates='tracks')
-
 
 	def __init__(self, track: PlaylistTrackItem):
 		self.added_at = parse_time(track.added_at)
@@ -86,19 +86,34 @@ class TrackTable(Base):
 class LikedTable(Base):
 	__tablename__ = 'liked_table'
 
+	index: int = Column(Integer, nullable=False)  # type: ignore
+	# FIX? smaller datetime, since resolution is seconds
+	_added_at: datetime = Column('added_at', DateTime, nullable=False)  # type: ignore
+
 	track_id: str = Column(ForeignKey('track_table.id'), primary_key=True)  # type:ignore
 	track: TrackTable = relationship('TrackTable', backref=backref('liked', uselist=False))
-	_liked_at: datetime = Column('liked_at', DateTime, nullable=False)  # type: ignore
 
-	def __init__(self, track_id: str, added_at: str):
+	def __init__(self, track_id: str, index:int, added_at: str):
+		self.index = index
 		self.track_id = track_id
-		self.liked_at = added_at
+		self.added_at = added_at
 		
-
 	@property
-	def liked_at(self):
-		return self._liked_at
+	def added_at(self):
+		return self._added_at
 
-	@liked_at.setter
-	def liked_at(self, added_at: str):
-		self._liked_at = parse_time(added_at)
+	@added_at.setter
+	def added_at(self, added_at: str):
+		self._added_at = parse_time(added_at)
+
+
+# class TestTable(Base):
+# 	__tablename__ = 'test_table'
+
+# 	# typ = Integer
+# 	# typ = String
+# 	primary = Column(String, primary_key=True)  # type: ignore
+# 	secondary = Column(Integer)  # type: ignore
+
+# 	def __init__(self, prim: int):
+# 		self.primary = str(prim)
