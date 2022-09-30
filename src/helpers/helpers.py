@@ -2,7 +2,7 @@ from datetime import datetime
 import time
 from functools import wraps
 import json
-from typing import Callable, Iterable, TypeVar, NamedTuple
+from typing import Callable, Generator, Iterable, TypeVar, NamedTuple
 
 
 def allow_generic_namedtuples():
@@ -65,7 +65,7 @@ def create_data_class(data: dict):
 T = TypeVar('T')
 
 
-def lookahead(iterable: Iterable[T]):
+def lookahead(iterable: Iterable[T]) -> Generator[tuple[T, bool], None, None]:
 	it = iter(iterable)
 	try:
 		last = next(it)
