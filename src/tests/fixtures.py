@@ -1,3 +1,4 @@
+import shutil
 import json
 
 import pytest
@@ -6,6 +7,13 @@ from src.api.playlists import PlaylistsHandler
 from src.db.initializer import configure_db, delete_tables, get_testing_engine
 from src.tests import PlaylistIDs
 from src.types.playlists import PlaylistType
+
+
+@pytest.fixture
+def liked_db():
+	src = f'./database/test_databases/liked_tracks.db'
+	dst = f'./database/Testing.db'
+	shutil.copyfile(src, dst)
 
 
 @pytest.fixture

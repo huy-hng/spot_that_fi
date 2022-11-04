@@ -2,7 +2,7 @@ from src import db
 from src.db import create_session
 from src.db.helpers import does_exist
 from src.db.tables import TrackTable, LikedTable
-from src.helpers.helpers import timer
+from src.helpers.helpers import read_data, timer
 from src.tests import mock_api
 from src.types.tracks import LikedTrackItem, LikedTrackList, TrackDict
 from src.controller import liked_change_detection as lcd
@@ -15,27 +15,26 @@ def test_add_liked_tracks(empty_db):
 		db.tracks.like_tracks(items)
 
 
-# TODO: use different databases to test different things.
-# this way things are going to be faster
-# ex: a test needs a specific fully populated db, emptying it and populating it
-# 	is very expensinve
-def test_diff(empty_db):
-	# for items in mock_api.get_liked_tracks_generator():
-	# 	db.tracks.like_tracks(items)
-	# test_add_liked_tracks()
-	ids = db.tracks.get_liked_tracks()
-	# db.tracks.unlike_tracks(ids[30:70])
+def test_diff(liked_db):
+	inserts = 51
+	removals = 100
+	def get_liked_tracks_generator():
+		data = read_data('testing_data/all_liked_tracks')
+		del data[3]
+		del data[5]
+		for d in data:
+			d['total'] = d['total'] - removals
 
-	# TODO: something is still wrong with the algorithm. It should only have inserts
-	# when tracks are removed with unlike_tracks
-	# testing needs to be done with proper data
-	# i.e. added and removed data from mock_api
-	# this can be achieved by not adding all mock_api data to the db
-	# instead leave some out, which are going to be inserts
-	# and skip some, which are going to be removals
-	diff = lcd.get_diff()
-	print(len(diff.inserts))
-	print(len(diff.removals))
+		for d in data:
+			yield LikedTrackList(d)
+
+	ids = db.tracks.get_liked_tracks()
+	db.tracks.unlike_tracks(ids[:inserts])
+
+	gen = get_liked_tracks_generator()
+	diff = lcd.get_diff(gen)
+	assert len(diff.inserts) == inserts
+	assert len(diff.removals) == removals
 
 
 @timer

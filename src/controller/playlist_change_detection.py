@@ -1,6 +1,5 @@
-from typing import NamedTuple
-
 from src import db
+from src.controller import Diff
 from src.api.playlists import PlaylistHandler
 from src.helpers.helpers import lookahead
 from src.helpers.logger import log
@@ -19,11 +18,6 @@ def get_changed_playlists(playlists: list[PlaylistHandler]):
 	""" filteres the playlists param and returns only
 		playlists that changed """
 	return [p for p in playlists if has_playlist_changed(p.data)]
-
-
-class Diff(NamedTuple):
-	inserts: list[PlaylistTrackItem] = []
-	removals: list[str] = []
 
 
 def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
