@@ -7,5 +7,3 @@ T = TypeVar('T')
 class Diff(NamedTuple, Generic[T]):
 	inserts: list[T] = []
 	removals: list[str] = []
-
-

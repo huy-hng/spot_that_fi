@@ -41,8 +41,8 @@ def add_tracks(tracks: list[TrackDict]):
 
 
 @get_session
-def like_tracks(items: LikedTrackList):
-	for item in items.items:
+def like_tracks(items: list[LikedTrackItem]):
+	for item in items:
 		like_track(item)
 
 
@@ -91,10 +91,12 @@ def get_liked_track(track_id: str, *, session=_) -> LikedTable:
 
 @get_session
 def get_liked_tracks(*, session=_) -> list[str]:
+	# order = LikedTable._added_at  # type: ignore
 	order = LikedTable._added_at.desc()  # type: ignore
-	q: list[LikedTable] = session.query(LikedTable).order_by(order).all()
+	order2 = LikedTable.track_id.desc()  # type: ignore
+	q: list[LikedTable] = session.query(LikedTable).order_by(order, order2).all()
 	return [track.track_id for track in q]
-	# return [track.index for track in q]
+	# return [track.track.name for track in q]
 
 
 # TODO

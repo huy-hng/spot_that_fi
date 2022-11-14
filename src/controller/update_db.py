@@ -2,19 +2,15 @@ from src import db
 from src import api
 from src.api.playlists import PlaylistHandler, PlaylistsHandler
 from src.controller import playlist_change_detection as pcd
-
+from src.controller import liked_change_detection
+from src.helpers.helpers import write_data
 
 
 def update_db_liked_tracks():
-	""" careful! This iterates though all liked tracks
-			and is therefore very expensive rate limiting wise """
-	# TODO: finish
-	liked_db_tracks = db.tracks.get_liked_tracks()
 	gen = api.get_liked_tracks_generator()
-	# for batch in gen:
-	# 	tracks = batch.tracks
-		
-	# 	db.tracks.add_tracks(tracks, liked=True)
+	diff = liked_change_detection.get_diff(gen)
+	db.tracks.like_tracks(diff.inserts)
+	db.tracks.unlike_tracks(diff.removals)
 
 
 def update_playlist_tracks_in_db(playlist: PlaylistHandler, diff: pcd.Diff | None=None):
@@ -32,7 +28,7 @@ def update_playlist_tracks_in_db(playlist: PlaylistHandler, diff: pcd.Diff | Non
 	db.playlists.add_tracks_to_playlist(playlist.id, diff.inserts)
 	return diff
 
-	
+
 def update_all_playlist_tracks_in_db():
 	playlists = PlaylistsHandler()
 	# changed = pcd.get_changed_playlists(playlists)

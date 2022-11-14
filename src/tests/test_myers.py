@@ -5,6 +5,7 @@ from pprint import pprint
 import pytest
 from src.helpers.helpers import lookahead, timer
 from src.helpers.myers import Myers
+from src.helpers.sequencer import Sequencer
 
 
 def changer(lines: list[int], inserts: list[int], removals: list[int]):
@@ -121,7 +122,7 @@ def test_syncing_of_two_playlists(a: Params, b: Params):
 
 	a_result = changer(a_after, b_myers.inserts, b_myers.removals)
 	b_result = a_result[-5:]
-	# b_result = changer(b_after, a_myers.inserts, a_myers.removals)
+	b_result = changer(b_after, a_myers.inserts, a_myers.removals)
 	print(a.inserts, a.removals)
 	print(b.inserts, b.removals)
 

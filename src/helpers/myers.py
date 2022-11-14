@@ -47,7 +47,7 @@ class Myers(Generic[T]):
 
 
 	def refactor(self):
-		self.diff = []
+		self.diff: list[Element[str]] = []
 		for line in self._diff:
 			operation = Operations(line[0])
 			val = line[2:]
@@ -89,6 +89,7 @@ class Myers(Generic[T]):
 				return i
 		return None
 
+
 	@property
 	def last_keep_index(self):
 		for i, elem in enumerate(reversed(self.diff)):
@@ -102,7 +103,7 @@ class Myers(Generic[T]):
 
 		line_length = self.max_line_length + 2
 		whole_length = line_length * 2 + 7
-		
+
 		formatter = lambda left, right: f'| {left.rjust(line_length)} | {right.ljust(line_length)} |'
 
 		arr.append(whole_length*'-')
@@ -144,7 +145,7 @@ class Myers(Generic[T]):
 			if distance > 2:
 				line_breaks = max(int(distance / 3) - 1, 0)
 				print_fn('\n' * line_breaks)
-	
+
 
 def main():
 	# try:
@@ -175,7 +176,7 @@ def main():
 	myers2.separate_operations()
 	print(myers.keeps)
 	print(myers2.keeps)
-	
+
 
 if __name__ == '__main__':
 	# sys.exit(main())

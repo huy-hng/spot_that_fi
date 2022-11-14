@@ -1,3 +1,4 @@
+from typing import NamedTuple
 from src import db
 from src.controller import Diff
 from src.api.playlists import PlaylistHandler
@@ -20,7 +21,7 @@ def get_changed_playlists(playlists: list[PlaylistHandler]):
 	return [p for p in playlists if has_playlist_changed(p.data)]
 
 
-def get_playlist_diff(playlist: PlaylistHandler) -> Diff:
+def get_playlist_diff(playlist: PlaylistHandler) -> Diff[PlaylistTrackItem]:
 	""" returns the difference between tracks in db and on spotify
 
 	requires playlist to exist in database,

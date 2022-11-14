@@ -35,15 +35,17 @@ def like_tracks(track_ids: list[str]):
 def get_liked_tracks_generator(limit=50):
 	""" returns a generator that loops over liked tracks
 		in reverse chronological order.
-		
+
 		First item in first iteration
 		is the most recently liked track. """
 	offset = 0
 	limit = clamp(limit, 1, 50)
 
+	# res = []
 	while True:
 		items = spotify.current_user_saved_tracks(limit, offset)
 		if items is None: continue
+		# res.append(items)
 		items = LikedTrackList(items)
 		offset += limit
 
@@ -52,6 +54,7 @@ def get_liked_tracks_generator(limit=50):
 		if not items.next:
 			break
 
+	# write_data('testing_data/all_liked_tracks_2022-11-04', res)
 
 def get_one_playlist(playlist_id: str):
 	""" should accept argument as uri, url and id """

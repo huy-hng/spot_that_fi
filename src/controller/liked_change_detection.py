@@ -1,13 +1,14 @@
 from difflib import SequenceMatcher
+from typing import Generator, NamedTuple
 
 from src import db
 from src.controller import Diff
 from src.helpers.helpers import lookahead, timer
 from src.helpers.logger import log
-from src.helpers.myers import Myers
+from src.helpers.myers import Myers, Operations
 from src.helpers.sequencer import Sequencer
 from src.tests import mock_api as api
-from src.types.tracks import LikedTrackItem
+from src.types.tracks import LikedTrackItem, LikedTrackList
 
 
 def has_liked_tracks_changed():
@@ -40,12 +41,14 @@ def has_equal(ops: list[tuple[str, int, int, int, int]]):
 
 
 @timer
-# def get_diff(track_generator: Generator[LikedTrackList, None, None]) -> Diff:
-def get_diff(track_generator) -> Diff:
+def get_diff(track_generator: Generator[LikedTrackList, None, None]) -> Diff[LikedTrackItem]:
 	"""
 	1. check if total liked tracks is different
 	2. do myers with keep first algorithm
 	"""
+	if track_generator is None:
+		track_generator = api.get_liked_tracks_generator()
+
 	log.info('Getting Liked Tracks Diff')
 
 	db_ids = db.tracks.get_liked_tracks()
@@ -56,12 +59,14 @@ def get_diff(track_generator) -> Diff:
 	s = SequenceMatcher(None, db_ids)
 	inserts: list[LikedTrackItem] = []
 	removals: list[str] = []
+	inserts2 = []
 
 	all_inserts_found = False
 	expected_deletes = 0
 
 	for items_list, has_next in lookahead(track_generator):
 		saved_items += items_list.items
+		saved_items.sort(key=lambda x: (x.added_at, x.track.id), reverse=True)
 		track_ids = [item.track.id for item in saved_items]
 
 		s.set_seq2(track_ids)
@@ -80,16 +85,18 @@ def get_diff(track_generator) -> Diff:
 		for tag, i1, i2, j1, j2 in ops:
 			if tag == 'insert':
 				inserts = saved_items[j1:j2]
+				inserts2 = track_ids[j1:j2]
 			if tag == 'delete':
 				removals += db_ids[i1:i2]
-		# 	print('{:7}   a[{}:{}] --> b[{}:{}]'.format(tag, i1, i2, j1, j2))
-		# print('====================')
+			# log.debug('{:7}   a[{}:{}] --> b[{}:{}]'.format(tag, i1, i2, j1, j2))
+
 
 		if not all_inserts_found:
 			# for debugging and checking correctness
 			log.debug(f'{len(inserts)} inserts found.')
 			# log.debug('All inserts found.')
 			all_inserts_found = True
+			log.debug(items_list.total)
 			expected_changes: int = items_list.total - len_db
 			expected_deletes = abs(expected_changes - len(inserts))
 			log.debug(f'Expecting {expected_changes} changes.')
@@ -98,10 +105,12 @@ def get_diff(track_generator) -> Diff:
 		if expected_deletes == len(removals):
 			break
 
+		# log.debug('====================')
+		log.debug(f'{len(removals)} removals found so far.')
+
 		removals = [] # reset removals since it gets appended
 
 	log.debug(f'{len(removals)} removals found.')
-
 	return Diff(inserts, removals)
 
 

@@ -1,8 +1,6 @@
-from src.tests.test_snippet_feature import reset_playlists
-from src.tests.db import test_database
-from src.tests import get_sample_data
+from src.db.initializer import get_production_engine, configure_db
+from src.controller.update_db import update_db_liked_tracks
 
-# reset_playlists()
-test_database.test_get_track_diff()
-# test_database.get_tracks_in_db_playlist()
-# get_sample_data.get_latest_tracks()
+engine = get_production_engine()
+configure_db(engine)
+update_db_liked_tracks()
