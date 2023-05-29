@@ -1,6 +1,7 @@
 from dataclasses import is_dataclass
 from types import GenericAlias
 
+
 def init(self, d: dict):
 	_init(self, d)
 	recursively_set_fields(self, d)
@@ -52,10 +53,3 @@ def recursively_set_fields(self, kwargs):
 		
 		value = parse_values([f.type], value)
 		object.__setattr__(self, f.name, value)
-
-
-from src.types import playlists
-from src.types import tracks
-
-from src.types.playlists import *
-from src.types.tracks import *

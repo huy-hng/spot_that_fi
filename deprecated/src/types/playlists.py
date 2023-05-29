@@ -69,16 +69,10 @@ class PlaylistType:
 	tracks: PlaylistTracks
 	type: str
 	uri: str
-
-	# total_tracks: int | None = field(default=None)
-	total_tracks: int
 	followers: dict | None = field(default=None)  # belongs to SinglePlaylist
 
 	def __init__(self, playlist: dict):
 		init(self, playlist)
-
-	def __post_init__(self):
-		self.total_tracks = self.tracks.total
 
 
 @dataclass(slots=True, frozen=True)

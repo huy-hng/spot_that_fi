@@ -88,11 +88,11 @@ class PlaylistHandler:
 
 	@classmethod
 	def create_from_id(cls, playlist_id: str):
-		playlist = api.get_one_playlist(playlist_id)
+		playlist = api.get_playlist(playlist_id)
 		return cls(playlist)
 
 	def _update_data(self):
-		data = api.get_one_playlist(self.id)
+		data = api.get_playlist(self.id)
 		self.total_tracks = data.tracks.total
 		self.snapshot_id = data.snapshot_id
 
@@ -206,7 +206,7 @@ class PlaylistHandler:
 		group_size = max(0, group_size)
 
 		if position == -1:
-			position = api.get_one_playlist(self.id).tracks.total
+			position = api.get_playlist(self.id).tracks.total
 
 		curr_position = position
 
