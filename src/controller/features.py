@@ -2,15 +2,13 @@ from src import db
 from src.helpers.logger import log
 from src.controller import update_db
 
-""" 
-
+"""
 before each function, update_db_playlists should be called
 so that all operations are up to date with spotify
-
 """
 
 
-def update_liked_tracks_not_in_playlists_playlist():
+def collect_liked_tracks_without_playlist():
 	""" this function updates the playlist that containes songs
 			that are liked, but not in any other playlists
 			(except for this one)\n
@@ -20,7 +18,12 @@ def update_liked_tracks_not_in_playlists_playlist():
 	# TODO: uncomment lines below
 	# update_functions.update_db_liked_tracks()
 	track_ids = db.tracks.get_liked_tracks_not_in_playlists()
-	log.debug(track_ids)
+	for name in track_ids:
+		log.info(name)
+
+	log.info(len(track_ids))
+	# log.debug(track_ids)
+
 	# sp.replace_playlist_tracks(playlist_id, track_ids)
 	
 

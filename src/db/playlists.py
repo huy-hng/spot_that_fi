@@ -43,27 +43,33 @@ def add_playlists(playlists: list[PlaylistType]):
 def update_playlist(playlist: PlaylistType):
 	""" this function updates a playlist in the db
 		it updates the playlist length, snapshot, etc """
-	playlist = get_playlist(playlist.id)
-	if playlist is None:
+	db_playlist: PlaylistTable = get_playlist(playlist.id)
+	if db_playlist is None:
 		raise PlaylistNotFoundError()
-	playlist.update(playlist)
+	db_playlist.update(playlist)
 
 
 @get_session
-def update_playlists(playlists: list[PlaylistType]):
-	""" adds or updates spotify playlist in db """
+def update_playlists(playlists: list[PlaylistType]) -> bool | None:
+	""" adds or updates spotify playlist in db returns
+		None: Playlist doesnt belong to you
+		False: Playlist has been updated
+		True: Playlist has been added """
 	for playlist in playlists:
 		# FIX: remove hardcoded name below
 		if playlist.owner.id != 'slaybesh':
-			log.debug(f'Playlist {playlist.name} belong to you.')
+			log.debug(f'Playlist {playlist.name} doesnt belong to you.')
+			return
 
 		elif does_playlist_exist(playlist.id):
 			log.info(f'Updating playlist: {playlist.name}')
 			update_playlist(playlist)
+			return False
 
 		else:
 			log.info(f'Adding playlist: {playlist.name}')
 			add_playlist(playlist)
+			return True
 
 
 @get_session
@@ -85,9 +91,10 @@ def get_id_from_name(playlist_name: str, *, session=_) -> str:
 
 @get_session
 def get_playlist_snapshot_id(playlist_id: str):
-	playlist = get_playlist(playlist_id)
+	playlist: PlaylistTable = get_playlist(playlist_id)
 	if playlist is None:
-		raise PlaylistNotFoundError()
+		return None
+		# raise PlaylistNotFoundError()
 	return playlist.snapshot_id
 
 
@@ -100,6 +107,9 @@ def does_playlist_exist(playlist_id: str):
 @get_session
 def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem], *, session=_):
 	playlist: PlaylistTable = session.query(PlaylistTable).get(playlist_id)
+	if playlist is None:
+		...
+
 
 	for track in tracks:
 		try:
@@ -107,8 +117,10 @@ def add_tracks_to_playlist(playlist_id: str, tracks: list[PlaylistTrackItem], *,
 				log.debug(f'{track.track.name} is already in {playlist.name}')
 				continue
 		except Exception as e:
+
 			log.exception(e)  # TODO find out what this error is
 			log.error(f'Not sure what this error is.')
+			log.error(f'{playlist}, {track}')
 			continue
 
 		row = db.tracks.add_track(track.track)

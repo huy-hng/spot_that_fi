@@ -14,7 +14,6 @@ from src.types.playlists import PlaylistTrackItem, PlaylistType, TrackDict
 class PlaylistAssociation(Base):
 	__tablename__ = 'playlist_association'
 
-
 	# REFACTOR?: use back_ref
 	playlist_id: str = Column(ForeignKey('playlist_table.id'), primary_key=True)  # type: ignore
 	playlist: PlaylistTable = relationship('PlaylistTable', back_populates='tracks')

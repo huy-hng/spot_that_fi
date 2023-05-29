@@ -14,8 +14,12 @@ def test_add_liked_tracks(empty_db):
 	for items in mock_api.get_liked_tracks_generator():
 		db.tracks.like_tracks(items.items)
 
+
 def test_data_diff():
-	old = read_data('testing_data/all_liked_tracks')
+	"""
+	testing the difference between old and new data
+	"""
+	old = read_data('testing_data/all_liked_tracks_2022-09-08')
 	new = read_data('testing_data/all_liked_tracks_2022-11-04')
 
 	old = [LikedTrackList(d) for d in old]
@@ -36,22 +40,28 @@ def test_data_diff():
 	new_tracks_dict = {track.track.id: track for track in new_tracks}
 	# print(new_tracks_dict)
 
+
 	print(len(old_tracks))
+	some_string = 'asdf'
+	# some_string.
 	old_track_ids = [track.track.id for track in old_tracks]
 	new_track_ids = [track.track.id for track in new_tracks]
 	myers = Myers(old_track_ids, new_track_ids)
 	myers.print_diff()
 	for d in myers.diff:
+		if d.operation == Operations.:
+			...
 		if d.operation == Operations.Remove:
 			o = old_tracks_dict.get(d.line)
+			assert o is not None
 			print(o.track.id)
-			# n = new_tracks_dict.get(d.line)
+			
+			# n = new_tracks_dict[d.line]
 			# if o is not None:
 			# 	print(o.added_at)
 			# 	print(n.track.name)
 			# print(n.added_at)
 			# print()
-
 
 
 def test_diff(liked_db):
@@ -115,7 +125,7 @@ def test_get_one_track():
 
 def test_unlike_tracks():
 	for items in mock_api.get_liked_tracks_generator():
-		db.tracks.like_tracks(items)
+		db.tracks.like_tracks(items.items)
 		len_before = db.tracks.get_len_liked()
 
 		ids = [track.id for track in items.tracks]

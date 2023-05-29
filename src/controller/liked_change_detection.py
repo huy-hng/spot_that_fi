@@ -23,7 +23,7 @@ def has_liked_tracks_changed():
 		but theres one new insertion
 		this can be accounted for by checking if the inserted songs are in the db
 		if yes then it has been unliked and reliked
-	- so if there are not new insertions and total is the same, nothing changed
+	- so if there are no new insertions and the total is the same, nothing changed
 
 	"""
 	items = next(api.get_liked_tracks_generator())

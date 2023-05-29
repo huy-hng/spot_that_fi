@@ -3,6 +3,8 @@ from src import db
 from src.controller import Diff
 from src.api.playlists import PlaylistHandler
 from src.helpers.helpers import lookahead
+from src.helpers.exceptions import PlaylistNotFoundError
+
 from src.helpers.logger import log
 from src.helpers.myers import Myers
 from src.types.playlists import PlaylistTrackItem, PlaylistType
@@ -28,7 +30,11 @@ def get_playlist_diff(playlist: PlaylistHandler) -> Diff[PlaylistTrackItem]:
 	raises PlaylistNotFoundError if not found
 	"""
 
-	db_track_list = db.playlists.get_track_ids(playlist.id)
+	try:
+		db_track_list = db.playlists.get_track_ids(playlist.id)
+	except PlaylistNotFoundError:
+		db_track_list = []
+
 	saved_items: list[PlaylistTrackItem] = []
 
 	myers = Myers(db_track_list)
@@ -53,6 +59,7 @@ def get_playlist_diff(playlist: PlaylistHandler) -> Diff[PlaylistTrackItem]:
 				log.error(f'{saved_items = }')
 
 	lookup_table = {item.track.id: item for item in saved_items if item}
+	# print(myers.inserts)
 	inserts = [lookup_table[line] for line in myers.inserts]
 
 	return Diff(inserts, myers.removals)
