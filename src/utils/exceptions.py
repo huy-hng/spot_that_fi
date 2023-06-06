@@ -1,4 +1,3 @@
-
 class PlaylistNotFoundError(Exception):
 	""" this gets raised if a playlist could not be found 
 		on spotify or in a database with either name or id """

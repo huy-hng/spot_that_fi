@@ -8,7 +8,7 @@ if not os.path.isdir(folder_path):
 	os.mkdir(folder_path)
 
 log = logging.getLogger('My Logger')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 formatter = logging.Formatter(
 	'%(levelname)7s|%(asctime)s|%(funcName)20s()|line %(lineno)3s|%(message)3s',

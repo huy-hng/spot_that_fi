@@ -98,7 +98,7 @@ def add_playlists():
 def get_playlist_tracks(playlist_name: str):
 	playlist_id = db.playlists.get_id_from_name(playlist_name)
 	playlist = db.playlists.get_playlist(playlist_id)
-	associations: list[db.tables.PlaylistAssociation] = playlist.tracks
+	associations: list[db.tables.PlaylistTracksTable] = playlist.tracks
 	associations.sort(key=lambda x: x.added_at)
 	# sorted(associations/, )
 

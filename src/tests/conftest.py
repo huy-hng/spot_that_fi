@@ -1,5 +1,5 @@
 from src.db.initializer import configure_db, delete_tables, get_testing_engine
-from src.tests.fixtures import *
+# from src.tests.fixtures import *
 
 
 def pytest_configure(config):

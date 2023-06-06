@@ -1,10 +1,9 @@
 from enum import Enum
 from itertools import zip_longest
-import math
 from typing import Generic, NamedTuple, TypeVar
 from difflib import Differ
 
-from src.helpers.helpers import allow_generic_namedtuples
+from src.utils import allow_generic_namedtuples
 
 
 allow_generic_namedtuples()

@@ -6,7 +6,7 @@ from src import types
 from src import log
 
 from src.api.connection import spotify
-from src.exceptions import PlaylistNotFoundError
+from src import exceptions 
 from src.settings import user_data
 
 '''
@@ -71,14 +71,14 @@ class PlaylistsManager:
 	def get_by_id(self, playlist_id: str):
 		index = self.ids.get(playlist_id)
 		if index is None:
-			raise PlaylistNotFoundError('Playlist id does not exist.')
+			raise exceptions.PlaylistNotFoundError('Playlist id does not exist.')
 
 		return self.playlists[index]
 
 	def get_by_name(self, name: str):
 		index = self.names.get(name)
 		if index is None:
-			raise PlaylistNotFoundError('Playlist Name does not exist.')
+			raise exceptions.PlaylistNotFoundError('Playlist Name does not exist.')
 
 		return self.playlists[index]
 
@@ -202,10 +202,8 @@ def get_playlist_track_generator(playlist: types.PlaylistType, *, limit=100):
 
 
 def get_latest_playlist_tracks(playlist: types.PlaylistType,
-					  amount_tracks: int = 0,
-					  limit=100
-	) -> list[types.PlaylistTrackItem]:
-
+							   amount_tracks: int = 0,
+							   limit=100) -> list[types.PlaylistTrackItem]:
 	'''
 	returns the latest n songs in playlist in added order.
 	That means the latest added song is at the end of the list\n
@@ -228,11 +226,10 @@ def get_latest_playlist_tracks(playlist: types.PlaylistType,
 
 
 def add_tracks_at_end_of_playlist(playlist_id,
-					  tracks: list[types.PlaylistTrackItem] | list[str],
-					  position: int = -1,
-					  group_size: int = 1,
-					  add_duplicates: bool = False
-	):
+								  tracks: list[types.PlaylistTrackItem] | list[str],
+								  position: int = -1,
+								  group_size: int = 1,
+								  add_duplicates: bool = False):
 	'''
 	Adds tracks to playlist. 
 
@@ -267,7 +264,10 @@ def add_tracks_at_end_of_playlist(playlist_id,
 	group_size = max(0, group_size)
 
 	if position == -1:
-		position = get_playlist(playlist_id).tracks.total
+		playlist = get_playlist(playlist_id)
+		if not playlist: return 
+
+		position = playlist.tracks.total
 
 	curr_position = position
 

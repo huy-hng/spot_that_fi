@@ -16,10 +16,11 @@ class PlaylistOwner:
 
 @dataclass(slots=True, frozen=True)
 class PlaylistTrackItem:
-	"""
-		api_handler.get_one_playlist.tracks.items_[0] \n
-		when getting a single playlist: playlist.tracks.items[0]
-	"""
+	'''
+	`api_handler.get_one_playlist.tracks.items_[0]`
+
+	when getting a single playlist: `playlist.tracks.items[0]`
+	'''
 	added_at: str
 	added_by: dict
 	is_local: bool
@@ -33,7 +34,7 @@ class PlaylistTrackItem:
 
 @dataclass(slots=True, frozen=True)
 class PlaylistTracks:
-	""" api_handler.get_one_playlist.tracks """
+	''' api_handler.get_one_playlist.tracks '''
 	href: str = field(repr=False)
 	total: int
 
@@ -70,8 +71,7 @@ class PlaylistType:
 	type: str
 	uri: str
 
-	# total_tracks: int | None = field(default=None)
-	total_tracks: int
+	total_tracks: int | None = field(default=None)
 	followers: dict | None = field(default=None)  # belongs to SinglePlaylist
 
 	def __init__(self, playlist: dict):
@@ -83,7 +83,7 @@ class PlaylistType:
 
 @dataclass(slots=True, frozen=True)
 class _CurrentUserPlaylists:
-	""" for reference when calling sp.current_user_playlists """
+	''' for reference when calling sp.current_user_playlists '''
 	href: str
 	items: list[PlaylistType]
 	limit: int
